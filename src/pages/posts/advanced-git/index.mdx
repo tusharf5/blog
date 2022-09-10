@@ -1,6 +1,6 @@
 ---
 layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-02-09'
+publishedAt: '2019-05-12'
 title: 'Advanced Git'
 uid: 'advanced-git'
 category: 'Devbits'
@@ -212,17 +212,17 @@ This command will push the new changes to the latest commit without creating a n
 
 If we want to know who most recently modified some particular line in a file. We can use the git blame command.
 
-`git blame \<filename>`
+`git blame <filename>`
 
 and it will show a list of commits like this
 
 ```shell
-a338528e (Tushar Sharma     2018-08-29 15:28:10 +0530   1) {
-a338528e (Tushar Sharma     2018-08-29 15:28:10 +0530   2)   "name": "sample-app",
-a338528e (Tushar Sharma     2018-08-29 15:28:10 +0530   3)   "version": "1.2.4",
-a338528e (Tushar Sharma     2018-08-29 15:28:10 +0530   4)   "description": "Sample App",
-a338528e (Tushar Sharma     2018-08-29 15:28:10 +0530   5)   "private": true,
-a338528e (Tushar Sharma     2018-08-29 15:28:10 +0530   6)   "engines": {
+a338528e {
+a338528e   "name": "sample-app",
+a338528e   "version": "1.2.4",
+a338528e   "description": "Sample App",
+a338528e   "private": true,
+a338528e   "engines": {
 ```
 
 To see more infor about a commit you can then use its `id` to log it.
@@ -237,13 +237,13 @@ This command will remove the latest commit on your local branch but it will keep
 
 To remove the changes also use the `--hard` flag with reset.
 
-`git reset --hard \<commitID>`
+`git reset --hard <commitID>`
 
 This command will wipe out all the commits up until the commit id provided and brings the **HEAD** to this commit id.
 
 ## Undo A Commit
 
-`git revert \<commitId>`
+`git revert <commitId>`
 
 This command will undo all the changes stored in the provided commit id and make a new commit of those changes.
 So if you added 4 new lines in your file in a commit and you rever that commit. Git will remove those 4 lines in a new commit.

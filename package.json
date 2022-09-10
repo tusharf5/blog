@@ -8,7 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "prettier:fix": "npx prettier --write '**/*.{ts,astro,js,json,yml,yaml,md}'"
+    "prettier:fix": "npx prettier --write '**/*.{ts,astro,js,json,yml,yaml,md,scss,css}'"
   },
   "dependencies": {
     "@astrojs/mdx": "0.11.1",

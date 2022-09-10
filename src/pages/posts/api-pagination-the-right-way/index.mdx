@@ -1,6 +1,6 @@
 ---
 layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-02-09'
+publishedAt: '2020-01-13'
 uid: 'api-pagination-the-right-way'
 title: "It's 2020 and We're Still Doing Pagination The Wrong Way"
 category: 'General'
@@ -108,7 +108,7 @@ db.users.find({}).skip(0).limit(100);
 
 The database engine analyzes the query and concludes what it needs to do.
 
-- Fetch records from the storage without any condition. `find(\{})`
+- Fetch records from the storage without any condition. `find({})`
 - From the fetched records skip **0** records. `skip(0)`
 - Only return the **100** records back. `limit(100)`
 
@@ -122,7 +122,7 @@ db.users.find({}).skip(500).limit(100);
 
 The database needs to
 
-- Fetch records from the storage without any condition. `find(\{})`
+- Fetch records from the storage without any condition. `find({})`
 - From the fetched records skip **500** records. `skip(500)`
 - Only return **100** records back. `limit(100)`
 
@@ -204,11 +204,11 @@ res.send({
 
 When the server receives this request `https://api.restorrent.com/v1/users` i.e without a `next_cursor` value. It defaults the value of `next_cursor` to **1**.
 
-The server sends out this database query `db.users.find(\{ _id: \{ $gte: 1 } }).limit(101);`
+The server sends out this database query `db.users.find({ _id: { $gte: 1 } }).limit(101);`
 
 The database analyzes the query and concludes what it needs to do.
 
-- Fetch records from the storage with a specific condition. `find(\{ _id: \{ $gte: 1 } })`
+- Fetch records from the storage with a specific condition. `find({ _id: { $gte: 1 } })`
 - Only return the **100** records back. `limit(101)`
 
 When the above two conditions are combined the database makes an intelligent decision of **only finding** 100 records that match the `find` criteria. Since the `_id_` field is indexed, the database first queries the index stored inside the RAM to directly access the node with record `_id` greater than or equal to **1** which is extremely fast since it is sorted. Then the database will fetch those matched records from the disk. In total, the database would only fetch **101** records from the disk.
@@ -217,11 +217,11 @@ Why 101? when we only required 100 records. The extra record outside of the limi
 
 To get the next set of users the API consumer must provide the `next_cursor` value, in the next request to the API server.
 
-So we send a request by calling the endpoint `https://api.restorrent.com/v1/users?next_cursor=101`. The server sends the database this query `db.users.find(\{ _id: \{ $gte: 101 } }).limit(101);`
+So we send a request by calling the endpoint `https://api.restorrent.com/v1/users?next_cursor=101`. The server sends the database this query `db.users.find({ _id: { $gte: 101 } }).limit(101);`
 
 The database analyzes the query and concludes what it needs to do.
 
-- Fetch records from the storage with a specific condition. `find(\{ _id: \{ $gte: 101 } })`
+- Fetch records from the storage with a specific condition. `find({ _id: { $gte: 101 } })`
 - Only return the **100** records back. `limit(101)`
 
 When the above two conditions are combined the database makes an intelligent decision of **only finding** 100 records that match the `find` criteria. Since the `_id_` field is indexed, the database first queries the index stored inside the RAM to directly access the node with record `_id` as **101** and then **100** subsequent nodes that will be next to it that are all greater than **101** as they are sorted. Then the database will fetch those records from the disk. In , the database would fetch **101** records from the disk.

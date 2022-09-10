@@ -1,6 +1,6 @@
 ---
 layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-02-09'
+publishedAt: '2019-03-29'
 title: 'MongoDB - Update And Query Operators for Arrays'
 category: 'MongoDB'
 uid: 'mongodb-update-and-query-operators-for-arrays'
@@ -662,8 +662,7 @@ db.posts.updateMany(
 
 Now _all the comments_ on the _post with id '1234'_ will have a `version: 'v1'` property.
 
-> \$[] works correctly only with **updateMany** method or **\{multi: true}** option as it
-> tends to update more than one element.
+> $[] works correctly only with updateMany method or `multi: true` option as it tends to update more than one element.
 
 _Things get a little trickier from here._
 
@@ -680,7 +679,7 @@ db.posts.update(
 );
 ```
 
-> **\{ multi: true }** applies the action on all of the matched documents. You can also use **updateMany** method instead.
+> `multi: true` applies the action on all of the matched documents. You can also use **updateMany** method instead.
 
 This command looks pretty good. Update the **isGuest** field to false in all the comments where name is John.
 
@@ -891,7 +890,7 @@ It is similar to performing `result.map(e => updateElement(e))` where we are upd
 the query result.
 
 What we need to do is update based on some condition **i.e**
-`result.map(e => \{ if(e.name === 'John') \{ return updateElement(e); } else \{ return e; } })`
+`result.map(e => { if(e.name === 'John') { return updateElement(e); } else { return e; } })`
 
 ### \$[indentifier] operator to the rescue
 
@@ -903,8 +902,7 @@ db.posts.update(
 );
 ```
 
-When updating array elements, MongoDB will check the _\{ 'e.name': 'John' }_ condition for each array element and only update the element
-if it is true.
+When updating array elements, MongoDB will check the `{ "e.name": "John" }` condition for each array element and only update the element if it is true.
 
 ```shell {2}
 db.posts.update(

@@ -326,6 +326,7 @@
     }
 
     & > code,
+    & > p  code,
     & > tt {
       margin: 0 2px;
       padding: 2px 4px;
@@ -333,20 +334,17 @@
     }
 
     & > pre {
-      background-color: var(--pre-bg) !important;
+      box-shadow: 0px 0px 0px 30px var(--pre-bg);
+      margin: 1.5em 0;
+      background-color: #1c2022;
       overflow: hidden !important;
-      margin-bottom: 1.5em;
-      margin-top: 1.5em;
-      padding: 1.8em;
+      padding: 1.5em;
       border-radius: 6px;
     }
 
     & > pre > code {
-      background-color: #1c2022;
       display: block;
       font-size: 85%;
-      padding: 0.8em;
-        border-radius: 8px;
       overflow: auto;
       max-height: 600px;
     }
@@ -365,7 +363,21 @@
       white-space: pre-wrap;
     }
 
+    pre + p::before {
+      content: "";
+        display: block;
+        padding: 1em 0;
+    }
+
+    p + pre {
+      content: "";
+            margin-top: 2.5em;
+    }
+
+  
     img {
+      box-shadow: 0px 0px 0px 30px var(--pre-bg);
+      margin: 1.5em 0;
       max-width: 100%;
       border-radius: 6px;
     }
