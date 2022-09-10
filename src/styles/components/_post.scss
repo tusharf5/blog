@@ -6,7 +6,8 @@
 
   .markdown-body {
     width: 100%;
-
+    display: flex;
+    flex-direction: column;
     > p:first-child:initial-letter {
       font-size: 120%;
     }
@@ -159,7 +160,7 @@
     p,
     table,
     ul {
-      margin: 1em 0;
+      margin: 0.5em 0;
     }
 
     li > ol,
@@ -227,7 +228,7 @@
       background-color: var(--blockquote-bg-color-primary);
       box-shadow: 0 0 10px 10px var(--blockquote-bg-color-primary);
       border-radius: 4px;
-      margin: 0 -24px;
+      margin: 0.5em -24px;
       border: 2px solid currentColor;
     }
 
@@ -326,7 +327,7 @@
     }
 
     & > code,
-    & > p  code,
+    & > p code,
     & > tt {
       margin: 0 2px;
       padding: 2px 4px;
@@ -335,17 +336,12 @@
 
     & > pre {
       box-shadow: 0px 0px 0px 30px var(--pre-bg);
-      margin: 1.5em 0;
-      background-color: #1c2022;
-      overflow: hidden !important;
-      padding: 1.5em;
-      border-radius: 6px;
-    }
-
-    & > pre > code {
-      display: block;
-      font-size: 85%;
+      margin: 2.5em 0;
+      background-color: #1c2022 !important;
       overflow: auto;
+      padding: 1.5em;
+      font-size: 0.8em;
+      border-radius: 6px;
       max-height: 600px;
     }
 
@@ -363,32 +359,11 @@
       white-space: pre-wrap;
     }
 
-    pre + p::before {
-      content: "";
-        display: block;
-        padding: 1em 0;
-    }
-
-    p + pre {
-      content: "";
-            margin-top: 2.5em;
-    }
-
-  
     img {
       box-shadow: 0px 0px 0px 30px var(--pre-bg);
-      margin: 1.5em 0;
       max-width: 100%;
+      margin: 2.5em auto;
       border-radius: 6px;
-    }
-
-    img > .md-meta {
-      border: 1px solid #ddd;
-      border-radius: 3px;
-      font-family: var(--code-font-family);
-      padding: 2px 4px 0;
-      font-size: 0.9em;
-      color: inherit;
     }
 
     b,
