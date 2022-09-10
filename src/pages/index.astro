@@ -1,0 +1,52 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import HomeHeader from '../components/HomeHeader.astro';
+
+const posts = (await Astro.glob('./posts/**/*.{md,mdx}'))
+  .filter((p) => !p.frontmatter.draft)
+  .sort(
+    (a, b) =>
+      new Date(b.frontmatter.publishedAt).valueOf() -
+      new Date(a.frontmatter.publishedAt).valueOf()
+  );
+---
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <BaseHead
+      title="Home"
+      parent="tusharf5.com"
+      description="Welcome"
+      keywords={['tech']}
+    />
+    <style lang="scss">
+      @import '../styles/home.scss';
+    </style>
+  </head>
+
+  <body>
+    <HomeHeader />
+    <main class="index">
+      <ul>
+        {
+          posts.map((post) => (
+            <li>
+              <div class="post-snippet">
+                <h2>
+                  <a href={`/posts/${post.frontmatter.uid}`}>
+                    {post.frontmatter.title}
+                  </a>
+                </h2>
+                <p>{post.frontmatter.excerpt}</p>
+                <a class="readmore" href={`/posts/${post.frontmatter.uid}`}>
+                  Read more <span>→</span>
+                </a>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </main>
+  </body>
+</html>

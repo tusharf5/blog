@@ -1,0 +1,23 @@
+{
+  "name": "@example/blog",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "prettier:fix": "npx prettier --write '**/*.{ts,astro,js,json,yml,yaml,md}'"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "0.11.1",
+    "@astrojs/sitemap": "1.0.0",
+    "astro": "1.2.1",
+    "dynamic-class-list": "2.0.1"
+  },
+  "devDependencies": {
+    "prettier": "^2.7.1",
+    "sass": "^1.54.8"
+  }
+}

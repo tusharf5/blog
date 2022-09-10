@@ -1,0 +1,11 @@
+---
+import { cl } from 'dynamic-class-list';
+
+export interface Props {
+  type: string;
+}
+
+const { type } = Astro.props;
+---
+
+<div class={cl('post-note-box', type)}></div>

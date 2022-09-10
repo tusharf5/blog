@@ -1,0 +1,27 @@
+---
+export interface Props {
+  title: string;
+  parent?: string;
+  description: string;
+  keywords: string[];
+}
+
+// Astro.url.pathname;
+
+const { title, parent, description, keywords } = Astro.props;
+---
+
+<meta charset="utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, shrink-to-fit=no"
+/>
+<title>{title}{parent ? ` | ${parent}` : ''}</title>
+<meta name="description" content={description} />
+<meta name="keywords" content={keywords.join(', ')} />
+<meta name="theme-color" content="#2b2b2b" />
+
+<style lang="scss">
+  @import '../styles/global.scss';
+</style>

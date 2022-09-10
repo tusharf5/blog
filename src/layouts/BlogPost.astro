@@ -1,0 +1,43 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import HomeHeader from '../components/HomeHeader.astro';
+
+export interface Props {
+  content: {
+    title: string;
+    uid: string;
+    publishedAt: string;
+    category: string;
+    excerpt: string;
+    tags: string[];
+  };
+}
+
+const {
+  content: { title, uid, excerpt, tags, category, publishedAt },
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <BaseHead
+      title={title}
+      parent={category}
+      description={excerpt}
+      keywords={tags}
+    />
+    <style lang="scss">
+      @import '../styles/post.scss';
+    </style>
+  </head>
+  <body>
+    <HomeHeader />
+    <main class="blog-article">
+      <article class="markdown-body">
+        <h1>{title}</h1>
+        <slot />
+      </article>
+    </main>
+  </body>
+</html>

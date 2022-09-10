@@ -1,0 +1,34 @@
+.post-snippet {
+  h2 {
+    margin-bottom: 0;
+    font-size: 1.3em;
+    font-weight: 400;
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+  p {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    max-width: 86%;
+    color: #7a7e82;
+    font-size: 0.9em;
+    letter-spacing: 0.2px;
+  }
+  .readmore {
+    font-size: 0.9em;
+    text-decoration: none;
+    vertical-align: middle;
+    span {
+      display: inline-block;
+      transition: transform 300ms ease-in-out;
+      vertical-align: middle;
+    }
+    &:hover {
+      span {
+        transform: translateX(4px);
+      }
+    }
+  }
+}
