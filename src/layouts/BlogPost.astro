@@ -2,6 +2,8 @@
 import BaseHead from '../components/BaseHead.astro';
 import HomeHeader from '../components/HomeHeader.astro';
 
+import emptyHeart from '../images/blog/heart-empty.svg';
+
 export interface Props {
   content: {
     title: string;
@@ -11,6 +13,11 @@ export interface Props {
     excerpt: string;
     tags: string[];
   };
+}
+
+interface Likes {
+  id: string;
+  count: number;
 }
 
 const {
@@ -34,10 +41,113 @@ const {
   <body>
     <HomeHeader />
     <main class="blog-article">
-      <article class="markdown-body">
+      <article id={uid} class="markdown-body">
         <h1>{title}</h1>
         <slot />
       </article>
     </main>
+    <footer class="footer">
+      <div class="social-react">
+        <img id={`${uid}-like-icon`} alt="heart like" src={emptyHeart} />
+        <span id={`${uid}-count`}></span>
+      </div>
+      <div class="social-share">
+        <div class="line"></div>
+        <div class="links">
+          <a
+            href="https://twitter.com/tusharf5?ref_src=twsrc%5Etfw"
+            class="twitter-follow-button"
+            data-show-count="true"
+            data-dnt="true"
+          >
+            Follow
+          </a>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const article = document.body
+        ?.getElementsByTagName('article')[0]
+        ?.getAttribute('id');
+      const countEl = document.getElementById(`${article}-count`);
+      if (countEl) {
+        fetch(
+          `https://27jnn5jki9.execute-api.eu-central-1.amazonaws.com/prod/likes?id=${article}`
+        )
+          .then((res) => res.json())
+          .then((resp) => {
+            if (resp?.count) {
+              countEl.textContent = resp.count;
+            }
+          })
+          .catch((e) => undefined);
+      }
+    </script>
+    <script>
+      const article = document.body
+        ?.getElementsByTagName('article')[0]
+        ?.getAttribute('id');
+
+      const userId = window.localStorage.getItem('tusharsharma::uuid');
+      const iconEl = document.getElementById(`${article}-like-icon`);
+      const countEl = document.getElementById(`${article}-count`);
+
+      import emptyHeart from '../images/blog/heart-empty.svg';
+      import fillHeart from '../images/blog/hear-fill.svg';
+
+      function check() {
+        let liked = !!window.localStorage.getItem(`${userId}::${article}`);
+
+        if (iconEl && liked) {
+          (iconEl as HTMLImageElement).src = fillHeart;
+          iconEl.classList.add('liked');
+          iconEl.classList.remove('unliked');
+        }
+
+        if (iconEl && !liked) {
+          (iconEl as HTMLImageElement).src = emptyHeart;
+          iconEl.classList.add('unliked');
+          iconEl.classList.remove('liked');
+        }
+      }
+
+      check();
+
+      function onClick() {
+        if (!iconEl) {
+          return;
+        }
+
+        let liked = !!window.localStorage.getItem(`${userId}::${article}`);
+
+        if (liked) {
+          window.localStorage.removeItem(`${userId}::${article}`);
+          iconEl.classList.remove('liked');
+          iconEl.classList.add('unliked');
+          (iconEl as HTMLImageElement).src = emptyHeart;
+        } else {
+          (iconEl as HTMLImageElement).src = fillHeart;
+          window.localStorage.setItem(`${userId}::${article}`, '1');
+          iconEl.classList.remove('unliked');
+          iconEl.classList.add('liked');
+          if(countEl && countEl.textContent) {
+            const isnan = isNaN(Number(countEl.textContent));
+            if(!isnan) {
+              countEl.textContent = String(Number(countEl.textContent) + 1);
+            }
+          }
+          fetch(
+            `https://27jnn5jki9.execute-api.eu-central-1.amazonaws.com/prod/likes?id=${article}`,
+            {
+              method: 'POST',
+            }
+          ).catch((e) => undefined);
+        }
+      }
+
+      if (iconEl) {
+        iconEl.addEventListener('click', onClick);
+      }
+    </script>
   </body>
 </html>

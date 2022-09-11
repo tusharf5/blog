@@ -25,3 +25,13 @@ const { title, parent, description, keywords } = Astro.props;
 <style lang="scss">
   @import '../styles/global.scss';
 </style>
+<script>
+  function randomId() {
+    const uint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
+    return uint32.toString(16);
+  }
+
+  if (!(window.localStorage.getItem('tusharsharma::uuid'))) {
+    window.localStorage.setItem('tusharsharma::uuid', randomId());
+  }
+</script>

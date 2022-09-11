@@ -7,3 +7,5 @@
 - Social SEO
 - GA
 - Likes Tracker
+
+[Docs](https://docs.astro.build/en/core-concepts/astro-components/)
