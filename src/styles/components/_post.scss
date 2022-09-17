@@ -333,8 +333,9 @@
       margin: 0 2px;
       padding: 2px 6px;
       text-decoration-line: blink;
-      box-shadow: 0px 0px 10px 0px #d7dadd, inset 0px 0px 10px 0px #d7dadd;
-      background-color: #f0f0f0;
+      box-shadow: 0px 0px 10px 0px var(--inline-code-shadow),
+        inset 0px 0px 10px 0px var(--inline-code-shadow);
+      background-color: var(--inline-code-bg);
       border-radius: 4px;
       font-size: 0.9em;
       -webkit-font-smoothing: antialiased;

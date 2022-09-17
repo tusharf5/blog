@@ -34,9 +34,13 @@
     'Segoe UI Emoji', 'Segoe UI Symbol';
   --code-font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, Courier,
     monospace, 'PingFang SC', 'Microsoft YaHei';
+  --inline-code-shadow: #d7dadd;
+  --inline-code-bg: #f0f0f0;
 }
 
 body.dark-mode {
+  --inline-code-shadow: #686b6e;
+  --inline-code-bg: #535353;
   --body-bg: #2b2b2b;
   --color: #a9b7c6;
   --heading-color: #b8c8d9;

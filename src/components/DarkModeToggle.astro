@@ -33,7 +33,7 @@
   }
 
   const isDark = window.localStorage.getItem('darkMode');
-  console.log({isDark})
+  console.log({ isDark });
   if (isDark === 'true') {
     document.body.className =
       document.body.className.replace(/(light|dark)-mode/, '') + ' dark-mode';

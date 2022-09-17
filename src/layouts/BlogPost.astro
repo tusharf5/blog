@@ -130,9 +130,9 @@ const {
           window.localStorage.setItem(`${userId}::${article}`, '1');
           iconEl.classList.remove('unliked');
           iconEl.classList.add('liked');
-          if(countEl && countEl.textContent) {
+          if (countEl && countEl.textContent) {
             const isnan = isNaN(Number(countEl.textContent));
-            if(!isnan) {
+            if (!isnan) {
               countEl.textContent = String(Number(countEl.textContent) + 1);
             }
           }
