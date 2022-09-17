@@ -29,7 +29,7 @@ const { title, parent, description, keywords } = Astro.props;
 <meta name="keywords" content={keywords.join(', ')} />
 <meta name="theme-color" content="#2b2b2b" />
 
-<style lang="scss">
+<style lang="scss" is:global>
   @import '../styles/global.scss';
 </style>
 <script>
