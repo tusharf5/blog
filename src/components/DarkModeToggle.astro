@@ -1,0 +1,45 @@
+---
+//
+---
+
+<div class="toggle-track" id="theme-toggle">
+  <div class="toggle-moon">
+    <span role="img" aria-label="Enable Dark Mode"> 🌛</span>
+  </div>
+  <div class="toggle-sun">
+    <span role="img" aria-label="Enable Light Mode"> ☀️</span>
+  </div>
+  <div class="toggle-thumb"></div>
+</div>
+<script is:inline>
+  const toggle = document.querySelector('#theme-toggle');
+
+  if (toggle) {
+    toggle.addEventListener('click', function (ev) {
+      const isDark = window.localStorage.getItem('darkMode');
+      if (isDark === 'true') {
+        window.localStorage.setItem('darkMode', 'false');
+        document.body.className =
+          document.body.className.replace(/(light|dark)-mode/, '') +
+          ' light-mode';
+      } else {
+        window.localStorage.setItem('darkMode', 'true');
+        document.body.className =
+          document.body.className.replace(/(light|dark)-mode/, '') +
+          ' dark-mode';
+        toggle.classList.toggle('toggled');
+      }
+    });
+  }
+
+  const isDark = window.localStorage.getItem('darkMode');
+  console.log({isDark})
+  if (isDark === 'true') {
+    document.body.className =
+      document.body.className.replace(/(light|dark)-mode/, '') + ' dark-mode';
+    toggle.classList.toggle('toggled');
+  } else {
+    document.body.className =
+      document.body.className.replace(/(light|dark)-mode/, '') + ' light-mode';
+  }
+</script>
