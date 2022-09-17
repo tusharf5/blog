@@ -320,11 +320,14 @@
       margin-bottom: 0;
     }
 
+    code,
     & > pre,
     & > code,
     & > p code,
     & > tt {
       font-family: var(--code-font-family);
+      font-weight: 400;
+      line-height: 1.45;
     }
 
     & > code,
@@ -333,8 +336,6 @@
       margin: 0 2px;
       padding: 2px 6px;
       text-decoration-line: blink;
-      box-shadow: 0px 0px 10px 0px var(--inline-code-shadow),
-        inset 0px 0px 10px 0px var(--inline-code-shadow);
       background-color: var(--inline-code-bg);
       border-radius: 4px;
       font-size: 0.9em;
