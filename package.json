@@ -8,16 +8,17 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "prettier:fix": "npx prettier --write '**/*.{ts,astro,js,json,yml,yaml,md,scss,css}'"
+    "prettier:fix": "npx prettier --write '**/*.{ts,astro,js,json,yml,yaml,md,mdx,scss,css}'"
   },
   "dependencies": {
-    "@astrojs/mdx": "0.11.1",
+    "@astrojs/mdx": "0.11.4",
     "@astrojs/sitemap": "1.0.0",
-    "astro": "1.2.6",
+    "astro": "1.5.0",
     "dynamic-class-list": "2.0.2"
   },
   "devDependencies": {
     "prettier": "^2.7.1",
-    "sass": "^1.54.8"
+    "rollup": "^2.0.0",
+    "sass": "^1.55.0"
   }
 }

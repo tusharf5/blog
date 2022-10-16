@@ -334,17 +334,17 @@
     & > p code,
     & > tt {
       margin: 0 2px;
-      padding: 2px 6px;
-      text-decoration-line: blink;
-      background-color: var(--inline-code-bg);
-      border-radius: 4px;
-      font-size: 0.9em;
-      -webkit-font-smoothing: antialiased;
+      font-weight: 700;
       font-style: italic;
+      font-size: 0.9em;
+      letter-spacing: 0.7px;
+      -webkit-font-smoothing: antialiased;
+      border-bottom: 2px dotted currentColor;
+      color: #fea656;
     }
 
     & > pre {
-      box-shadow: 0px 0px 0px 30px var(--pre-bg);
+      box-shadow: 0px 0px 0px 20px var(--pre-bg);
       margin: 2.5em 0;
       background-color: #1c2022 !important;
       overflow: auto;
@@ -369,7 +369,7 @@
     }
 
     img {
-      box-shadow: 0px 0px 0px 30px var(--pre-bg);
+      box-shadow: 0px 0px 0px 20px var(--pre-bg);
       max-width: 100%;
       margin: 2.5em auto;
       border-radius: 2px;

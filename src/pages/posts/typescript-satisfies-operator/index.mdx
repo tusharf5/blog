@@ -1,0 +1,274 @@
+---
+layout: '../../../layouts/BlogPost.astro'
+publishedAt: '2022-10-17'
+uid: 'typescript-satisfies-operator'
+title: "Typescript's New `satisfies` Operator"
+category: 'Typescript'
+draft: false
+tags:
+  - typescript
+  - typescript satisfies
+  - design pattern
+  - typescript 4.9
+excerpt: 'With the upcoming 4.9 release, Typescript will add this amazing new feature to make the types in your codebase even more reliable.'
+---
+
+```typescript
+// lib.dom.d.ts
+interface Document {
+  getElementById(elementId: string): HTMLElement | null;
+}
+
+// app.ts
+const checkbox = document.getElementById('myCheckbox') as HTMLDivElement;
+```
+
+In the code above, `getElementById` function returns an `HTMLElement` which represents an HTML Element,
+but if we know the element we are querying is an `HTMLDivElement`, we can downcast the
+return type to `HTMLDivElement` using type assertion to access properties specific to a div element.
+
+The following image shows the inheritance chain of an `HTMLDivElement`.
+
+import HTMLElement from '../../../images/posts/typescript-satisfies-operator/html-element.png';
+
+<img src={HTMLElement} alt="Html element" />
+
+Another common use case of the `as` operator is when we want to upcast a type to a broader type.
+Like in the example below we are upcasting a `Dog` to an `Animal`.
+
+```typescript
+interface Animal {
+  canWalk: boolean;
+  species: string;
+}
+
+interface Dog {
+  canWalk: boolean;
+  isPet: boolean;
+  species: 'dog';
+}
+
+function returnADog(): Dog {
+  return { canWalk: true, isPet: true, species: 'dog' };
+}
+
+// we need to work with a broader type here
+// so we are asserting the return type Dog as Animal
+const animal = returnADog() as Animal;
+```
+
+While it has its use cases, I avoid using it because it can sometimes lead to hidden bugs in your typescript code.
+
+Let's take this perfectly valid Typescript code for instance. We have two files here `types.ts` and `app.ts`.
+The `User` interface has two properties.
+
+```typescript
+// file: types.ts
+export interface User {
+  isActive: boolean;
+  id: string;
+}
+
+export function createUsername(user: User): string | undefined {
+  if (user.id) {
+    return 'random-username';
+  }
+  return;
+}
+
+// file: app.ts
+import { type User, createUsername } from './types.ts';
+
+const user = { isActive: true, id: 'uuid' } as User;
+const name = createUsername(user);
+```
+
+Let's say there is a new requirement which requires the `User` object to have a
+new property called `isVerified` which would be a boolean;
+
+We can update the `User` type by adding a new `isVerified: boolean` property to it and the Typescript compiler
+will give us a list of all the places in the codebase where we have to add this new property.
+
+```typescript
+// file: types.ts
+export interface User {
+  isActive: boolean;
+  isVerified: boolean; // ++
+  id: string;
+}
+```
+
+Surprisingly Typescript will not throw any compilation error for the code below even though
+we can see that the `user` object literal is missing the newly added `isVerified` property.
+
+```typescript
+// file: app.ts
+import { type User, createUsername } from './types.ts';
+
+const user = { isActive: true, id: '12-34m2ks' } as User;
+const name = createUsername(user);
+```
+
+The problem with the above code is that the `user` object literal is not a valid `User` but
+the Typescript compiler assumes it is because of our assertion.
+The TypeScript compiler would then also assume that it has all the properties of a `User` when it clearly
+is missing the `isVerified` property.
+
+Subtle bugs like these get even harder to spot in larger codebases where variable declarations are
+far from where they are used.
+
+This error-prone behaviour of Typescript is because of how the `as` keyword works.
+
+> When you use the **as** keyword, it implies that you are responsible for the type safety of that line of code; not the TypeScript compiler.
+
+## The Assertion Operator \`as\`
+
+TypeScript allows type assertions that convert to a more specific or less specific version of a type.
+
+A **less specific type** is a type that has some properties of another type but not all.
+
+A **more specific type** is a type that has all the properties of another type and some more.
+
+```typescript
+true as false; // ✅ since both are boolean
+1 as 3; // ✅ since both are numbers
+// ❌ since there is no overlap between { hello: "world" } and String{} type
+{ hello: "world" } as string;
+// ✅ since { indexOf: (term: string) => { return number; } } is a less specific type of String{} type
+// Remember String.indexOf ?
+{ indexOf: (term: string) => { return 2; } } as string;
+```
+
+Only “impossible” coercions like the followings are not allowed.
+
+```typescript
+3 as '2'; // no overlap between the number 3 and string '2'
+'hello' as Symbol; // no overlap
+3 as undefined; // no overlap
+```
+
+In our case, `{ isActive: true, id: "user" } as User` is allowed because it is a less specific type
+of `User`. It has one less property than a `User`. This can lead to many hidden errors.
+
+```typescript
+interface User {
+  isActive: boolean;
+  isVerified: boolean;
+  id: string;
+}
+
+{ isActive: true, id: "uuid" } as User; // ✅ less specific type assertion
+```
+
+## Type Validation
+
+With the new `satisfies` operator, you can use type assertion and still let Typescript validate the type of the value that you are asserting.
+
+~~When you use the `as` keyword, it implies that you are responsible for the type safety of that line of code; not the TypeScript compiler.~~ -
+_**No longer valid if you use it with the `satisfies` operator**._
+
+If we go back to our example, this is how we'd use it.
+
+```typescript
+// file: app.ts
+import { type User, createUsername } from './types.ts';
+
+const user = { isActive: true, id: 'uuid' } satisfies User as User;
+const name = createUsername(user);
+```
+
+Now, the Typescript compiler will fully validate the type of our `user` object literal with `User` type.
+
+import Error from '../../../images/posts/typescript-satisfies-operator/satisfies-error.png';
+
+<img src={Error} alt="Satisfies Error Typescript" />
+
+As a general practice, every time you use the `as` operator, you should use the `satisfies` operator
+to let the type safety be handled by Typescript instead of you.
+
+## Preserving Original Type
+
+The `satisfies` operator is only used to validate the structure. It does not affect the type of the variable.
+
+```typescript
+// type of a is still 1 which satisfies the type number
+const a = 1 satisfies number;
+
+interface BinaryFile {
+  name: string;
+}
+
+interface TextFile {
+  name: string;
+}
+
+const bfile: TextFile = { name: 'x.b' } satisfies BinaryFile;
+```
+
+In the above example, even though the object literal `{ name: 'x.b' }` satisfies to be a `BinaryFile`,
+the expression `satisfies BinaryFile` has no impact on the type of the variable `bfile`. It is still a `TextFile`.
+
+This feature comes in handy when you have an object with no explicit type and you want to preserve its inferred type.
+For example, the config object below has no explicit type assigned to it. In this scenario, Typescript
+will infer its type based on its structure.
+
+```typescript
+const config = {
+  name: 'app-1',
+  version: '2.0',
+  service: 'users',
+};
+```
+
+The inferred type would be.
+
+```typescript
+const config: {
+  name: string;
+  version: string;
+  service: string;
+};
+```
+
+import InferredType from '../../../images/posts/typescript-satisfies-operator/inferred-type.png';
+
+<img src={InferredType} alt="Inferred type" />
+
+Let's say we do want to add some type of validation to the config object. One way to do this is
+to assign an explicit type as shown below:
+
+```typescript
+const config: Record<string, string> = {
+  name: 'app-1',
+  version: '2.0',
+  service: 'users',
+};
+```
+
+The problem with this approach is that now you lose the inferred type with explicit keys. As a result,
+you no longer get IntelliSense for its keys.
+
+import ExplicitType from '../../../images/posts/typescript-satisfies-operator/explicit-type.png';
+
+<img src={ExplicitType} alt="Explicit type" />
+
+Another approach is to keep using the inferred type of the object but validate it with the `satisfies` keyword.
+
+```typescript
+const config = {
+  name: 'app-1',
+  version: '2.0',
+  service: 'users',
+} satisfies Record<string, string>;
+```
+
+This way you get the type validation on the object and you also get to preserve the inferred type of the object.
+
+import SatisfiesPreserveType from '../../../images/posts/typescript-satisfies-operator/satisfied-preserve-type.png';
+
+<img src={SatisfiesPreserveType} alt="Satisfies preserve type" />
+
+This is possible because `satisfies` does not change the type of variable that it's used against. It's just an extra option
+to validate the value's type.
+
+You can read more about [Typescript 4.9 here.](https://devblogs.microsoft.com/typescript/announcing-typescript-4-9-beta/)
