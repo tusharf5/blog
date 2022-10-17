@@ -271,12 +271,12 @@ import SatisfiesPreserveType from '../../../images/posts/typescript-satisfies-op
 This is possible because `satisfies` does not change the type of variable that it's used with. It's just an added
 option to validate a value against a specific type.
 
-You can even use it when you create object literals without assigning them to a variable in which case these objects don't
-have any explicit type associated with them. For example, in the code below we are using the same function which can take in
-any unknown object to save three different types of objects (user, file and directory).
+You can also use the `satisfies` operator when you create object literals without a variable assignment in which case
+these objects don't have any explicit type associated with them.
 
-Because these objects are not initialized using a variable assignment, they don't have an explicit type associated with them.
-The function `saveJSON` can take in any object so we also don't get any type validation there. We can call `saveJSON` with any value.
+For example, in the code below, because these objects are not initialized using a variable assignment,
+they don't have an explicit type associated with them.
+The function `saveJSON` can take in any object so we don't get any type validation from there.
 
 ```typescript
 function saveJSON(json: unknown) {
@@ -293,10 +293,11 @@ await saveJSON({ name: 'file', extension: '.ts' } satisfies TSFile);
 await saveJSON({ name: 'file' } satisfies Dir);
 ```
 
-But with the `satisfies` operator, you can add type validations in scenarios like this. There was no way before the `satisfies` operator
-to validate the object's types in the above scenario. You could use the `as` keyword but we know how `as` can sometimes be misleading.
+But with the `satisfies` operator, you can add type validation to the above code.
 
-The only other option to get type safety is to explicitly assign these objects to a variable with the required type as shown below:
+You could also use the `as` keyword but we know how `as` can sometimes be misleading. The only other
+option to get type safety in the above code is to explicitly assign these objects to a
+variable with the required type as shown below:
 
 ```typescript
 function saveJSON(json: unknown) {
@@ -313,7 +314,7 @@ await saveJSON(file);
 
 // dir.ts
 const dir: Dir = { name: 'file' };
-await saveJSON();
+await saveJSON(dir);
 ```
 
 You can read more about [Typescript 4.9 here.](https://devblogs.microsoft.com/typescript/announcing-typescript-4-9-beta/)
