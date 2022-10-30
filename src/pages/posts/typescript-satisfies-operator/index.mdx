@@ -268,53 +268,11 @@ import SatisfiesPreserveType from '../../../images/posts/typescript-satisfies-op
 
 <img src={SatisfiesPreserveType} alt="Satisfies preserve type" />
 
-This is possible because `satisfies` does not change the type of variable that it's used with. It's just an added
-option to validate a value against a specific type.
+Once again, this is only possible because using the `satisfies` operator does not affect the `type` of the value.
 
-You can also use the `satisfies` operator when you create object literals without a variable assignment in which case
-these objects don't have any explicit type associated with them.
-
-For example, in the code below, because these objects are not initialized using a variable assignment,
-they don't have an explicit type associated with them.
-The function `saveJSON` can take in any object so we don't get any type validation from there.
-
-```typescript
-function saveJSON(json: unknown) {
-  // save
-}
-
-// user.ts
-await saveJSON({ isActive: true, id: '12-34m2ks', isVerified: true } satisfies User);
-
-// file.ts
-await saveJSON({ name: 'file', extension: '.ts' } satisfies TSFile);
-
-// dir.ts
-await saveJSON({ name: 'file' } satisfies Dir);
-```
-
-But with the `satisfies` operator, you can add type validation to the above code.
-
-You could also use the `as` keyword but we know how `as` can sometimes be misleading. The only other
-option to get type safety in the above code is to explicitly assign these objects to a
-variable with the required type as shown below:
-
-```typescript
-function saveJSON(json: unknown) {
-  // save
-}
-
-// user.ts
-const user: User = { isActive: true, id: '12-34m2ks', isVerified: true };
-await saveJSON(user);
-
-// file.ts
-const file: TSFile = { name: 'file', extension: '.ts' };
-await saveJSON(file);
-
-// dir.ts
-const dir: Dir = { name: 'file' };
-await saveJSON(dir);
-```
+The `satisfies` operator is yet another Typescript feature that helps in improving the type safety of a codebase
+and preventing human errors. But like every other typescript feature, you have to first use it correctly to leverage its benefits.
 
 You can read more about [Typescript 4.9 here.](https://devblogs.microsoft.com/typescript/announcing-typescript-4-9-beta/)
+
+Happy Coding 🕊
