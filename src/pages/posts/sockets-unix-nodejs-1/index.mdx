@@ -138,7 +138,7 @@ It's important to note that the port number `8080` is used by both the listening
 
 When a request is received by the listening socket, it is added to the SYN queue. Upon completion of the three-way handshake, the connection is placed in the Accept queue. The server application can retrieve the connection from the Accept queue by calling the `accept()` system call. If the queue is empty, the call will block until a new request arrives, otherwise, the connection at the front of the queue is returned. The returned socket descriptor can then be used to communicate with the client socket that initiated the connection.
 
-To handle multiple connections efficiently, multi-threading can be utilized. Each connection can be processed in its own thread, allowing the main thread to continue listening for new requests by repeatedly making `accept()` system calls.
+To handle multiple connections, each connection can be processed in a new thread, allowing the main thread to continue to listen for new requests by repeatedly making `accept()` system calls.
 
 In the second part of this blog, we will delve into the details of the interaction between `Node.js` and Unix sockets, and explore the crucial role played by the event loop when handling multiple sockets on a primarily single-threaded platform.
 
