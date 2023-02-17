@@ -11,6 +11,7 @@ export interface Props {
     publishedAt: string;
     category: string;
     excerpt: string;
+    banner: string;
     tags: string[];
   };
 }
@@ -21,14 +22,20 @@ interface Likes {
 }
 
 const {
-  content: { title, uid, excerpt, tags, category, publishedAt },
+  url,
+  content: { banner, title, uid, excerpt, tags, category, publishedAt },
 } = Astro.props;
+
+const fullUrl = `https://tusharf5.com${url}`
+const bannerUrl = `https://tusharf5.com${banner}`
 ---
 
 <!DOCTYPE html>
 <html>
   <head>
     <BaseHead
+      url={fullUrl}
+      imageUrl={bannerUrl}
       title={title}
       parent={category}
       description={excerpt}

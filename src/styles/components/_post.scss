@@ -377,7 +377,11 @@
 
     b,
     strong {
-      font-weight: 600;
+      font-weight: 700;
+      font-family: 'SF Mono';
+      font-size: 0.9em;
+      padding: 0 3px;
+      word-spacing: -2px;
     }
   }
 }
