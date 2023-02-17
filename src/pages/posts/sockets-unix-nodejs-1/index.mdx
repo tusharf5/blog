@@ -41,6 +41,10 @@ Typically, server sockets are configured to operate on a well-known port number,
 
 A socket pair consists of four essential elements that play a crucial role in determining how incoming and outgoing traffic is routed through a system. These elements include the _local IP address_, _local port_, _remote IP address_, and _remote port_. Upon the arrival of a data segment, the TCP protocol analyzes all four socket elements to properly direct the segment to the appropriate endpoint (i.e., socket).
 
+import Routing from '../../../images/posts/sockets-unix-nodejs-1/routing.png';
+
+<img src={Routing} alt="sockets" />
+
 A socket pair can be represented as:
 
 **\{Local IP:Local Port, Remote IP: Remote Port\}**
@@ -50,10 +54,6 @@ For example, a server socket that listens on port 8080 and can receive requests 
 **\{\*: 8080, -:-}**
 
 Since this is a listening socket, the remote IP and port are both unspecified.
-
-import Routing from '../../../images/posts/sockets-unix-nodejs-1/routing.png';
-
-<img src={Routing} alt="sockets" />
 
 By setting the local IP to a wildcard (*), a server socket is capable of accepting incoming connection requests from any of the host's network interfaces. Alternatively, using `0.0.0.0` instead of a wildcard allows for the same functionality. Conversely, if the local IP is set to `127.0.0.1`, the socket will only listen for requests originating from the host.
 
@@ -105,7 +105,6 @@ import ServerMultiSocket from '../../../images/posts/sockets-unix-nodejs-1/serve
 <img src={ServerMultiSocket} alt="sockets" />
 
 The server application can obtain a connection from the Accept queue by using the `accept()` system call, which returns the socket descriptor for a brand new socket created by the kernel to handle that connection. This socket descriptor can then be utilized to engage in communication with the client that initiated the connection, and once the communication is concluded, the socket can be closed using the `close()` system call.
-
 
 Let us consider an example to demonstrate how sockets operate.
 
