@@ -20,6 +20,16 @@ import Hero from '../../../images/posts/sockets-unix-nodejs-1/banner.png';
 
 <img src={Hero} alt="sockets" />
 
+**Table of Contents:**
+ 
+- **[Introduction to Sockets](#introduction-to-sockets)**
+- **[Socket Pair](#socket-pair)**
+- **[Creating a Server Socket](#creating-a-server-socket)**
+- **[Server Client Example](#server-client-example)**
+- **[Conclusion](#conclusion)**
+
+## Introduction to Sockets
+
 In an operating system, a socket is a virtual representation of one endpoint of a connection. Whenever a client establishes a connection with a server, it results in the creation of a socket on the client side and another one on the server side. This, in turn, establishes a connection between the two endpoints for the purpose of communication.
 
 import Intro from '../../../images/posts/sockets-unix-nodejs-1/socket-intro.png';
@@ -38,7 +48,11 @@ import DS from '../../../images/posts/sockets-unix-nodejs-1/socket-data-structur
 
 <img src={DS} alt="sockets" />
 
-Typically, server sockets are configured to operate on a well-known port number, such as port 80 for HTTP, 443 for HTTPS, 21 for FTP, or 27017 for MongoDB, in order to listen for incoming connection requests. Meanwhile, client sockets utilize short-lived ephemeral ports that are automatically assigned by the transport protocol and are unique to the host for the duration of the socket's usage.
+Typically, server sockets are configured to operate on a well-known port number, such as port 80 for HTTP, 443 for HTTPS, 21 for FTP, or 27017 for MongoDB, in order to listen for incoming connection requests.
+
+Similarly, when you initiate a connection such as an HTTP request, the kernel generates a socket that also requires a unique port. Although, client sockets use temporary, ephemeral ports that the kernel assigns automatically on the socket creation.
+
+## Socket Pair
 
 A socket pair consists of four essential elements that play a crucial role in determining how incoming and outgoing traffic is routed through a system. These elements include the _local IP address_, _local port_, _remote IP address_, and _remote port_. Upon the arrival of a data segment, the TCP protocol analyzes all four socket elements to properly direct the segment to the appropriate endpoint (i.e., socket).
 
@@ -58,11 +72,11 @@ Since this is a listening socket, the remote IP and port are both unspecified.
 
 By setting the local IP to a wildcard (*), a server socket is capable of accepting incoming connection requests from any of the host's network interfaces. Alternatively, using `0.0.0.0` instead of a wildcard allows for the same functionality. Conversely, if the local IP is set to `127.0.0.1`, the socket will only listen for requests originating from the host.
 
-Suppose the host has two network interface cards (NICs) with two distinct IP addresses, such as `125.6.85.643` and `150.393.2.22`, and the server should only accept connection requests sent to the IP address `125.6.85.643`. In this scenario, the socket pair's local IP configuration can be set to:
+Suppose the host has two network interface cards (NICs) with two distinct IP addresses, such as `25.6.85.643` and `150.393.2.22`, and the server should only accept connection requests sent to the IP address `25.6.85.643`. In this scenario, the socket pair's local IP configuration can be set to:
 
-**\{125.6.85.643|8080 | - | -\}**
+**\{25.6.85.643|8080 | - | -\}**
 
-This socket will only receive connection requests that are directed to the IP address `125.6.85.643` and destined for port number 8080 on this host.
+This socket will only receive connection requests that are directed to the IP address `25.6.85.643` and destined for port number 8080 on this host.
 
 import ServerSocketConn from '../../../images/posts/sockets-unix-nodejs-1/server-socket-req.png';
 
@@ -107,6 +121,8 @@ import ServerMultiSocket from '../../../images/posts/sockets-unix-nodejs-1/serve
 
 The server application can obtain a connection from the Accept queue by using the `accept()` system call, which returns the socket descriptor for a brand new socket created by the kernel to handle that connection. This socket descriptor can then be utilized to engage in communication with the client that initiated the connection, and once the communication is concluded, the socket can be closed using the `close()` system call.
 
+## Server Client Example
+
 Let us consider an example to demonstrate how sockets operate.
 
 Suppose we have a host machine with two network interfaces, each with its IP addresses: `125.6.85.643` and `150.393.2.22`. The server application is started on port `8080`.
@@ -119,7 +135,11 @@ The socket pair for the listening socket can be denoted as:
 
 The server is now ready to accept connections on port `8080`.
 
-Consider a scenario where a client with IP `199.213.82.51` establishes a connection with the server's IP `125.6.85.643`. We'll assume the ephemeral port assigned to the client socket is `1900`. 
+On the other hand a client with an IP `199.213.82.51` initiates a connection with the server's IP `125.6.85.643`. We'll assume the ephemeral port assigned to the client socket is `1900`. 
+
+import ClientServer1 from '../../../images/posts/sockets-unix-nodejs-1/client-server-ex-1.png';
+
+<img src={ClientServer1} alt="sockets" />
 
 The resulting socket pair for the socket on the client can be denoted as:
 
@@ -127,22 +147,26 @@ The resulting socket pair for the socket on the client can be denoted as:
 
 **\{199.213.82.51: 1900, 125.6.85.643 : 8080\}**
 
-On the other hand, The new socket created by the kernel on the server side to handle this particular connection will be:
+The kernel receives the connection on the listening socket, completes the three-way-handshake and assigns a new socket to handle the connection. The socker pair for the new socket can be denoted as:
 
 **\{Local IP: Local Port, Remote IP, Remote Port\}**
 
 **\{125.6.85.643 : 8080, 199.213.82.51 : 1900\}**
 
-For the new socket created on the server side, the local IP is determined by the network interface that received the request, while the local port is equal to the port specified in the listening socket. The remote IP and port correspond to the IP address and port of the client socket.
+import ClientServer2 from '../../../images/posts/sockets-unix-nodejs-1/client-server-ex-2.png';
 
-It's important to note that the port number `8080` is used by both the listening socket and the socket created to handle each connection. This is because the kernel utilizes all four elements of the socket pair (local IP, local port, remote IP, remote port) to route a segment, not just the port number.
+<img src={ClientServer2} alt="sockets" />
 
-When a request is received by the listening socket, it is added to the SYN queue. Upon completion of the three-way handshake, the connection is placed in the Accept queue. The server application can retrieve the connection from the Accept queue by calling the `accept()` system call. If the queue is empty, the call will block until a new request arrives, otherwise, the connection at the front of the queue is returned. The returned socket descriptor can then be used to communicate with the client socket that initiated the connection.
+For the new socket created on the server side, the local IP is determined by the network interface that received the request, while the local port is equal to the port specified in the listening socket. The remote IP and port correspond to the IP address and port of the client socket that initiated the connection.
+
+It's important to note that the port number `8080` is used by both the listening socket and the socket created to handle the connection. This is because the kernel utilizes all four elements of the socket pair (local IP, local port, remote IP, remote port) to route a data segment and not just the port number.
+
+When a request is received by the listening socket, it is added to the SYN queue. Upon completion of the three-way handshake, the connection is placed in the Accept queue. The server application can retrieve the connection from the Accept queue by calling the `accept()` system call. If the queue is empty, the call will block until a new request arrives, otherwise, the connection at the front of the queue is returned. The returned socket descriptor can then be used to communicate with the client.
 
 To handle multiple connections, each connection can be processed in a new thread, allowing the main thread to continue to listen for new requests by repeatedly making `accept()` system calls.
 
-In the second part of this blog, we will delve into the details of the interaction between `Node.js` and Unix sockets, and explore the crucial role played by the event loop when handling multiple sockets on a primarily single-threaded platform.
+## Conclusion 
 
-In conclusion, the understanding of sockets is a critical aspect of networking. Sockets serve as the fundamental building blocks of network communication, allowing two or more systems to exchange data, and bridging the gap between the physical and virtual worlds.
+In the second part of this blog, we will delve into the details of the interaction between `Node.js` and Unix sockets, and explore the role played by the event loop when handling multiple sockets on a primarily single-threaded platform.
 
-Thanks for reading.
+Sockets are the backbone of the network operations, serving as the basic building blocks that enable the exchange of information between multiple systems. While Sockets may not be essential for everyday applications, having a solid grasp of their functionality can be a real game-changer when it comes to fine-tuning network-intensive programs.
