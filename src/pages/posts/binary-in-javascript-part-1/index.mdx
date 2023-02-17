@@ -1,0 +1,265 @@
+---
+layout: '../../../layouts/BlogPost.astro'
+publishedAt: '2022-12-26'
+uid: 'binary-in-javascript-part-1'
+title: 'Working with Binary Data In Javascript'
+category: 'Javascript'
+draft: true
+tags:
+  - javascript
+  - array buffer
+  - binary
+  - nodejs
+  - chunk
+  - data view
+excerpt: 'A fun weekend project'
+---
+
+Javascript added support for working with binary-data in ES6 with the addition of `ArrayBuffer` and `TypedArray` sub-classes.
+Prior to that, there was no standard way of working with binary-data in Javascript.
+
+The [`Buffer`](https://nodejs.org/api/buffer.html#class-buffer) class is a built-in global in Nodejs to work with binary data. It is not part of 
+the Javascript spec though.
+Nodejs Buffer pre-dates Javascript's [`ArrayBuffer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer)
+but after ES6, nodejs changed the Buffer's implementation to make it compatible with ES6's `ArrayBuffer`.
+
+A `byte` is the smallest unit of data that we can work with in Javascript & Nodejs.
+`Buffer`, `Chunk`, `ArrayBuffer` are similar terms used to represent a sequence of `bytes`.
+Binary data always comes in `chunks`.
+
+## How is binary data stored?
+
+Binary data in Javascript is stored internally as a `Buffer` (Nodejs) or `ArrayBuffer` (Nodejs & Browsers).
+
+When you open a file, Nodejs will store the entire file in a single `Buffer` instance.
+If you are receiving the file from network, Nodejs might send you the file data in multiple `chunks` where each chunk
+is a `Buffer` instance.
+
+Since `ArrayBuffer` is part of the Javascript Spec, it can be used in browsers too. In fact you can read a file as an `ArrayBuffer`
+using the `FileReader.readAsArrayBuffer()` method, you can also read binary data from XHR/fetch requests using an `ArrayBuffer`.
+
+```javascript
+// xhr
+xhr.open('GET', aUrl, true);
+xhr.responseType = 'arraybuffer';
+
+// fetch
+fetch('url').then((response) => response.arrayBuffer());
+```
+
+In this post, we'll look at `ArrayBuffer` in more detail but the same concepts can be applied to `Buffer`. The difference in 
+an ArrayBuffer and Buffer is mostly in their API.
+
+An ArrayBuffer represents a contiguos block of memory as a sequence of bytes.
+
+Although it doesn't have any methods to read or modify the underlying data, you can create a data access layer on top of the `ArrayBuffer`.
+to access/modify the underlying data.
+
+There are two data access layers available to work with the `ArrayBuffer`. `Typed Arrays` classes and the `DataView` class.
+
+
+```javascript
+const buffer = new ArrayBuffer(numBytes);
+
+buffer[0]; // does not work ❌
+
+const int8 = new Uint8Array(buffer);
+
+int8[0]; // works ✅
+
+const dataview = new DataView(buffer);
+
+dataview.getUint8(0); // works ✅
+```
+
+### Why can't we directly access the contents of an `ArrayBuffer`?
+
+Let's try to understand it with an analogy.
+
+Let's suppose we have a set of alphabets - \{A,B,C,D,.....X,Y,Z\}
+
+I could use many combinations of these letters to write greetings in different languages.
+
+- "Hello"
+- "Namaste"
+- "Salut"
+- "Hola"
+
+Even if someone can read the alphabets correctly, if they don't know let's say Hindi, they wouldn't understand the meaning of "Namaste",
+They can read it out but it won't make any sense to them.
+
+Worst case it might mean something different in their own language. For example the word "gift" means "poison" in german.
+
+The same thing can be applied to binary data. A binary sequence in itself has no meaning. You can read individual bytes 
+but it won't produce the correct output, to get the correct output you need to know what encoding or specification was used to write the binary sequence.
+
+As shown in the table below, the same sequence of bytes when read using different ways results in different numbers.
+
+
+| Data in binary                   | Representation  | Value               |
+| -------------------------------- | --------------- | ------------------- |
+| 01011001011001010111001100100001 | Unsigned 8 Bit  | 89 & 101 & 115 & 33 |
+| 01011001011001010111001100100001 | Unsigned 16 Bit | 22,885 & 29,473     |
+| 01011001011001010111001100100001 | Unsigned 32 Bit | 1,499,820,833       |
+
+Let's take the above example and try to model it using an `ArrayBuffer` and `Typed Arrays`. Suppose we got this data `01011001011001010111001100100001` from a network call.
+
+```javascript
+const arrayBuffer = await apiCall();
+```
+
+This is how the array buffer looks like. It has 4 bytes of data i.e 32 bits.
+
+import ArrayBuffer from '../../../images/posts/binary-in-javascript-part-1/array-buffer.png';
+
+<img src={ArrayBuffer} alt="ArrayBuffer" />
+
+---
+
+`Uint8Array` class can read an array buffer as blocks of 8 bits. If we access it using `Uint8Array` as our access layer.
+Then `Uint8Array` would view the contents of our `ArrayBuffer` as 4 blocks of data where each block is 1 byte.
+
+```javascript
+const arrayBuffer = await apiCall();
+arrayBuffer.byteLength; // 4
+
+// 32 bits / 8 bits == 4 blocks
+
+const uint8BitView = new Uint8Array(arrayBuffer);
+uint8BitView.length; // 4
+```
+
+Each block of data represents a decimal number so we have a total of 4 numbers.
+
+import ArrayBuffer8Bit from '../../../images/posts/binary-in-javascript-part-1/array-buffer-8bit.png';
+
+<img src={ArrayBuffer8Bit} alt="ArrayBuffer" />
+
+---
+
+`Uint16Array` class can read an array buffer as blocks of 16 bits. If we access it using `Uint16Array` as our access layer.
+Then `Uint16Array` would view the contents of our `ArrayBuffer` as 2 blocks of data where each block is 2 bytes.
+
+```javascript
+const arrayBuffer = await apiCall();
+arrayBuffer.byteLength; // 4
+
+// 32 bits / 16 bits == 2 blocks
+
+const uint16BitView = new Uint16Array(arrayBuffer);
+uint16BitView.length; // 2
+```
+
+Each block of data represents a decimal number so we have a total of 2 numbers.
+
+import ArrayBuffer16Bit from '../../../images/posts/binary-in-javascript-part-1/array-buffer-16bit.png';
+
+<img src={ArrayBuffer16Bit} alt="ArrayBuffer" />
+
+---
+
+`Uint32Array` class can read an array buffer as blocks of 32 bits. If we access it using `Uint32Array` as our access layer.
+Then `Uint32Array` would view the contents of our `ArrayBuffer` as 1 block of data where each block is 4 bytes.
+
+```javascript
+const arrayBuffer = await apiCall();
+arrayBuffer.byteLength; // 4
+
+// 32 bits / 32 bits == 1 block
+
+const uint32BitView = new Uint32Array(arrayBuffer);
+uint32BitView.length; // 1
+```
+
+Each block of data represents a decimal number so we have only 1 number.
+
+import ArrayBuffer32Bit from '../../../images/posts/binary-in-javascript-part-1/array-buffer-32bit.png';
+
+<img src={ArrayBuffer32Bit} alt="ArrayBuffer" />
+
+But what's the correct value(s)? The answer is it really depends on how the data is meant to be read. For example,
+If I wrote a program that saves data in blocks of 16 bits. Then the reader must read the data using `Uint16Array`
+to read the correct values.
+
+This is where specification comes in. For example the specification to read png files is [here](http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html)
+A specification tells you how you need to interpret the binary data when reading it.
+
+## Example
+
+I am sharing a link to a simple javascript program to write the following json object using a binary specification.
+
+```json
+{
+  "version": 1,
+  "name": "John",
+  "rank": 204209202,
+  "hobbies": ["sports", "hiking"]
+}
+```
+
+Writer - https://github.com/tusharf5/js-binary/blob/main/spec.js
+
+Reader - https://github.com/tusharf5/js-binary/blob/main/spec-reader.js
+
+Here's another example where the javascrpit program that can read a png file.
+
+https://github.com/tusharf5/js-binary/blob/main/png-reader.js
+
+## DataView 
+
+Although TypedArrays are sufficient to read binary data but very commonly binary data is written 
+in a way that it would take multiple instances of different types of TypedArrays to read it. 
+
+For example if the first 2 bytes in the array buffer represents an unisgned integer, the next 4 bytes represent
+a single special character, next 3 bytes represent 3 different ascii character. 
+
+Creating `Uin16Array`, `Uint32Array` and 3 `Uint8Array` classes to correctly view data would be a lot of overhead.
+Especially because in a real world the data would be much bigger so you would have to create need a lot more TypedArray classes.
+
+```js
+const arrayBuffer = await apiCall();
+
+// creating a view over the underlying `arrayBuffer`
+// the view starts from offset `0` in the underlying `arrayBuffer`
+// and consist of length 2, where length is measured in number of bytes
+const integer = new Uint16Array(arrayBuffer, 0, 2)
+integer[0]; // correct value of integer
+
+// the view starts from offset `2` in the underlying `arrayBuffer`, this is
+// where the previous view ended
+// and it consist of length 4, where length is measured in number of bytes
+const specialChar = new Uint32Array(arrayBuffer, 2, 4)
+specialChar[0]; // correct value of special character 
+
+const asciiChar1 = new Uint8Array(arrayBuffer, 5, 6)
+asciiChar1[0];
+const asciiChar2 = new Uint8Array(arrayBuffer, 6, 7)
+asciiChar2[0];
+```
+
+Nodejs `Buffer` is also a fixed-length sequence of bytes. In fact, After Node v4, The binary data in a Nodejs
+`Buffer` is internally stored in a ES6 `ArrayBuffer`. You can access its internal `ArrayBuffer` via the
+`.buffer` property.
+
+TODO move this to bottom.
+
+```js
+const dataAsBuffer = fs.readFileSync('file');
+
+// When casting the Node.js Buffer to a DataView or TypedArray
+// use the `.byteOffset` to refer only to the part of underlying
+// ArrayBuffer that contains the memory for `dataAsBuffer`.
+// This only happens sometimes when allocating a Buffer smaller than
+// Buffer.poolSize, the buffer data does not start from a zero offset
+// on the underlying ArrayBuffer. The underlying ArrayBuffer is
+// used a shared ArrayBuffer for more than one Buffers
+const dataView = new DataView(
+  dataAsBuffer.buffer,
+  dataAsBuffer.byteOffset,
+  dataAsBuffer.byteLength
+);
+```
+
+TODO move this to bottom.
+While `Buffer` provides some methods to work with the binary data stored inside of it, `ArrayBuffer` doesn't have any methods to
+read or modify it.
