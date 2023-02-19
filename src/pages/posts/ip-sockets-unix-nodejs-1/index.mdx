@@ -56,7 +56,7 @@ Similarly, when you initiate a connection such as an HTTP request, the client so
 
 ## Socket Pair
 
-A socket pair consists of four essential elements that play a crucial role in determining how incoming and outgoing traffic is routed through a system. These elements include the **local IP**, **local port**, **remote IP**, and **remote port**. Upon the arrival of a data segment, the TCP protocol analyzes all four socket elements to route the segment to the correct endpoint (i.e., socket).
+A socket pair consists of four essential elements that play a crucial role in determining how incoming and outgoing traffic is routed through a system. These elements include the **local IP**, **local port**, **remote IP**, and **remote port**. Upon the arrival of a TCP segment, the TCP protocol analyzes all four socket elements to route the segment to the correct endpoint (i.e., socket).
 
 import Routing from '../../../images/posts/sockets-unix-nodejs-1/routing.png';
 
@@ -166,9 +166,9 @@ import ClientServer2 from '../../../images/posts/sockets-unix-nodejs-1/client-se
 
 For the new socket created on the server side, the local IP is determined by the network interface that received the request (`125.6.85.643`), while the local port is equal to the port of the listening socket. The remote IP (`199.213.82.51`) and port (`1900`) correspond to the IP and port of the client socket.
 
-It's important to note that the port number `8080` is used by both the listening socket and the connected socket. This is because the kernel utilizes all four elements of the socket pair (local IP, local port, remote IP, remote port) to route a data segment and not just the port number.
+It's important to note that the port number `8080` is used by both the listening socket and the connected socket. This is because the kernel utilizes all four elements of the socket pair (local IP, local port, remote IP, remote port) to route a TCP segment and not just the port number.
 
-When a network data segment arrives at `125.6.85.643` and port `8080` from `199.213.82.51` and port `1900` it is delivered to the connected socket otherwise it is delivered to the listening socket. 
+When a TCP segment arrives at `125.6.85.643` and port `8080` from `199.213.82.51` and port `1900` it is delivered to the connected socket. All other TCP segments are delivered to the listening socket. 
 
 ## Conclusion 
 
