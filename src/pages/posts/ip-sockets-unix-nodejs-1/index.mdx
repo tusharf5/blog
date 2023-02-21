@@ -74,9 +74,9 @@ Since this is a listening socket, the remote IP and port are both unspecified.
 
 By setting the local IP to a wildcard (*), a server socket is capable of accepting incoming connection requests from any of the host's network interfaces. Alternatively, using `0.0.0.0` instead of a wildcard allows for the same functionality.
 
-Suppose the host has two network interface cards (NICs) with two distinct IPs, such as `25.6.85.643` and `150.393.2.22`, and we want the server to only accept connection requests sent to the IP `25.6.85.643`. In this scenario, the socket pair's local IP configuration can be set to:
+Suppose the host has two network interface cards (NICs) with two distinct IPs, such as `25.6.85.178` and `150.139.2.22`, and we want the server to only accept connection requests sent to the IP `25.6.85.178`. In this scenario, the socket pair's local IP configuration can be set to:
 
-**\{25.6.85.643|8080 | - | -\}**
+**\{25.6.85.178|8080 | - | -\}**
 
 import ServerSocketConn from '../../../images/posts/ip-sockets-unix-nodejs-1/server-socket-req.png';
 
@@ -86,9 +86,9 @@ When creating a socket in the listening mode you don't have to specify values fo
 
 On the other hand, when creating a client socket the values for **remote IP** and **port** are required. The **local IP** for a client socket is not determined by the application code though. Instead, the kernel selects the local IP based on the _outgoing network interface_ that will be used to connect to the other endpoint, typically a server. The **local port** is also automatically assigned by the kernel (TCP) and is typically a short-lived, reusable port that is freed after the request is completed and the socket is closed.
 
-For example, if a host with IP `199.213.82.51` wants to connect to a server with IP `25.6.85.643` on port `8008` and the ephemeral port assigned (by the kernel) to it is `1600`, the client-side socket pair would look something like:
+For example, if a host with IP `199.213.82.51` wants to connect to a server with IP `25.6.85.178` on port `8008` and the ephemeral port assigned (by the kernel) to it is `1600`, the client-side socket pair would look something like:
 
-**\{199.213.82.51|1600 | 25.6.85.643|8008\}**
+**\{199.213.82.51|1600 | 25.6.85.178|8008\}**
 
 import ClientSocketConn from '../../../images/posts/ip-sockets-unix-nodejs-1/client-socket-req.png';
 
@@ -134,7 +134,7 @@ The server application can retrieve the connection from the Accept queue by call
 
 Let us consider an example to demonstrate how sockets operate.
 
-Suppose we have a host machine with two network interfaces, each with its IPs: `125.6.85.643` and `150.393.2.22`. The server application is started on port `8080`.
+Suppose we have a host machine with two network interfaces, each with its IPs: `125.6.85.178` and `150.139.2.22`. The server application is started on port `8080`.
 
 The socket pair for the listening socket can be denoted as:
 
@@ -144,7 +144,7 @@ The socket pair for the listening socket can be denoted as:
 
 The server is now ready to listen for connections on port `8080`.
 
-On the other hand, a client with an IP `199.213.82.51` initiates a connection with the server's IP `125.6.85.643`. We'll assume the ephemeral port assigned to the client socket is `1900`. 
+On the other hand, a client with an IP `199.213.82.51` initiates a connection with the server's IP `125.6.85.178`. We'll assume the ephemeral port assigned to the client socket is `1900`. 
 
 import ClientServer1 from '../../../images/posts/ip-sockets-unix-nodejs-1/client-server-ex-1.png';
 
@@ -154,23 +154,23 @@ The socket pair for the socket on the client can be denoted as:
 
 **\{Local IP: Local Port, Remote IP, Remote Port\}**
 
-**\{199.213.82.51: 1900, 125.6.85.643 : 8080\}**
+**\{199.213.82.51: 1900, 125.6.85.178 : 8080\}**
 
 The kernel receives the connection on the listening socket, completes the three-way-handshake and assigns a new socket to handle the connection. The socket pair for the new socket can be denoted as:
 
 **\{Local IP: Local Port, Remote IP, Remote Port\}**
 
-**\{125.6.85.643 : 8080, 199.213.82.51 : 1900\}**
+**\{125.6.85.178 : 8080, 199.213.82.51 : 1900\}**
 
 import ClientServer2 from '../../../images/posts/ip-sockets-unix-nodejs-1/client-server-ex-2.png';
 
 <img src={ClientServer2} alt="sockets" />
 
-For the new socket created on the server side, the local IP is determined by the network interface that received the request (`125.6.85.643`), while the local port is equal to the port of the listening socket. The remote IP (`199.213.82.51`) and port (`1900`) correspond to the IP and port of the client socket.
+For the new socket created on the server side, the local IP is determined by the network interface that received the request (`125.6.85.178`), while the local port is equal to the port of the listening socket. The remote IP (`199.213.82.51`) and port (`1900`) correspond to the IP and port of the client socket.
 
 It's important to note that the port number `8080` is used by both the listening socket and the connected socket. This is because the kernel utilizes all four elements of the socket pair (local IP, local port, remote IP, remote port) to route a TCP segment and not just the port number.
 
-When a TCP segment arrives at `125.6.85.643` and port `8080` from `199.213.82.51` and port `1900` it is delivered to the connected socket. All other TCP segments are delivered to the listening socket. 
+When a TCP segment arrives at `125.6.85.178` and port `8080` from `199.213.82.51` and port `1900` it is delivered to the connected socket. All other TCP segments are delivered to the listening socket. 
 
 ## Conclusion 
 
