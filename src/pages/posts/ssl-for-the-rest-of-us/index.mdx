@@ -151,8 +151,8 @@ How Certificate Chains Work:
 - **Root CA Certificate** → Pre-installed in browsers for trust verification.
 
 For a browser or client to validate a website’s certificate, it must have access to the entire certificate chain up to the root CA. 
-This is why when a website obtains an SSL certificate from a CA, it also receives a chain of certificates leading** up to the last intermediate CA.** 
-The root CA certificate i**s pre-installed **in the client’s trust store instead of being sent by the server. 
+This is why when a website obtains an SSL certificate from a CA, it also receives a chain of certificates leading **up to the last intermediate CA.** 
+The root CA certificate is **pre-installed** in the client’s trust store instead of being sent by the server. 
 This prevents attackers from forging fake root certificates and tricking users into trusting malicious websites.
 
 Technically there is not much difference between a Root CA and an Intermediate CA. The only difference is that the Root CA is **self-signed** and the Intermediate CA is **signed by a Root CA** or an another intermediate CA.
@@ -252,3 +252,8 @@ Revoked certificates are checked via:
 
 - **Certificate Revocation Lists** (CRLs): A CA-published list of invalid certificates.
 - **Online Certificate Status Protocol** (OCSP): A real-time revocation check.
+
+## Conclusion 
+
+SSL does more than encrypt data—it proves you're talking to the right website. The certificate chain, digital signatures, and trust stores all work together to keep the internet secure. 
+Next time you see that lock icon in your browser, you’ll know the complex system behind it. Stay curious, and stay secure!
