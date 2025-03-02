@@ -1,0 +1,102 @@
+---
+layout: '../../../layouts/BlogPost.astro'
+publishedAt: '2023-02-05'
+uid: 'typesafe-url-params'
+title: "Typesafe URL Params"
+category: 'Linux'
+draft: true
+tags:
+  - javascript
+  - array buffer
+  - binary
+  - nodejs
+  - chunk
+  - data view
+excerpt: 'A fun weekend project'
+---
+
+
+Recently, I read [a blog post](https://lihautan.com/extract-parameters-type-from-string-literal-types-with-typescript/?utm_source=typescript-weekly.com&utm_campaign=typescript_weekly_193&utm_medium=email) where the author explained how to write a Type safe URL handler function that can
+infer dynamic segments of the url from the url string and adds them to the handler argument. 
+
+An example is shown in the image below. 
+
+import Example from '../../../images/posts/typesafe-url-params/example.png';
+
+<img src={Example} alt="sockets" />
+
+
+This was the final code to implement the type feature.
+
+```typescript
+type IsParameter<Part> = Part extends `[${infer ParamName}]` ? ParamName : never;
+type FilteredParts<Path> = Path extends `${infer PartA}/${infer PartB}`
+  ? IsParameter<PartA> | FilteredParts<PartB>
+  : IsParameter<Path>;
+type ParamValue<Key> = Key extends `...${infer Anything}` ? string[] : number;
+type RemovePrefixDots<Key> = Key extends `...${infer Name}` ? Name : Key;
+type Params<Path> = {
+  [Key in FilteredParts<Path> as RemovePrefixDots<Key>]: ParamValue<Key>;
+};
+type CallbackFn<Path> = (req: { params: Params<Path> }) => void;
+
+function get<Path extends string>(path: Path, callback: CallbackFn<Path>) {
+	// TODO: implement
+}
+
+get('users/[userId]/activities/[activity]', (req) => {
+ req.params.userId;
+ req.params.activity;
+})
+```
+
+While the article was very informative, I felt the types could be simple. It was also using a weird hack to
+remove `...arg` in one of the intermediary steps which could break anytime Typescript decides to update how
+it **displays** types.
+
+So here's my revised version. 
+
+```typescript
+type Part<T extends string> =  T extends`${infer X}/${infer Y}` ? X | Part<Y> : T;
+type Params<T extends string> = { [key in T as key extends `[${infer X}]` ? X : never]: string }
+
+function get<T extends string>(path: T, cb: (req: { params: Params<Part<T>> }) => void) {
+  // TODO: implement
+}
+
+get('users/[userId]/activities/[activity]', (req) => {
+ req.params.activity;
+});
+```
+
+Explanation:
+
+Let's start with the `get` function. It's defined with a generic type parameter: **T**. **T** extends string, which means that it can only be a string. The cb parameter is a callback function that receives an object of url parameters (`params`) as its argument.
+
+```typescript
+function get<T extends string>(path: T, cb: (req: { params: Params<Part<T>> }) => void) {
+  // TODO: implement
+}
+```
+
+import Part from '../../../images/posts/typesafe-url-params/part.png';
+
+<img src={Part} alt="sockets" />
+
+Next up is the Part type. It's defined using a conditional type, which checks whether the input string T contains a slash character (/). If it does, the type is split into two parts using the infer keyword, and the function recursively calls itself on the second part until it has separated all the dynamic parts. Otherwise, the type is returned as is. Here's the code:
+
+```typescript
+type Part<T extends string> =  T extends`${infer X}/${infer Y}` ? X | Part<Y> : T;
+```
+
+import Params from '../../../images/posts/typesafe-url-params/params.png';
+
+<img src={Params} alt="sockets" />
+
+Finally, we have the `Params` type. It's defined using a mapped type, which iterates over the keys of the input type and assigns a new type to each key. If the key contains square brackets, the type is extracted by using the infer keyword, and a new property with that key and a string type is added to the output type. If the key does not contain square brackets, it is excluded from the output type using the never keyword.
+
+```typescript
+type Params<T extends string> = { [key in T as key extends `[${infer X}]` ? X : never]: string }
+```
+
+And that's it! With this simple function and a few TypeScript types, you can easily extract dynamic parts from URLs and ensure type safety in your code. Happy coding!

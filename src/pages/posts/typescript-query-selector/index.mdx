@@ -1,0 +1,147 @@
+---
+layout: '../../../layouts/BlogPost.astro'
+publishedAt: '2023-02-05'
+uid: 'typesafe-query-selector'
+title: "Typesafe Query Selector"
+category: 'Linux'
+draft: true
+tags:
+  - javascript
+  - array buffer
+  - binary
+  - nodejs
+  - chunk
+  - data view
+excerpt: 'A fun weekend project'
+---
+
+When it comes to web development, data fetching and processing are among the most common tasks. However, performance issues may arise when dealing with large amounts of data. One common reason for slow data fetching is requesting more data than necessary. GraphQL is built on the concept of selecting only the required fields from the database to address this issue.
+
+However, when working with Typescript code, the return type is often fixed, which can make it appear that the entire object has been returned, even if only a single field has been selected. 
+
+To address this, a dynamic return type can be created based on the selected fields from the function's input. 
+
+// show example.
+
+Let's try to create a type that can handle the above scenario. 
+
+First of all, we need a `select` mapping of what fields we need from the function. 
+
+So for example if the DatabaseRecord type is below 
+
+```typescript
+interface Record {
+  id: string;
+  email: string;
+  address: {
+    city: string;
+    phone: number;
+  };
+  auth: {
+    type: string;
+    session: {
+      active: boolean;
+      id: string;
+    }
+  }
+}
+```
+
+I should be able to specify something like this when querying this record and Typescript should infer the returning shape from the `include` object shape. 
+
+```typescript
+const result = user.findAndSelect({ include: { id: true, address: true, auth: { session: { active: true } }  } });
+```
+
+We'd also like the `include` field to be type safe to avoid specifying invalid fields. 
+
+
+
+
+```typescript
+type NestedInclude<T extends object> = {
+  [key in keyof T]?: T[key] extends object
+    ? Partial<NestedInclude<T[key]>> | boolean
+    : boolean;
+};
+
+type NestedIncludedExample = NestedInclude<{
+  parent: { child: string; sibling: number };
+}>;
+
+// type NestedIncludeExample is { parent?: boolean | { child?: boolean, sibling?: boolean } }
+
+// Select fields from a typre based on its NestedInclude type
+type Selector<T extends object, K extends NestedInclude<T>> = {
+  [key in keyof K]: K[key] extends true
+    ? key extends keyof T
+      ? T[key]
+      : never
+    : K[key] extends object
+    ? key extends keyof T
+      ? T[key] extends object
+        ? Selector<T[key], K[key]>
+        : never
+      : never
+    : never;
+};
+
+type DatabaseRecordType = {
+  id: number;
+  email: string;
+  orgUnit: {
+    id: number;
+    name: string;
+    unit: {
+      check: string;
+    };
+  };
+};
+
+type SelectorTest = Selector<
+  DatabaseRecordType,
+  { id: true; orgUnit: { unit: { check: true } } }
+>;
+
+// SelectorTest will only have id & orgUnit.unit.check from DatabaseRecordType type
+
+// K is supposed to be the boolean map of what all fields to select from T
+// It has a constraint that it needs to be a NestedInclude<T> type which ensures
+// the select object K has similar shape as T
+function findAndSelect<
+  const T extends object,
+  const K extends NestedInclude<T> = NestedInclude<T>
+>(arg: Arg<T, K>): Selector<T, K> {
+  return arg as Selector<T, K>;
+}
+
+type Arg<T extends object, K extends NestedInclude<T> = NestedInclude<T>> = {
+  include: K;
+};
+
+class User {
+   findAndSelect<
+  const K extends NestedInclude<DatabaseRecordType>
+>(arg: Arg<DatabaseRecordType, K>): Selector<DatabaseRecordType, K> {
+  return arg as Selector<DatabaseRecordType, K>;
+}
+}
+
+new User().findAndSelect({ include: {
+    id: true,
+    orgUnit: { name: true },
+  }}).orgUnit.name
+
+
+
+
+
+
+
+
+
+const user = new User();
+const result = user.findAndSelect({ include: { id: true, orgUnit: { id: true } } });
+
+result.orgUnit.id
+```

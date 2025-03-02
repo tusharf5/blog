@@ -16,6 +16,21 @@ excerpt: 'A fun weekend project'
 ---
 
 
+talk about fd being a controlled reference to a resource given by kernel. like ok you want to interact with a socket. 
+here is a unique fd.
+
+kernel maintains a list of all open fds and each has its own metadata like what processs can access it with what perms. 
+
+The process uses the FD as a handle to interact with a specific resource. It provides operations like read, write, close, and others based on the resource type.
+
+use this blog as a reference - https://dev.to/ocodista/inside-nodejs-exploring-asynchronous-io-4bg1
+
+talk about recv recvfrom.
+
+talk about how data gets send from NIC to the process.
+
+talk about epoll, epollwait, etc.
+
 ## From The Eyes Of Nodejs
 
 In Node.js, which is primarily single-threaded, a listening socket is automatically created when a new HTTP server is created, and new `Accept`ed connections are automatically added to the event loop's poll phase queue as callbacks i.e we don't have to directly make system calls to retreive new connections. 

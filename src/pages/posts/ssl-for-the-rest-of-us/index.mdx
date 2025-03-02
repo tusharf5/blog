@@ -1,0 +1,254 @@
+---
+layout: '../../../layouts/BlogPost.astro'
+publishedAt: '2025-02-23'
+title: 'SSL - For The Rest Of Us'
+category: 'SSL'
+uid: 'ssl-for-the-rest-of-us'
+draft: false
+banner: '/images/ssl/banner.png'
+tags:
+  - ssl
+  - certificates
+  - certificates chain
+  - ssl handshake
+excerpt: 'How does your browser know a website is legit? This post simplifies SSL, certificate validation, and the trust chain behind secure connections'
+---
+
+import Hero from '../../../images/posts/ssl/banner.png';
+
+<img src={Hero} alt="sockets" />
+
+The internet is insecure by default. Attackers can intercept and modify traffic, so we need a way to secure communication and verify the server’s identity.
+
+import SSLLock from '../../../images/posts/ssl/ssl-lock.png';
+
+<img src={SSLLock} alt="ssl lock" />
+
+Encryption ensures data privacy, but without verification, a hacker could impersonate a legitimate website, intercepting traffic while still using encryption. 
+This is why **SSL** combines encryption with authentication.
+
+The lock icon in the address bar of browsers not only means that the communication between your browser
+and the website is encrypted, it also confirms the **identity of the website owner**.
+
+
+import SSLHandshake from '../../../images/posts/ssl/ssl-cert-handshake.excalidraw.png';
+
+<img src={SSLHandshake} alt="ssl lock" />
+
+In HTTPS, before any HTTP exchange, your browser and the server perform an SSL handshake, where:
+
+- The server presents its **SSL certificate**.
+- The browser validates the certificate.
+- If valid, the browser proceeds with the HTTP handshake.
+
+The SSL handshake involves multiple steps, but this post focuses on **certificate validation** the key process that ensures you're talking to the right server.
+Beyond certificate validation, the SSL/TLS handshake also negotiates cipher suites and exchanges session keys.
+
+## SSL Setup
+
+import SSLFullConnection from '../../../images/posts/ssl/ssl-full-connection.excalidraw.png';
+
+<img src={SSLFullConnection} alt="ssl advertisment" />
+
+Let's say you create a website,`test.xyz`. To make it accessible, you:
+
+- Host the website on a server.
+- Create a DNS **A** record pointing **test.xyz** to the server's IP.
+
+Your website is now available at http://test.xyz. To secure it with HTTPS, you need an SSL certificate from a **certificate authority (CA)** like [Let's Encrypt](https://letsencrypt.org/), [Comodo](https://www.comodo.com/),
+[Digicert](https://www.digicert.com/), [GoDaddy](https://www.godaddy.com/), etc.
+
+A certificate is a document that states that a domain name (`test.xyz` in our example) is owned by you or your organization. A certificate authority (CA) is 
+a trusted entity that issues these certificates. When a browser connects to `https://test.xyz`,  it requests the certificate from the server to verify the website's identity.
+
+The CA verifies your domain ownership and provides a certificate that includes your public key. Now that we have an SSL certificate, let's see how it actually works to secure communication using public-key cryptography.
+
+## Quick Refresher On Public Key Cryptography
+
+**Public key cryptography**, also referred to as **asymmetric cryptography** is a system that uses pairs of keys: **a public** and **a private key**.
+Securing the keys only requires keeping the private key private; the public key can be openly distributed without compromising security.
+
+Your public key can encrypt data, and your private key can decrypt it, and vice versa. You keep the private key secure in your server
+while the public key can be shared with anyone who wants to send you encrypted data (like browsers).
+
+**Receiving the data**
+
+When someone needs to send you data securely, they encrypt the data using your **public key** and send it to you. You then decrypt the data using your **private key**. Only you can read the data because
+only you have the private key.
+
+> SSL relies on public-key cryptography for secure authentication and key exchange to establish a **shared secret key** between the client and the server. This **shared secret key** is then used to encrypt the communication thereafter. This is because
+public-key cryptography is slow and computationally expensive, so it's only used to establish a secure channel.
+
+**To prove authenticity**
+
+A more common use of private key encryption is **digital signatures**, which prove the authenticity of a message. 
+Instead of encrypting an entire message, a private key is used to sign a hashed version of it, 
+allowing recipients to verify its source using the public key.
+
+## Digital Signature
+
+import Signature from '../../../images/posts/ssl/signature.excalidraw.png';
+
+<img src={Signature} alt="ssl lock" />
+
+A digital signature is essentially an **encrypted hash** of data, primarily used to verify data integrity. 
+If the hash extracted from the signature matches the expected hash of the original data, the integrity is intact (as shown on the left). 
+However, if the hashes don’t match (as seen on the right), it indicates that the data has been altered.
+
+import SignatureCheck from '../../../images/posts/ssl/integrity-check.excalidraw.png';
+
+<img src={SignatureCheck} alt="ssl lock" />
+
+In the case of SSL certificates, the digital signature is created by hashing all certificate fields and then encrypting the hash using the **CA's private key**.
+
+To verify the certificate, the client or browser:
+
+- **Decrypts the signature** using the CA’s public key.
+- **Computes the hash** of the certificate fields.
+- **Compares the extracted hash** with the computed hash. If they match, the certificate is valid.
+
+import CertiSignature from '../../../images/posts/ssl/cert-signature.excalidraw.png';
+
+<img src={CertiSignature} alt="ssl lock" />
+
+When you request a certificate from a CA, you share your **public key** with them. The public key becomes part of the final certificate that you receive.
+
+> When the browser reads your certificate, it will have access to the **public key** and thus it can communicate with your server securely by
+encrypting the data using that public key.
+
+The CA then verifies this information and gives you a certificate. This certificate is a file that contains the public key of your website
+and some information about your website like the domain names that can be used. 
+The CA **signs the certificate** (adds a digital signature) using its private key and adds it to the certificate , 
+allowing browsers to verify its authenticity using the CA’s public key.
+
+The certificate you receive from the CA has the following components:
+
+- The domain name (test.xyz).
+- Your public key.
+- The issuer (CA) name.
+- The expiration date.
+- **A digital signature from the CA**.
+
+## Certificate Chain & Hierarchy
+
+import CertChain from '../../../images/posts/ssl/cert-chain.excalidraw.png';
+
+<img src={CertChain} alt="ssl lock" />
+
+Most certificates aren’t signed directly by a **Root CA**. Instead, a chain of trust is established where root CAs have intermediate CAs that sign the certificates.
+A root CA can have many intermediates and an intermediate can further have many intermediates. This forms a **chain of certificates**.
+
+This structure ensures security, if an Intermediate CA is compromised, only its certificates are affected not the entire Root CA.
+
+import CertChainValidation from '../../../images/posts/ssl/ssl-verification-chain.excalidraw.png';
+
+<img src={CertChainValidation} alt="ssl lock" />
+
+How Certificate Chains Work:
+
+- **Leaf Certificate** (Website’s Certificate) → Signed by an Intermediate CA.
+- **Intermediate CA Certificate** → Signed by a Root CA.
+- **Root CA Certificate** → Pre-installed in browsers for trust verification.
+
+For a browser or client to validate a website’s certificate, it must have access to the entire certificate chain up to the root CA. 
+This is why when a website obtains an SSL certificate from a CA, it also receives a chain of certificates leading** up to the last intermediate CA.** 
+The root CA certificate i**s pre-installed **in the client’s trust store instead of being sent by the server. 
+This prevents attackers from forging fake root certificates and tricking users into trusting malicious websites.
+
+Technically there is not much difference between a Root CA and an Intermediate CA. The only difference is that the Root CA is **self-signed** and the Intermediate CA is **signed by a Root CA** or an another intermediate CA.
+From an operation's perspective though, the Root CA is more secure and is only used to sign Intermediate CAs.
+
+**Example of a Root CA Certificate**
+
+```txt
+Subject: CN=Example Root CA
+Issuer: CN=Example Root CA   # Self-signed
+X509v3 Basic Constraints: critical
+    CA:TRUE
+X509v3 Key Usage:
+    Certificate Sign, CRL Sign
+```
+
+**Example of an Intermediate Certificate**
+
+
+```txt
+Subject: CN=Example Intermediate CA
+Issuer: CN=Example Root CA   # Signed by Root CA
+X509v3 Basic Constraints: critical
+    CA:TRUE
+X509v3 Key Usage:
+    Certificate Sign, CRL Sign
+```
+
+**Example of a Leaf Certificate**
+
+```txt
+X509v3 Basic Constraints:
+    CA:FALSE
+X509v3 Key Usage:
+    Digital Signature, Key Encipherment
+```
+
+Real certificates are encoded using the `.pem` format with `base64` encoding. Here's what a certificate (certificate chain) looks like.
+
+```txt
+
+-----BEGIN CERTIFICATE-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7Ddyt2hQEdIjxNXL8E0L9
+EkRebVh0Cht6A27En2Zm58efVG9qj2OXYbH2Z7YqjrKcLzFqJktmAc8k9qHDHLK6
+-----END CERTIFICATE-----
+
+
+-----BEGIN CERTIFICATE-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7A2dz5G7klz5LQHjR1YWX
+X6SFIitFJGDEBv2jIdVsZ7v7BzQ7BEBbD97bZ5aBaejZGjw8ImlOp2D5dPzD4Q3c
+-----END CERTIFICATE-----
+
+-----BEGIN CERTIFICATE-----
+KSmjIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2dz5G7klz5LQHjR1YWX
+X6SFIitFJGDEBv2jIdVsZ7v7BzQ7BEBbD97bZ5aBaejZGjw8ImlOp2D5dPzD4Q3c
+-----END CERTIFICATE-----
+```
+
+While these certificates are encoded in PEM/Base64 format, their contents can be understood as follows:
+
+import SSLCertChainExample from '../../../images/posts/ssl/ssl-cert-chain-example.excalidraw.png';
+
+<img src={SSLCertChainExample} alt="ssl lock" />
+
+- The **Issuer** field specifies which CA signed the certificate. It could be an intermediate CA or the root CA.
+- You can also notice that the **public key** is part of the certificate. 
+- The **leaf certiticate** for this website only allows the domains `www.example.com`, `example.com` and `*.example.com`.
+If you try to use any other domain that doesn't match any of this, the certificate validation will fail.
+- The Subject field indicates the entity to which the certificate belongs (e.g., a website) or, in the case of a CA certificate, the name of the CA.
+
+import SSLCertChainValidation from '../../../images/posts/ssl/ssl-cert-chain-validation.excalidraw.png';
+
+<img src={SSLCertChainValidation} alt="ssl lock" />
+
+When a browser or client receives a certificate, it follows this validation process:
+
+- **Verify the leaf certificate** – The browser decrypts the signature on the leaf certificate using the intermediate CA’s public key. 
+If the extracted hash matches the computed hash of the certificate’s contents, the signature is valid.
+- **Verify the intermediate CA’s certificate** – The browser decrypts the signature on the intermediate CA’s certificate using the root CA’s public key. 
+If the signature is valid, trust is extended to the intermediate CA.
+- **Check the root CA’s certificate** – The root CA’s certificate is already trusted because it is pre-installed in the browser or operating system.
+If all signatures are valid and the certificate chain leads to a trusted root CA, the website’s SSL certificate is considered trusted.
+
+## Trust Store and Root CA Certificates
+
+One crucial point is that the root CA certificate is **not sent by the server**. Instead, it is already pre-installed in the client’s **trust store** (a list of trusted root CAs maintained by browsers and operating systems). 
+If a root CA is missing from this trust store, the certificate chain will be considered untrusted, even if all signatures are technically valid.
+
+> On Linux systems, the trusted root certificates are typically managed using the **ca-certificates** package. 
+This package contains a collection of root CA certificates that are recognized as trusted by the system.
+
+## Certificate Revocation
+
+Certificates have an expiration date (typically 1–2 years), but sometimes they need to be revoked early (e.g., if the private key is compromised).
+
+Revoked certificates are checked via:
+
+- **Certificate Revocation Lists** (CRLs): A CA-published list of invalid certificates.
+- **Online Certificate Status Protocol** (OCSP): A real-time revocation check.

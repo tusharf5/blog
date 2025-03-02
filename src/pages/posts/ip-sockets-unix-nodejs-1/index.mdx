@@ -130,6 +130,24 @@ import ServerMultiSocket from '../../../images/posts/ip-sockets-unix-nodejs-1/se
 
 The server application can retrieve the connection from the Accept queue by calling the `accept()` system call. If the queue is empty, the call will block until a new request arrives, otherwise, the connection at the front of the queue is returned. This socket is used to engage in communication with the client, and once the communication is concluded, the socket can be closed using the `close()` system call.
 
+Since `accept()` is a blocking system call, calling it when you don't have any new connection would pause the calling program and
+it wouldn't be able to perform any other task. This is usually not the behaviour you want. In such cases, a common approach is to use it with `select()` system call.
+
+> There are modern and better alternatives to `select()` system call like poll, epoll, io_uring, etc. but that is out of the scope of this article.
+
+The `select()` system call and other calls in the same family can be used by a process to let the kernel notify the process if there is an incoming connection or data at a socket. It's not just limited to sockets or only notifying of new connections.
+
+Here's the man page for the `select()` command.
+
+> `select()` allows a program to monitor multiple file descriptors,
+waiting until one or more of the file descriptors become "ready"
+for some class of I/O operation (e.g., input possible).  A file
+descriptor is considered ready if it is possible to perform a
+corresponding I/O operation (e.g., read(2), or a sufficiently
+small write(2)) without blocking.
+
+The benefit of this approach is you can call the blocking `accept()` system call only when you know there is data to be read from a socket in which case the call will return immediately without waiting.
+
 ## Server Client Example
 
 Let us consider an example to demonstrate how sockets operate.
