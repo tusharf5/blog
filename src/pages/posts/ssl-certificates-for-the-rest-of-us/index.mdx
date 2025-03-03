@@ -75,27 +75,29 @@ Securing the keys only requires keeping the private key private, the public key 
 Your public key can encrypt data, and your private key can decrypt it, and vice versa. You keep the private key secure in your server
 while the public key can be shared with anyone who wants to send you encrypted data (like browsers).
 
-**Receiving the data**
+### Receiving the data
 
 When someone needs to send you data securely, they encrypt the data using your **public key** and send it to you. You then decrypt the data using your **private key**. Only you can read the data because
 only you have the private key.
 
+import PublicKeyCrypto from '../../../images/posts/ssl/key-pair-public-key-encryption.png';
+
+<img src={PublicKeyCrypto} alt="ssl lock" />
+
 > SSL relies on public-key cryptography for secure authentication and key exchange to establish a **shared secret key** between the client and the server. This **shared secret key** is then used to encrypt the communication thereafter. This is because
-public-key cryptography is slow and computationally expensive, so it's only used to establish a secure channel.
+public-key cryptography is slow and computationally expensive, so it's only used to establish a secure channel by sharing the **secret key** between the client & the server.
 
-**To prove authenticity**
+### Digital Signature
 
-A more common use of private key encryption is **digital signatures**, which prove the authenticity of a message. 
-Instead of encrypting an entire message, a private key is used to sign a hashed version of it, 
-allowing recipients to verify its source using the public key.
-
-## Digital Signature
+A more common use of private key encryption is **digital signatures**, which proves the authenticity of a message. 
+Instead of encrypting an entire message, a private key is used to encrypt the hash of the message, the public key on the other hand is used to decrypt the hash.
+If the hash extracted from the signature matches the hash of the original message, the message is considered authentic & unaltered.
 
 import Signature from '../../../images/posts/ssl/signature.excalidraw.png';
 
 <img src={Signature} alt="ssl lock" />
 
-A digital signature is essentially an **encrypted hash** of data, primarily used to verify data integrity. 
+A **digital signature** is essentially an **encrypted hash** of data, primarily used to verify data integrity. 
 If the hash extracted from the signature matches the expected hash of the original data, the integrity is intact (as shown on the left). 
 However, if the hashes don’t match (as seen on the right), it indicates that the data has been altered.
 
@@ -103,17 +105,17 @@ import SignatureCheck from '../../../images/posts/ssl/integrity-check.excalidraw
 
 <img src={SignatureCheck} alt="ssl lock" />
 
-In the case of SSL certificates, the digital signature is created by hashing all certificate fields and then encrypting the hash using the **CA's private key**.
+In the case of SSL certificates, the **digital signature** is created by hashing all certificate fields and then encrypting the hash using the **CA's private key**.
+
+import PrivateKeyCrypto from '../../../images/posts/ssl/ca-cert-signing-private-key.png';
+
+<img src={PrivateKeyCrypto} alt="ssl lock" />
 
 To verify the certificate, the client or browser:
 
 - **Decrypts the signature** using the CA’s public key.
 - **Computes the hash** of the certificate fields.
 - **Compares the extracted hash** with the **computed hash**. If they match, the certificate is valid.
-
-import CertiSignature from '../../../images/posts/ssl/cert-signature.excalidraw.png';
-
-<img src={CertiSignature} alt="ssl lock" />
 
 When you request a certificate from a CA, you share your **public key** with them. The public key becomes part of the final certificate that you receive.
 
