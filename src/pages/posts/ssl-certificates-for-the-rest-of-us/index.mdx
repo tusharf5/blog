@@ -1,17 +1,19 @@
 ---
 layout: '../../../layouts/BlogPost.astro'
 publishedAt: '2025-02-23'
-title: 'SSL Certificates - For The Rest Of Us'
-category: 'SSL'
+title: 'TLS Certificates - For The Rest Of Us'
+category: 'TLS'
 uid: 'ssl-certificates-for-the-rest-of-us'
 draft: false
 banner: '/images/ssl/banner.png'
 tags:
   - ssl
+  - tls
   - certificates
   - certificate chain
   - ssl handshake
-excerpt: 'How does your browser know a website is legit? This post simplifies SSL, certificate validation, and the trust chain behind secure connections'
+  - tls handshake
+excerpt: 'How does your browser know a website is legit? This post simplifies TLS, certificate validation, and the trust chain behind secure connections'
 ---
 
 import Hero from '../../../images/posts/ssl/banner.png';
@@ -20,44 +22,44 @@ import Hero from '../../../images/posts/ssl/banner.png';
 
 The internet is insecure by default. Attackers can intercept and modify traffic, so we need a way to secure communication and verify the server’s identity.
 
-import SSLLock from '../../../images/posts/ssl/ssl-lock.png';
+import TLSLock from '../../../images/posts/ssl/ssl-lock.png';
 
-<img src={SSLLock} alt="ssl lock" />
+<img src={TLSLock} alt="ssl lock" />
 
 Encryption ensures data privacy, but without verification, hackers could impersonate a legitimate website, intercepting traffic while still using encryption. 
-This is why **SSL** combines encryption with authentication.
+This is why **TLS** combines encryption with authentication.
 
-The lock icon in the address bar of browsers not only means that the communication between your browser
-and the website is encrypted, it also confirms the **identity of the website owner**.
+The lock icon in the browser's address bar not only indicates that the communication between your browser
+and the website is encrypted, but it also confirms the **identity of the website owner**.
 
 > Throughout this article, the terms **client** and **browser** are used interchangeably, as are **server** and **website**. 
-They refer to the same concepts in the context of SSL/TLS communication.
+They refer to the same concepts in the context of TLS communication.
 
-import SSLHandshake from '../../../images/posts/ssl/ssl-cert-handshake.excalidraw.png';
+import TLSHandshake from '../../../images/posts/ssl/ssl-cert-handshake.excalidraw.png';
 
-<img src={SSLHandshake} alt="ssl lock" />
+<img src={TLSHandshake} alt="ssl lock" />
 
-In HTTPS, before any HTTP exchange, your browser and the server perform an SSL handshake, where:
+In HTTPS, before any HTTP exchange, your browser and the server perform an TLS handshake, where:
 
-- The server presents its **SSL certificate**.
+- The server presents its **TLS certificate**.
 - The browser validates the certificate.
 - If valid, the browser proceeds with the HTTP handshake.
 
-The SSL handshake involves multiple steps, but this post focuses on **certificate validation**, the key process that ensures you're talking to the right server.
-Beyond certificate validation, the SSL/TLS handshake also negotiates cipher suites and exchanges session keys.
+The TLS handshake involves multiple steps, but this post focuses on **certificate validation**, the key process that ensures you're talking to the right server.
+Beyond certificate validation, the TLS handshake also negotiates cipher suites and exchanges session keys.
 
-## SSL Setup
+## TLS Setup
 
-import SSLFullConnection from '../../../images/posts/ssl/ssl-full-connection.excalidraw.png';
+import TLSFullConnection from '../../../images/posts/ssl/ssl-full-connection.excalidraw.png';
 
-<img src={SSLFullConnection} alt="ssl advertisment" />
+<img src={TLSFullConnection} alt="ssl advertisment" />
 
 Let's say you create a website,`abc.com`. To make it accessible, you:
 
 - Host the website on a server.
 - Create a DNS **A** record pointing **abc.com** to the server's IP.
 
-Your website is now available at http://abc.com. To secure it with HTTPS, you need an SSL certificate from a **certificate authority (CA)** like [Let's Encrypt](https://letsencrypt.org/), [Comodo](https://www.comodo.com/),
+Your website is now available at http://abc.com. To secure it with HTTPS, you need a TLS certificate from a **certificate authority (CA)** like [Let's Encrypt](https://letsencrypt.org/), [Comodo](https://www.comodo.com/),
 [Digicert](https://www.digicert.com/), [GoDaddy](https://www.godaddy.com/), etc.
 
 A certificate is a document that states that a domain name (`abc.com` in our example) is owned by you or your organization. A **certificate authority (CA)** is 
@@ -65,7 +67,7 @@ a trusted entity that issues these certificates.
 
 > When a browser connects to `https://abc.com`, it requests the certificate from the server to verify the website's identity.
 
-The CA verifies your [domain ownership](https://www.thesslstore.com/knowledgebase/ssl-validation/domain-validation/) and provides a certificate that includes your public key. Now that we have an SSL certificate, let's see how it actually works to secure communication using public-key cryptography.
+The CA verifies your [domain ownership](https://www.thesslstore.com/knowledgebase/ssl-validation/domain-validation/) and provides a certificate that includes your public key. Now that we have a TLS certificate, let's see how it actually works to secure communication using public-key cryptography.
 
 ## Quick Refresher On Public Key Cryptography
 
@@ -84,13 +86,13 @@ import PublicKeyCrypto from '../../../images/posts/ssl/key-pair-public-key-encry
 
 <img src={PublicKeyCrypto} alt="ssl lock" />
 
-> SSL relies on public-key cryptography for secure authentication and key exchange to establish a **shared secret key** between the client and the server. This **shared secret key** is then used to encrypt the communication thereafter. This is because
+> TLS relies on public-key cryptography for secure authentication and key exchange to establish a **shared secret key** between the client and the server. This **shared secret key** is then used to encrypt the communication thereafter. This is because
 public-key cryptography is slow and computationally expensive, so it's only used to establish a secure channel by sharing the **secret key** between the client & the server.
 
 ### Digital Signature
 
 A more common use of **private key** encryption is **digital signatures**, which proves the authenticity of a message. 
-Instead of encrypting an entire message, a **private key** is used to **encrypt** the hash of the message, the **public key** on the other hand is used to **decrypt** the hash.
+Instead of encrypting an entire message, a **private key** is used to **encrypt** the message hash, while the **public key** is used to **decrypt** it.
 
 If the hash extracted from the signature matches the expected hash of the original data, the message is considered authentic & unaltered (as shown on the left). 
 However, if the hashes don’t match (as seen on the right), it indicates that the data has been altered.
@@ -99,7 +101,7 @@ import SignatureCheck from '../../../images/posts/ssl/integrity-check.excalidraw
 
 <img src={SignatureCheck} alt="ssl lock" />
 
-In the case of SSL certificates, the **digital signature** is created by hashing all certificate fields and then encrypting the hash using the **CA's private key**.
+In the case of TLS certificates, the **digital signature** is created by hashing all certificate fields and then encrypting the hash using the **CA's private key**.
 
 import PrivateKeyCrypto from '../../../images/posts/ssl/ca-cert-signing-private-key.png';
 
@@ -149,7 +151,7 @@ How Certificate Chains Work:
 - **Root CA Certificate** → Pre-installed in browsers for trust verification.
 
 For a browser or client to validate a website’s certificate, it must have access to the entire certificate chain up to the Root CA. 
-This is why when a website obtains an SSL certificate from a CA, it also receives a chain of certificates leading **up to the last intermediate CA.** 
+This is why when a website obtains a TLS certificate from a CA, it also receives a chain of certificates leading **up to the last intermediate CA.** 
 The Root CA certificate is **pre-installed** in the client’s trust store instead of being sent by the server. 
 This prevents attackers from forging fake root certificates and tricking users into trusting malicious websites.
 
@@ -213,19 +215,19 @@ X6SFIitFJGDEBv2jIdVsZ7v7BzQ7BEBbD97bZ5aBaejZGjw8ImlOp2D5dPzD4Q3c
 
 While these certificates are encoded in PEM/Base64 format, their contents can be understood as follows:
 
-import SSLCertChainExample from '../../../images/posts/ssl/ssl-cert-chain-example.excalidraw.png';
+import TLSCertChainExample from '../../../images/posts/ssl/ssl-cert-chain-example.excalidraw.png';
 
-<img src={SSLCertChainExample} alt="ssl lock" />
+<img src={TLSCertChainExample} alt="ssl lock" />
 
 - The **Issuer** field specifies which CA signed the certificate. It could be an intermediate CA or the Root CA.
 - You can also notice that the **public key** is part of the certificate. 
-- The **leaf certiticate** for this website only allows the domains `www.example.com`, `example.com` and `*.example.com`.
+- The **leaf certificate** for this website only allows the domains `www.example.com`, `example.com` and `*.example.com`.
 If you try to use any other domain that doesn't match any of this, the certificate validation will fail.
 - The Subject field indicates the entity to which the certificate belongs (e.g., a website) or, in the case of a CA certificate, the name of the CA.
 
-import SSLCertChainValidation from '../../../images/posts/ssl/ssl-cert-chain-validation.excalidraw.png';
+import TLSCertChainValidation from '../../../images/posts/ssl/ssl-cert-chain-validation.excalidraw.png';
 
-<img src={SSLCertChainValidation} alt="ssl lock" />
+<img src={TLSCertChainValidation} alt="ssl lock" />
 
 When a browser or client receives a certificate, it follows this validation process:
 
@@ -234,7 +236,7 @@ If the extracted hash matches the computed hash of the certificate’s contents,
 - **Verify the intermediate CA’s certificate** – The browser decrypts the signature on the intermediate CA’s certificate using the Root CA’s public key. 
 If the signature is valid, trust is extended to the intermediate CA.
 - **Check the Root CA’s certificate** – The Root CA’s certificate is already trusted because it is pre-installed in the browser or operating system.
-If all signatures are valid and the certificate chain leads to a trusted Root CA, the website’s SSL certificate is considered trusted.
+If all signatures are valid and the certificate chain leads to a trusted Root CA, the website’s TLS certificate is considered trusted.
 
 ## Trust Store and Root CA Certificates
 
@@ -258,7 +260,7 @@ Revoked certificates are checked via:
 If you work in a corporate environment, you've probably had to install or update your company's certificate at some point. 
 This is because when you access https://mycorp-private.com, its certificate is signed by a private Root CA that's only trusted within your organization. 
 Since this Root CA isn't publicly recognized, you need to manually install it on your system. 
-Once installed, all connections to https://mycorp-private.com can be securely encrypted with SSL. 
+Once installed, all connections to https://mycorp-private.com can be securely encrypted with TLS. 
 
 This differs from public websites like https://google.com, where certificates are signed by widely trusted Root CAs that are already present in your system or browser.
 
@@ -274,5 +276,5 @@ Self-signed certificates are not suitable for public websites because browsers d
 
 ## Conclusion 
 
-SSL does more than encrypt data it proves you're talking to the right website. The certificate chain, digital signatures, and trust stores all work together to keep the internet secure. 
+TLS does more than encrypt data it proves you're talking to the right website. The certificate chain, digital signatures, and trust stores all work together to keep the internet secure. 
 Next time you see that lock icon in your browser, you’ll know the complex system behind it. Stay curious, and stay secure!
