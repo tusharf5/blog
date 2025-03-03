@@ -344,13 +344,13 @@
     }
 
     & > pre {
-      box-shadow: 0px 0px 0px 20px var(--pre-bg);
+      box-shadow: 0px 0px 0px 10px var(--pre-bg);
       margin: 2.5em 0;
       background-color: #1c2022 !important;
       overflow: auto;
       padding: 1.5em;
       font-size: 0.8em;
-      border-radius: 2px;
+      border-radius: 0;
       max-height: 600px;
     }
 
@@ -369,10 +369,10 @@
     }
 
     img {
-      box-shadow: 0px 0px 0px 20px var(--pre-bg);
+      box-shadow: 0px 0px 0px 10px var(--pre-bg);
       max-width: 100%;
       margin: 2.5em auto;
-      border-radius: 2px;
+      border-radius: 0;
     }
 
     b,
