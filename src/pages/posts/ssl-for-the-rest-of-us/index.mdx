@@ -266,6 +266,16 @@ Once installed, all connections to https://mycorp-private.com can be securely en
 
 This differs from public websites like https://google.com, where certificates are signed by widely trusted Root CAs that are already present in your system or browser.
 
+## Self-Signed Certificates
+
+A **self-signed** certificate is one that is signed using its own private key rather than being issued by a **Certificate Authority (CA)**. These are commonly used to create Root CAs. Generating a self-signed certificate is straightforward and can be done with the following command:
+
+```bash
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+```
+
+Self-signed certificates are not suitable for public websites because browsers do not trust them, as they lack validation from a recognized CA. However, they are useful for testing and development environments.
+
 ## Conclusion 
 
 SSL does more than encrypt data it proves you're talking to the right website. The certificate chain, digital signatures, and trust stores all work together to keep the internet secure. 
