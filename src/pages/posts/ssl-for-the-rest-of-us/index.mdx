@@ -60,15 +60,17 @@ Let's say you create a website,`abc.com`. To make it accessible, you:
 Your website is now available at http://abc.com. To secure it with HTTPS, you need an SSL certificate from a **certificate authority (CA)** like [Let's Encrypt](https://letsencrypt.org/), [Comodo](https://www.comodo.com/),
 [Digicert](https://www.digicert.com/), [GoDaddy](https://www.godaddy.com/), etc.
 
-A certificate is a document that states that a domain name (`abc.com` in our example) is owned by you or your organization. A certificate authority (CA) is 
-a trusted entity that issues these certificates. When a browser connects to `https://abc.com`,  it requests the certificate from the server to verify the website's identity.
+A certificate is a document that states that a domain name (`abc.com` in our example) is owned by you or your organization. A **certificate authority (CA)** is 
+a trusted entity that issues these certificates. 
 
-The CA verifies your domain ownership and provides a certificate that includes your public key. Now that we have an SSL certificate, let's see how it actually works to secure communication using public-key cryptography.
+> When a browser connects to `https://abc.com`, it requests the certificate from the server to verify the website's identity.
+
+The CA verifies your [domain ownership](https://www.thesslstore.com/knowledgebase/ssl-validation/domain-validation/) and provides a certificate that includes your public key. Now that we have an SSL certificate, let's see how it actually works to secure communication using public-key cryptography.
 
 ## Quick Refresher On Public Key Cryptography
 
 **Public key cryptography**, also referred to as **asymmetric cryptography** is a system that uses pairs of keys: **a public** and **a private key**.
-Securing the keys only requires keeping the private key private; the public key can be openly distributed without compromising security.
+Securing the keys only requires keeping the private key private, the public key can be openly distributed without compromising security.
 
 Your public key can encrypt data, and your private key can decrypt it, and vice versa. You keep the private key secure in your server
 while the public key can be shared with anyone who wants to send you encrypted data (like browsers).
