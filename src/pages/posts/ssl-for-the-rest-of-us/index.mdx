@@ -160,6 +160,8 @@ This prevents attackers from forging fake root certificates and tricking users i
 Technically there is not much difference between a Root CA and an Intermediate CA. The only difference is that the Root CA is **self-signed** and the Intermediate CA is **signed by a Root CA** or an another intermediate CA.
 From an operation's perspective though, the Root CA is more secure and is only used to sign Intermediate CAs.
 
+> A **self-signed** certificate is a certitificate that is signed by its own private key instead of another CA's private key. This is typically used for Root CAs.
+
 **Example of a Root CA Certificate**
 
 ```txt
