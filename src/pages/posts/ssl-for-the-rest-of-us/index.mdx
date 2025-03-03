@@ -30,7 +30,7 @@ This is why **SSL** combines encryption with authentication.
 The lock icon in the address bar of browsers not only means that the communication between your browser
 and the website is encrypted, it also confirms the **identity of the website owner**.
 
-> Throughout this article, the terms client and browser are used interchangeably, as are server and website. 
+> Throughout this article, the terms **client** and **browser** are used interchangeably, as are **server** and **website**. 
 They refer to the same concepts in the context of SSL/TLS communication.
 
 import SSLHandshake from '../../../images/posts/ssl/ssl-cert-handshake.excalidraw.png';
@@ -107,7 +107,7 @@ To verify the certificate, the client or browser:
 
 - **Decrypts the signature** using the CA’s public key.
 - **Computes the hash** of the certificate fields.
-- **Compares the extracted hash** with the computed hash. If they match, the certificate is valid.
+- **Compares the extracted hash** with the **computed hash**. If they match, the certificate is valid.
 
 import CertiSignature from '../../../images/posts/ssl/cert-signature.excalidraw.png';
 
@@ -262,7 +262,7 @@ This is because when you access https://mycorp-private.com, its certificate is s
 Since this Root CA isn't publicly recognized, you need to manually install it on your system. 
 Once installed, all connections to https://mycorp-private.com can be securely encrypted with SSL. 
 
-This differs from public websites like https://google.com, where certificates are signed by widely trusted Root CAs that are already built into your system or browser.
+This differs from public websites like https://google.com, where certificates are signed by widely trusted Root CAs that are already present in your system or browser.
 
 ## Conclusion 
 
