@@ -89,16 +89,10 @@ public-key cryptography is slow and computationally expensive, so it's only used
 
 ### Digital Signature
 
-A more common use of private key encryption is **digital signatures**, which proves the authenticity of a message. 
-Instead of encrypting an entire message, a private key is used to encrypt the hash of the message, the public key on the other hand is used to decrypt the hash.
-If the hash extracted from the signature matches the hash of the original message, the message is considered authentic & unaltered.
+A more common use of **private key** encryption is **digital signatures**, which proves the authenticity of a message. 
+Instead of encrypting an entire message, a **private key** is used to **encrypt** the hash of the message, the **public key** on the other hand is used to **decrypt** the hash.
 
-import Signature from '../../../images/posts/ssl/signature.excalidraw.png';
-
-<img src={Signature} alt="ssl lock" />
-
-A **digital signature** is essentially an **encrypted hash** of data, primarily used to verify data integrity. 
-If the hash extracted from the signature matches the expected hash of the original data, the integrity is intact (as shown on the left). 
+If the hash extracted from the signature matches the expected hash of the original data, the message is considered authentic & unaltered (as shown on the left). 
 However, if the hashes don’t match (as seen on the right), it indicates that the data has been altered.
 
 import SignatureCheck from '../../../images/posts/ssl/integrity-check.excalidraw.png';
