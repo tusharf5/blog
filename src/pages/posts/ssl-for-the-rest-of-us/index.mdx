@@ -30,6 +30,8 @@ This is why **SSL** combines encryption with authentication.
 The lock icon in the address bar of browsers not only means that the communication between your browser
 and the website is encrypted, it also confirms the **identity of the website owner**.
 
+> Throughout this article, the terms client and browser are used interchangeably, as are server and website. 
+They refer to the same concepts in the context of SSL/TLS communication.
 
 import SSLHandshake from '../../../images/posts/ssl/ssl-cert-handshake.excalidraw.png';
 
@@ -50,16 +52,16 @@ import SSLFullConnection from '../../../images/posts/ssl/ssl-full-connection.exc
 
 <img src={SSLFullConnection} alt="ssl advertisment" />
 
-Let's say you create a website,`test.xyz`. To make it accessible, you:
+Let's say you create a website,`abc.com`. To make it accessible, you:
 
 - Host the website on a server.
-- Create a DNS **A** record pointing **test.xyz** to the server's IP.
+- Create a DNS **A** record pointing **abc.com** to the server's IP.
 
-Your website is now available at http://test.xyz. To secure it with HTTPS, you need an SSL certificate from a **certificate authority (CA)** like [Let's Encrypt](https://letsencrypt.org/), [Comodo](https://www.comodo.com/),
+Your website is now available at http://abc.com. To secure it with HTTPS, you need an SSL certificate from a **certificate authority (CA)** like [Let's Encrypt](https://letsencrypt.org/), [Comodo](https://www.comodo.com/),
 [Digicert](https://www.digicert.com/), [GoDaddy](https://www.godaddy.com/), etc.
 
-A certificate is a document that states that a domain name (`test.xyz` in our example) is owned by you or your organization. A certificate authority (CA) is 
-a trusted entity that issues these certificates. When a browser connects to `https://test.xyz`,  it requests the certificate from the server to verify the website's identity.
+A certificate is a document that states that a domain name (`abc.com` in our example) is owned by you or your organization. A certificate authority (CA) is 
+a trusted entity that issues these certificates. When a browser connects to `https://abc.com`,  it requests the certificate from the server to verify the website's identity.
 
 The CA verifies your domain ownership and provides a certificate that includes your public key. Now that we have an SSL certificate, let's see how it actually works to secure communication using public-key cryptography.
 
@@ -123,7 +125,7 @@ allowing browsers to verify its authenticity using the CA’s public key.
 
 The certificate you receive from the CA has the following components:
 
-- The domain name (test.xyz).
+- The domain name (abc.com).
 - Your public key.
 - The issuer (CA) name.
 - The expiration date.
@@ -252,6 +254,15 @@ Revoked certificates are checked via:
 
 - **Certificate Revocation Lists** (CRLs): A CA-published list of invalid certificates.
 - **Online Certificate Status Protocol** (OCSP): A real-time revocation check.
+
+## Corporate Certificates and Private CAs
+
+If you work in a corporate environment, you've probably had to install or update your company's certificate at some point. 
+This is because when you access https://mycorp-private.com, its certificate is signed by a private Root CA that's only trusted within your organization. 
+Since this Root CA isn't publicly recognized, you need to manually install it on your system. 
+Once installed, all connections to https://mycorp-private.com can be securely encrypted with SSL. 
+
+This differs from public websites like https://google.com, where certificates are signed by widely trusted Root CAs that are already built into your system or browser.
 
 ## Conclusion 
 
