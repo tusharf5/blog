@@ -1,7 +1,7 @@
 ---
 layout: '../../../layouts/BlogPost.astro'
 publishedAt: '2025-02-23'
-title: 'TLS Certificates - For The Rest Of Us'
+title: 'TLS/SSL Certificates - For The Rest Of Us'
 category: 'TLS'
 uid: 'ssl-certificates-for-the-rest-of-us'
 draft: false
@@ -13,7 +13,7 @@ tags:
   - certificate chain
   - ssl handshake
   - tls handshake
-excerpt: 'How does your browser know a website is legit? This post simplifies TLS, certificate validation, and the trust chain behind secure connections'
+excerpt: 'How does your browser know a website is legit? This post simplifies TLS/SSL, certificate validation, and the trust chain behind secure connections'
 ---
 
 import Hero from '../../../images/posts/ssl/banner.png';
@@ -27,7 +27,10 @@ import TLSLock from '../../../images/posts/ssl/ssl-lock.png';
 <img src={TLSLock} alt="ssl lock" />
 
 Encryption ensures data privacy, but without verification, hackers could impersonate a legitimate website, intercepting traffic while still using encryption. 
-This is why **TLS** combines encryption with authentication.
+This is why **TLS/SSL** combines encryption with authentication.
+
+> **TLS** is the modern successor to **SSL**, enhancing security while keeping the core principles intact. Both use **X.509 certificates** for authentication, 
+and the trust model remains the same.**TLS** isn't a different technology just a more secure evolution of **SSL.**
 
 The lock icon in the browser's address bar not only indicates that the communication between your browser
 and the website is encrypted, but it also confirms the **identity of the website owner**.
@@ -45,7 +48,7 @@ In HTTPS, before any HTTP exchange, your browser and the server perform an TLS h
 - The browser validates the certificate.
 - If valid, the browser proceeds with the HTTP handshake.
 
-The TLS handshake involves multiple steps, but this post focuses on **certificate validation**, the key process that ensures you're talking to the right server.
+The TLS handshake involves multiple steps, but this post focuses on **certificate validation**, the key process that ensures you're communicating with the right server.
 Beyond certificate validation, the TLS handshake also negotiates cipher suites and exchanges session keys.
 
 ## TLS Setup
@@ -121,7 +124,7 @@ encrypting data using that public key.
 The CA verifies this information and issues a certificate, which contains your website’s public key and relevant details like allowed domain names. 
 The CA **signs the certificate** using its private key and adds the signature to the certificate, allowing browsers to verify its authenticity using the CA’s public key.
 
-The certificate you receive from the CA has the following components:
+The certificate you receive from the CA has many components including some of the basic ones like:
 
 - The domain name (abc.com).
 - Your public key.
@@ -152,7 +155,7 @@ How Certificate Chains Work:
 
 For a browser or client to validate a website’s certificate, it must have access to the entire certificate chain up to the Root CA. 
 This is why when a website obtains a TLS certificate from a CA, it also receives a chain of certificates leading **up to the last intermediate CA.** 
-The Root CA certificate is **pre-installed** in the client’s trust store instead of being sent by the server. 
+The Root CA certificate is **pre-installed** in the client’s trust store rather than being sent by the server. 
 This prevents attackers from forging fake root certificates and tricking users into trusting malicious websites.
 
 Technically, the main difference between a Root CA and an intermediate CA is that the Root CA is **self-signed**, while the intermediate CA is signed by a **Root CA** or another **intermediate CA**.
@@ -192,7 +195,7 @@ X509v3 Key Usage:
     Digital Signature, Key Encipherment
 ```
 
-Real certificates are encoded using the `.pem` format with `base64` encoding. Here's what a certificate (certificate chain) looks like.
+Here's what a certificate (certificate chain) looks like in `.pem` format:
 
 ```txt
 
@@ -215,6 +218,9 @@ X6SFIitFJGDEBv2jIdVsZ7v7BzQ7BEBbD97bZ5aBaejZGjw8ImlOp2D5dPzD4Q3c
 
 While these certificates are encoded in PEM/Base64 format, their contents can be understood as follows:
 
+> [X.509](https://www.rfc-editor.org/rfc/rfc5280) is the standard that defines the certificate structure. It is a complex yet highly flexible structure. The formatting used in the image
+below does not represent the X.509 standard but is only used to explain the various fields present in the certificate.
+
 import TLSCertChainExample from '../../../images/posts/ssl/ssl-cert-chain-example.excalidraw.png';
 
 <img src={TLSCertChainExample} alt="ssl lock" />
@@ -222,7 +228,7 @@ import TLSCertChainExample from '../../../images/posts/ssl/ssl-cert-chain-exampl
 - The **Issuer** field specifies which CA signed the certificate. It could be an intermediate CA or the Root CA.
 - You can also notice that the **public key** is part of the certificate. 
 - The **leaf certificate** for this website only allows the domains `www.example.com`, `example.com` and `*.example.com`.
-If you try to use any other domain that doesn't match any of this, the certificate validation will fail.
+If you try to use any other domain that doesn't match any of these, the certificate validation will fail.
 - The Subject field indicates the entity to which the certificate belongs (e.g., a website) or, in the case of a CA certificate, the name of the CA.
 
 import TLSCertChainValidation from '../../../images/posts/ssl/ssl-cert-chain-validation.excalidraw.png';
@@ -240,11 +246,32 @@ If all signatures are valid and the certificate chain leads to a trusted Root CA
 
 ## Trust Store and Root CA Certificates
 
-One crucial point is that the Root CA certificate is **not sent by the server**. Instead, it is already pre-installed in the client’s **trust store** (a list of trusted Root CAs maintained by browsers and operating systems). 
+One crucial point is that the Root CA certificate is **not sent by the server**. Instead, it is pre-installed in the client’s **trust store** (a list of trusted Root CAs maintained by browsers and operating systems). 
 If a Root CA is missing from this trust store, the certificate chain will be considered untrusted, even if all signatures are technically valid.
 
 > On Linux systems, the trusted root certificates are typically managed using the **ca-certificates** package. 
 This package contains a collection of Root CA certificates that are recognized as trusted by the system.
+
+## Certificate Structure & Extensions
+
+[X.509](https://www.rfc-editor.org/rfc/rfc5280) is the standard that defines certificate structure which contains several critical fields beyond the basic details like subject, issuer, and public key.
+
+The common file formats for encoding [X.509](https://www.rfc-editor.org/rfc/rfc5280) certificates include:
+
+- **PEM** (`.pem`, `.crt`, `.cer`) – Base64 encoded, commonly used in web servers.
+- **DER** (`.der`, `.cer`, `.crt`) – Binary format, often used in Windows environments.
+- **PKCS#12** (`.pfx`, `.p12`) – Bundles certificates with private keys, commonly used in Windows and enterprise environments.
+
+**Certificate extensions** are optional fields in an **X.509 certificate** that provide additional information about the certificate's usage, restrictions, and attributes. 
+They allow certificates to support various security policies.
+
+Some important extensions for TLS include:
+
+- **Key Usage** – Specifies allowed cryptographic operations (e.g., key encipherment, certificate signing).
+- **Extended Key Usage** (EKU) – Defines specific use cases (e.g., TLS server authentication, email protection).
+- **Subject Alternative Name** (SAN) – Lists additional domains/IPs the certificate covers.
+- **CRL Distribution Points & OCSP URLs** – Points to revocation information.
+
 
 ## Certificate Revocation
 
