@@ -1,20 +1,28 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import HomeHeader from '../components/HomeHeader.astro';
+import favicon from '../images/home/favicon.png';
+import type { Props } from '../layouts/BlogPost.astro';
 
-const posts = (await Astro.glob('./posts/**/*.{md,mdx}'))
+const allPosts = Object.values(
+  import.meta.glob('./posts/**/*.{md,mdx}', { eager: true }),
+) as Array<{ frontmatter: Props['content'] }>;
+const posts = allPosts
   .filter((p) => !p.frontmatter.draft)
   .sort(
     (a, b) =>
       new Date(b.frontmatter.publishedAt).valueOf() -
-      new Date(a.frontmatter.publishedAt).valueOf()
+      new Date(a.frontmatter.publishedAt).valueOf(),
   );
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <BaseHead
+      url={Astro.site!.href}
+      ,
+      imageUrl={favicon.src}
       title="Home"
       parent="tusharf5.com"
       description="Welcome"

@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2021-07-30'
-uid: 'css-container-queries'
-title: 'CSS Container Queries'
-category: 'CSS'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2021-07-30"
+uid: "css-container-queries"
+title: "CSS Container Queries"
+category: "CSS"
 draft: false
 tags:
   - css
@@ -14,9 +14,9 @@ excerpt: "CSS' new container queries will be a game changer for responsive desig
 
 Let's say we have a card component as shown in the below image.
 
-import Component from '../../../images/posts/css-container-queries/component.png';
+import Component from "../../../images/posts/css-container-queries/component.png";
 
-<img src={Component} alt="component" />
+<img src={Component.src} alt="component" />
 
 When we want to use it for large screen sizes, it looks exactly the same. The CSS also remains the same.
 
@@ -26,9 +26,9 @@ When we want to use it for large screen sizes, it looks exactly the same. The CS
 }
 ```
 
-import LargeComponent from '../../../images/posts/css-container-queries/large-screen.png';
+import LargeComponent from "../../../images/posts/css-container-queries/large-screen.png";
 
-<img src={LargeComponent} alt="large-screen" />
+<img src={LargeComponent.src} alt="large-screen" />
 
 When we want to use it for smaller screen size, we change the layout of it a little. We have to write additional
 CSS for this change in the layout. The way we target this screen size in the CSS is by using media queries.
@@ -46,9 +46,9 @@ CSS for this change in the layout. The way we target this screen size in the CSS
 }
 ```
 
-import MediumComponent from '../../../images/posts/css-container-queries/medium-size.png';
+import MediumComponent from "../../../images/posts/css-container-queries/medium-size.png";
 
-<img src={MediumComponent} alt="medium-size" />
+<img src={MediumComponent.src} alt="medium-size" />
 
 Media queries are very commonly used for responsive design. So what's the fuss about **Container Queries?**. Let's try to understand the problem that container queries will help us solve.
 
@@ -60,9 +60,9 @@ when the size of the window changes.
 But do we only want responsiveness when the size of the window changes? If we take the above example, to
 change the layout of the following card component, the screen size needs to change from 1080px to 756px.
 
-import Responsiveness from '../../../images/posts/css-container-queries/responsive-comps.png';
+import Responsiveness from "../../../images/posts/css-container-queries/responsive-comps.png";
 
-<img src={Responsiveness} alt="responsive-comps" />
+<img src={Responsiveness.src} alt="responsive-comps" />
 
 This was our only shot at making something responsive by targetting different screen sizes. But if we think about it,
 there are use cases when the screen size does not change but we still need to change the layout of a component depending on
@@ -70,9 +70,9 @@ where it is placed.
 
 To better understand that use case let's keep the screen size constant and see the below layout.
 
-import Same from '../../../images/posts/css-container-queries/same-screen-diff-parent.png';
+import Same from "../../../images/posts/css-container-queries/same-screen-diff-parent.png";
 
-<img src={Same} alt="same-screen-diff-parent" />
+<img src={Same.src} alt="same-screen-diff-parent" />
 
 You see that even though the screen size remains the same but depending on where our card component is placed we need to
 change its layout/structure/stylings. We can't use media queries for this. Media queries only work when the screen size changes.

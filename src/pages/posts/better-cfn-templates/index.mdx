@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2020-05-31'
-uid: 'better-cfn-templates'
-title: 'Write Better CloudFormation Templates'
-category: 'AWS'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2020-05-31"
+uid: "better-cfn-templates"
+title: "Write Better CloudFormation Templates"
+category: "AWS"
 draft: false
 tags:
   - aws
@@ -11,7 +11,7 @@ tags:
   - cloudformation
   - cfn
   - stacks
-excerpt: 'Some good practices that should be followed while working with CloudFormation. These practices have helped us to write better CloudFormation templates and deploy more often with extra confidence.'
+excerpt: "Some good practices that should be followed while working with CloudFormation. These practices have helped us to write better CloudFormation templates and deploy more often with extra confidence."
 ---
 
 At [Gerald](https://gerald.app) we heavily use **CloudFormation** to deploy our cloud infrastructure. Our backend architecture is fairly complex with a lot of moving parts. From API servers to Big Data Engines and Data Science components, everything is deployed using cloudformation which integrates seamlessly with our CI/CD pipelines. The benefits of using cloudformation which is an Infrastructure as a Code service provided by AWS is huge.
@@ -37,8 +37,8 @@ Resources:
   APIDockerRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: 'api-repository'
-      SomeOtherAttribute: 'value'
+      RepositoryName: "api-repository"
+      SomeOtherAttribute: "value"
 ```
 
 Let's say to perform an update on this **ECR Repository** CFN needs to replace it and create a new one in its place. In the above case, CFN won't be able to do that since the `RepositoryName` has a static value. Why? To understand that you need to know how CFN updates resources.
@@ -58,7 +58,7 @@ Resources:
   APIDockerRepository:
     Type: AWS::ECR::Repository
     Properties:
-      SomeOtherAttribute: 'value'
+      SomeOtherAttribute: "value"
 ```
 
 Now, the next time CFN needs to replace it, it can create a new resource with a new random name and replace it with the existing one. You don't have to break a sweat when updating resources 😇
@@ -192,7 +192,7 @@ Resources:
     Type: AWS::CloudTrail::Trail
     Condition: CreateProdResources
     Properties:
-      S3BucketName: 'cloud-trail'
+      S3BucketName: "cloud-trail"
 ```
 
 This way if you deploy this template in `stage` environment **Cloudtrail** will not be created.
@@ -238,15 +238,15 @@ Resources:
       GroupDescription: Outbound Access To Anywhere
       VpcId:
         # This value after substitution becomes "VPC-Stack-VPCId"
-        Fn::ImportValue: !Sub '${VPCStack}-VPCId'
+        Fn::ImportValue: !Sub "${VPCStack}-VPCId"
 
   BatchCompute:
-    Type: 'AWS::Batch::ComputeEnvironment'
+    Type: "AWS::Batch::ComputeEnvironment"
     Properties:
       Type: Managed
       ComputeResources:
         Subnets:
-          - Fn::ImportValue: !Sub '${VPCStack}-PublicSubnetOne'
+          - Fn::ImportValue: !Sub "${VPCStack}-PublicSubnetOne"
         Type: Ec2
 ```
 

@@ -1,16 +1,16 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2022-10-17'
-uid: 'typescript-satisfies-operator'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2022-10-17"
+uid: "typescript-satisfies-operator"
 title: "Typescript's New `satisfies` Operator"
-category: 'Typescript'
+category: "Typescript"
 draft: false
 tags:
   - typescript
   - typescript satisfies
   - design pattern
   - typescript 4.9
-excerpt: 'With the upcoming 4.9 release, Typescript will add this amazing new feature to make the types in your codebase even more reliable.'
+excerpt: "With the upcoming 4.9 release, Typescript will add this amazing new feature to make the types in your codebase even more reliable."
 ---
 
 ```typescript
@@ -20,7 +20,7 @@ interface Document {
 }
 
 // app.ts
-const checkbox = document.getElementById('myCheckbox') as HTMLDivElement;
+const checkbox = document.getElementById("myCheckbox") as HTMLDivElement;
 ```
 
 In the code above, `getElementById` function returns an `HTMLElement` which represents an HTML Element,
@@ -29,9 +29,9 @@ return type to `HTMLDivElement` using type assertion to access properties specif
 
 The following image shows the inheritance chain of an `HTMLDivElement`.
 
-import HTMLElement from '../../../images/posts/typescript-satisfies-operator/html-element.png';
+import HTMLElement from "../../../images/posts/typescript-satisfies-operator/html-element.png";
 
-<img src={HTMLElement} alt="Html element" />
+<img src={HTMLElement.src} alt="Html element" />
 
 Another common use case of the `as` operator is when we want to upcast a type to a broader type.
 Like in the example below we are upcasting a `Dog` to an `Animal`.
@@ -45,11 +45,11 @@ interface Animal {
 interface Dog {
   canWalk: boolean;
   isPet: boolean;
-  species: 'dog';
+  species: "dog";
 }
 
 function returnADog(): Dog {
-  return { canWalk: true, isPet: true, species: 'dog' };
+  return { canWalk: true, isPet: true, species: "dog" };
 }
 
 // we need to work with a broader type here
@@ -71,15 +71,15 @@ export interface User {
 
 export function createUsername(user: User): string | undefined {
   if (user.id) {
-    return 'random-username';
+    return "random-username";
   }
   return;
 }
 
 // file: app.ts
-import { type User, createUsername } from './types.ts';
+import { type User, createUsername } from "./types.ts";
 
-const user = { isActive: true, id: 'uuid' } as User;
+const user = { isActive: true, id: "uuid" } as User;
 const name = createUsername(user);
 ```
 
@@ -103,9 +103,9 @@ we can see that the `user` object literal is missing the newly added `isVerified
 
 ```typescript
 // file: app.ts
-import { type User, createUsername } from './types.ts';
+import { type User, createUsername } from "./types.ts";
 
-const user = { isActive: true, id: '12-34m2ks' } as User;
+const user = { isActive: true, id: "12-34m2ks" } as User;
 const name = createUsername(user);
 ```
 
@@ -142,8 +142,8 @@ true as false; // ✅ since both are boolean
 Only “impossible” coercions like the followings are not allowed.
 
 ```typescript
-3 as '2'; // no overlap between the number 3 and string '2'
-'hello' as Symbol; // no overlap
+3 as "2"; // no overlap between the number 3 and string '2'
+"hello" as Symbol; // no overlap
 3 as undefined; // no overlap
 ```
 
@@ -171,17 +171,17 @@ If we go back to our example, this is how we'd use it.
 
 ```typescript
 // file: app.ts
-import { type User, createUsername } from './types.ts';
+import { type User, createUsername } from "./types.ts";
 
-const user = { isActive: true, id: 'uuid' } satisfies User as User;
+const user = { isActive: true, id: "uuid" } satisfies User as User;
 const name = createUsername(user);
 ```
 
 Now, the Typescript compiler will fully validate the type of our `user` object literal with `User` type.
 
-import Error from '../../../images/posts/typescript-satisfies-operator/satisfies-error.png';
+import Error from "../../../images/posts/typescript-satisfies-operator/satisfies-error.png";
 
-<img src={Error} alt="Satisfies Error Typescript" />
+<img src={Error.src} alt="Satisfies Error Typescript" />
 
 As a general practice, every time you use the `as` operator, you should use the `satisfies` operator
 to let the type safety be handled by Typescript instead of you.
@@ -202,7 +202,7 @@ interface TextFile {
   name: string;
 }
 
-const bfile: TextFile = { name: 'x.b' } satisfies BinaryFile;
+const bfile: TextFile = { name: "x.b" } satisfies BinaryFile;
 ```
 
 In the above example, even though the object literal `{ name: 'x.b' }` satisfies to be a `BinaryFile`,
@@ -214,9 +214,9 @@ will infer its type based on its structure.
 
 ```typescript
 const config = {
-  name: 'app-1',
-  version: '2.0',
-  service: 'users',
+  name: "app-1",
+  version: "2.0",
+  service: "users",
 };
 ```
 
@@ -230,43 +230,43 @@ const config: {
 };
 ```
 
-import InferredType from '../../../images/posts/typescript-satisfies-operator/inferred-type.png';
+import InferredType from "../../../images/posts/typescript-satisfies-operator/inferred-type.png";
 
-<img src={InferredType} alt="Inferred type" />
+<img src={InferredType.src} alt="Inferred type" />
 
 Let's say we do want to add some type of validation to the config object. One way to do this is
 to assign it to an explicit type as shown below:
 
 ```typescript
 const config: Record<string, string> = {
-  name: 'app-1',
-  version: '2.0',
-  service: 'users',
+  name: "app-1",
+  version: "2.0",
+  service: "users",
 };
 ```
 
 The problem with this approach is that now you lose the inferred type with explicit keys. As a result,
 you no longer get IntelliSense for its keys.
 
-import ExplicitType from '../../../images/posts/typescript-satisfies-operator/explicit-type.png';
+import ExplicitType from "../../../images/posts/typescript-satisfies-operator/explicit-type.png";
 
-<img src={ExplicitType} alt="Explicit type" />
+<img src={ExplicitType.src} alt="Explicit type" />
 
 Another approach is to keep using the inferred type of the object but validate it with the `satisfies` keyword.
 
 ```typescript
 const config = {
-  name: 'app-1',
-  version: '2.0',
-  service: 'users',
+  name: "app-1",
+  version: "2.0",
+  service: "users",
 } satisfies Record<string, string>;
 ```
 
 This way you get the type validation on the object and you also get to preserve the inferred type of the object.
 
-import SatisfiesPreserveType from '../../../images/posts/typescript-satisfies-operator/satisfied-preserve-type.png';
+import SatisfiesPreserveType from "../../../images/posts/typescript-satisfies-operator/satisfied-preserve-type.png";
 
-<img src={SatisfiesPreserveType} alt="Satisfies preserve type" />
+<img src={SatisfiesPreserveType.src} alt="Satisfies preserve type" />
 
 Once again, this is only possible because using the `satisfies` operator does not affect the `type` of the value.
 

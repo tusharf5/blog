@@ -1,11 +1,11 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-03-09'
-title: 'Amazon SQS Service - A Refresher'
-category: 'Cloud'
-uid: 'aws-sqs'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-03-09"
+title: "Amazon SQS Service - A Refresher"
+category: "Cloud"
+uid: "aws-sqs"
 draft: false
-excerpt: 'A small guide covering the basics of AWS SQS service.'
+excerpt: "A small guide covering the basics of AWS SQS service."
 tags:
   - aws
   - sqs
@@ -28,9 +28,9 @@ Let's assume that your team member can file one complaint at a time but the numb
 is more than 50. He will only be able to file only a few complaints and most of the passengers will leave in a bad
 mood without filling a complaint because of all the chaos and crowd around the complaint corner.
 
-import crowd from '../../../images/posts/aws-sqs/crowd.png';
+import crowd from "../../../images/posts/aws-sqs/crowd.png";
 
-<img src={crowd} alt="crowd" />
+<img src={crowd.src} alt="crowd" />
 
 Let's modify this system by introducing a queue concept in it. Let's say that now anyone can write their complaint on a
 piece of paper and put it in a box which automatically _arranges_ all of the complaint papers in a _list_. Your team member
@@ -64,9 +64,9 @@ store almost anything (logs, notifications, messages).
 Your system/application can have components that could send messages to an SQS queue and receive messages
 from the queue. The queue (which holds messages A through E) redundantly stores the messages across multiple Amazon SQS servers. So, although you have only one queue, Amazon stores multiple copies of your messages on multiple servers(all messages are a part of your queue).
 
-import sqslifecycle from '../../../images/posts/aws-sqs/sqs-message-lifecycle-diagram.png';
+import sqslifecycle from "../../../images/posts/aws-sqs/sqs-message-lifecycle-diagram.png";
 
-<img src={sqslifecycle} alt="sqs-message-lifecycle-diagram" />
+<img src={sqslifecycle.src} alt="sqs-message-lifecycle-diagram" />
 
 ## Message Lifecycle ✉️
 
@@ -87,9 +87,12 @@ there's no guarantee that the consumer actually receives the message (for exampl
 or due to an issue in the consumer application). Thus, the consumer _must delete_ the message from the queue after
 receiving and processing it.
 
-import sqsVisibilityTimeoutDiagram from '../../../images/posts/aws-sqs/sqs-visibility-timeout-diagram.png';
+import sqsVisibilityTimeoutDiagram from "../../../images/posts/aws-sqs/sqs-visibility-timeout-diagram.png";
 
-<img src={sqsVisibilityTimeoutDiagram} alt="sqs-visibility-timeout-diagram" />
+<img
+  src={sqsVisibilityTimeoutDiagram.src}
+  alt="sqs-visibility-timeout-diagram"
+/>
 
 A message is considered to be _stored_ after it is sent to a queue by a producer, but not yet received
 from the queue by a consumer (that is, between states 1 and 2). There is no limit to the number of

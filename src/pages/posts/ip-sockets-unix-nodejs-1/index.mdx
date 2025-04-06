@@ -1,11 +1,11 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2023-02-05'
-uid: 'ip-sockets-unix-nodejs-1'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2023-02-05"
+uid: "ip-sockets-unix-nodejs-1"
 title: "IP Sockets - Networking Fundamentals - Part 1"
-category: 'Linux'
+category: "Linux"
 draft: false
-banner: '/images/sockets-unix-nodejs-1/banner.png'
+banner: "/images/sockets-unix-nodejs-1/banner.png"
 tags:
   - javascript
   - array buffer
@@ -13,15 +13,15 @@ tags:
   - nodejs
   - chunk
   - data view
-excerpt: 'Sockets are a fundamental building block of network programming, and they provide an essential abstraction layer that enables applications to interact with the underlying network protocols.'
+excerpt: "Sockets are a fundamental building block of network programming, and they provide an essential abstraction layer that enables applications to interact with the underlying network protocols."
 ---
 
-import Hero from '../../../images/posts/ip-sockets-unix-nodejs-1/banner.png';
+import Hero from "../../../images/posts/ip-sockets-unix-nodejs-1/banner.png";
 
-<img src={Hero} alt="sockets" />
+<img src={Hero.src} alt="sockets" />
 
 **Table of Contents:**
- 
+
 - **[Introduction to Sockets](#introduction-to-sockets)**
 - **[Socket Pair](#socket-pair)**
 - **[Creating a Server Socket](#creating-a-server-socket)**
@@ -30,25 +30,25 @@ import Hero from '../../../images/posts/ip-sockets-unix-nodejs-1/banner.png';
 
 ## Introduction to Sockets
 
-In an operating system, a socket is a virtual representation of one endpoint of a connection. Whenever a client establishes a connection with a server, it results in the creation of a socket on the client side and another one on the server side. 
+In an operating system, a socket is a virtual representation of one endpoint of a connection. Whenever a client establishes a connection with a server, it results in the creation of a socket on the client side and another one on the server side.
 
 In other words, when you want to send data over a network, you write the data (bytes) to a socket. When you read data from a network, you read it from a socket.
 
-import Intro from '../../../images/posts/ip-sockets-unix-nodejs-1/socket-intro.png';
+import Intro from "../../../images/posts/ip-sockets-unix-nodejs-1/socket-intro.png";
 
-<img src={Intro} alt="sockets" />
+<img src={Intro.src} alt="sockets" />
 
 Sockets can exist in two states, either active or passive. An active socket is used when a client initiates a connection request, such as an HTTP request. On the other hand, a passive socket is used to receive connection requests, for example, in an HTTP server.
 
-import ActivePassiveSocket from '../../../images/posts/ip-sockets-unix-nodejs-1/active-passive-socket.png';
+import ActivePassiveSocket from "../../../images/posts/ip-sockets-unix-nodejs-1/active-passive-socket.png";
 
-<img src={ActivePassiveSocket} alt="sockets" />
+<img src={ActivePassiveSocket.src} alt="sockets" />
 
 Internally socket is a data structure maintained by the kernel that holds information such as the local IP (of the connection), local port, remote IP, remote port, and incoming & outgoing buffers, etc. In UNIX, a socket is created through the execution of the `socket()` system call.
 
-import DS from '../../../images/posts/ip-sockets-unix-nodejs-1/socket-data-structure.png';
+import DS from "../../../images/posts/ip-sockets-unix-nodejs-1/socket-data-structure.png";
 
-<img src={DS} alt="sockets" />
+<img src={DS.src} alt="sockets" />
 
 Typically, in order to listen for incoming connections server sockets use a well-known port number, such as port 80 for HTTP, 443 for HTTPS, 21 for FTP, or 27017 for MongoDB.
 
@@ -58,9 +58,9 @@ Similarly, when you initiate a connection such as an HTTP request, the client so
 
 A socket pair consists of four elements that play a crucial role in determining how incoming and outgoing traffic is routed through a system. These elements include the **local IP**, **local port**, **remote IP**, and **remote port**. Upon the arrival of a TCP segment, the TCP protocol (kernel) analyzes all four of these elements to route the segment to the correct endpoint (i.e., a socket).
 
-import Routing from '../../../images/posts/ip-sockets-unix-nodejs-1/routing.png';
+import Routing from "../../../images/posts/ip-sockets-unix-nodejs-1/routing.png";
 
-<img src={Routing} alt="sockets" />
+<img src={Routing.src} alt="sockets" />
 
 A socket pair can be represented as:
 
@@ -72,15 +72,15 @@ For example, a server socket that listens on port 8080 and can receive requests 
 
 Since this is a listening socket, the remote IP and port are both unspecified.
 
-By setting the local IP to a wildcard (*), a server socket is capable of accepting incoming connection requests from any of the host's network interfaces. Alternatively, using `0.0.0.0` instead of a wildcard allows for the same functionality.
+By setting the local IP to a wildcard (\*), a server socket is capable of accepting incoming connection requests from any of the host's network interfaces. Alternatively, using `0.0.0.0` instead of a wildcard allows for the same functionality.
 
 Suppose the host has two network interface cards (NICs) with two distinct IPs, such as `25.6.85.178` and `150.139.2.22`, and we want the server to only accept connection requests sent to the IP `25.6.85.178`. In this scenario, the socket pair's local IP configuration can be set to:
 
 **\{25.6.85.178|8080 | - | -\}**
 
-import ServerSocketConn from '../../../images/posts/ip-sockets-unix-nodejs-1/server-socket-req.png';
+import ServerSocketConn from "../../../images/posts/ip-sockets-unix-nodejs-1/server-socket-req.png";
 
-<img src={ServerSocketConn} alt="sockets" />
+<img src={ServerSocketConn.src} alt="sockets" />
 
 When creating a socket in the listening mode you don't have to specify values for the remote IP and remote port.
 
@@ -90,11 +90,11 @@ For example, if a host with IP `199.213.82.51` wants to connect to a server with
 
 **\{199.213.82.51|1600 | 25.6.85.178|8008\}**
 
-import ClientSocketConn from '../../../images/posts/ip-sockets-unix-nodejs-1/client-socket-req.png';
+import ClientSocketConn from "../../../images/posts/ip-sockets-unix-nodejs-1/client-socket-req.png";
 
-<img src={ClientSocketConn} alt="sockets" />
+<img src={ClientSocketConn.src} alt="sockets" />
 
-## Creating A Server Socket 
+## Creating A Server Socket
 
 The process of creating a server socket begins with a system call to create a new socket. The `socket()` call returns a socket descriptor, also known as a file descriptor.
 
@@ -102,7 +102,7 @@ The next step is to bind the socket to a **local IP** and **port** using the `bi
 
 Afterwards, you must execute the `listen()` system call to transition the socket to a listening state, enabling it to actively await incoming connection requests.
 
-> Following creation, a socket can take one of two routes: it can either become a server socket if you issue the **`listen()`** system call or it can become a client socket if you issue the **`connect()`** system call. 
+> Following creation, a socket can take one of two routes: it can either become a server socket if you issue the **`listen()`** system call or it can become a client socket if you issue the **`connect()`** system call.
 
 Kernel maintains two queues for each socket.
 
@@ -110,23 +110,23 @@ Kernel maintains two queues for each socket.
 
 **The Accept queue**: Also known as the completed connection queue, which contains requests that have successfully completed the handshake and have been assigned a socket by the kernel. Once the handshake is successfully completed, the entry is then moved from the SYN queue to the Accept queue.
 
-import SynQueue from '../../../images/posts/ip-sockets-unix-nodejs-1/syn-queue.png';
+import SynQueue from "../../../images/posts/ip-sockets-unix-nodejs-1/syn-queue.png";
 
-<img src={SynQueue} alt="sockets" />
+<img src={SynQueue.src} alt="sockets" />
 
-import AcceptQueue from '../../../images/posts/ip-sockets-unix-nodejs-1/accept-queue.png';
+import AcceptQueue from "../../../images/posts/ip-sockets-unix-nodejs-1/accept-queue.png";
 
-<img src={AcceptQueue} alt="sockets" />
+<img src={AcceptQueue.src} alt="sockets" />
 
-It is worth noting that if a server receives `100` requests, it will create **100 distinct sockets**** to handle each request. These 100 sockets are separate from the listening socket, which merely listens for incoming connection requests. Once a request is received, the kernel assigns a new socket to handle the request so that the listening socket can continue to listen for additional connection requests.
+It is worth noting that if a server receives `100` requests, it will create **100 distinct sockets\*\*** to handle each request. These 100 sockets are separate from the listening socket, which merely listens for incoming connection requests. Once a request is received, the kernel assigns a new socket to handle the request so that the listening socket can continue to listen for additional connection requests.
 
-The same is true for client sockets i.e if you initiate 100 connection requests, the system will create 100 client sockets. 
+The same is true for client sockets i.e if you initiate 100 connection requests, the system will create 100 client sockets.
 
 > For both the client and server sockets, the kernel may not necessarily create 100 brand new sockets for 100 requests, as it is possible for it to reuse sockets that are no longer in use.
 
-import ServerMultiSocket from '../../../images/posts/ip-sockets-unix-nodejs-1/server-multi-socket.png';
+import ServerMultiSocket from "../../../images/posts/ip-sockets-unix-nodejs-1/server-multi-socket.png";
 
-<img src={ServerMultiSocket} alt="sockets" />
+<img src={ServerMultiSocket.src} alt="sockets" />
 
 The server application can retrieve the connection from the Accept queue by calling the `accept()` system call. If the queue is empty, the call will block until a new request arrives, otherwise, the connection at the front of the queue is returned. This socket is used to engage in communication with the client, and once the communication is concluded, the socket can be closed using the `close()` system call.
 
@@ -140,11 +140,11 @@ The `select()` system call and other calls in the same family can be used by a p
 Here's the man page for the `select()` command.
 
 > `select()` allows a program to monitor multiple file descriptors,
-waiting until one or more of the file descriptors become "ready"
-for some class of I/O operation (e.g., input possible).  A file
-descriptor is considered ready if it is possible to perform a
-corresponding I/O operation (e.g., read(2), or a sufficiently
-small write(2)) without blocking.
+> waiting until one or more of the file descriptors become "ready"
+> for some class of I/O operation (e.g., input possible). A file
+> descriptor is considered ready if it is possible to perform a
+> corresponding I/O operation (e.g., read(2), or a sufficiently
+> small write(2)) without blocking.
 
 The benefit of this approach is you can call the blocking `accept()` system call only when you know there is data to be read from a socket in which case the call will return immediately without waiting.
 
@@ -162,11 +162,11 @@ The socket pair for the listening socket can be denoted as:
 
 The server is now ready to listen for connections on port `8080`.
 
-On the other hand, a client with an IP `199.213.82.51` initiates a connection with the server's IP `125.6.85.178`. We'll assume the ephemeral port assigned to the client socket is `1900`. 
+On the other hand, a client with an IP `199.213.82.51` initiates a connection with the server's IP `125.6.85.178`. We'll assume the ephemeral port assigned to the client socket is `1900`.
 
-import ClientServer1 from '../../../images/posts/ip-sockets-unix-nodejs-1/client-server-ex-1.png';
+import ClientServer1 from "../../../images/posts/ip-sockets-unix-nodejs-1/client-server-ex-1.png";
 
-<img src={ClientServer1} alt="sockets" />
+<img src={ClientServer1.src} alt="sockets" />
 
 The socket pair for the socket on the client can be denoted as:
 
@@ -180,17 +180,17 @@ The kernel receives the connection on the listening socket, completes the three-
 
 **\{125.6.85.178 : 8080, 199.213.82.51 : 1900\}**
 
-import ClientServer2 from '../../../images/posts/ip-sockets-unix-nodejs-1/client-server-ex-2.png';
+import ClientServer2 from "../../../images/posts/ip-sockets-unix-nodejs-1/client-server-ex-2.png";
 
-<img src={ClientServer2} alt="sockets" />
+<img src={ClientServer2.src} alt="sockets" />
 
 For the new socket created on the server side, the local IP is determined by the network interface that received the request (`125.6.85.178`), while the local port is equal to the port of the listening socket. The remote IP (`199.213.82.51`) and port (`1900`) correspond to the IP and port of the client socket.
 
 It's important to note that the port number `8080` is used by both the listening socket and the connected socket. This is because the kernel utilizes all four elements of the socket pair (local IP, local port, remote IP, remote port) to route a TCP segment and not just the port number.
 
-When a TCP segment arrives at `125.6.85.178` and port `8080` from `199.213.82.51` and port `1900` it is delivered to the connected socket. All other TCP segments are delivered to the listening socket. 
+When a TCP segment arrives at `125.6.85.178` and port `8080` from `199.213.82.51` and port `1900` it is delivered to the connected socket. All other TCP segments are delivered to the listening socket.
 
-## Conclusion 
+## Conclusion
 
 In the second part of this blog, we will delve into the details of the interaction between `Node.js` and Unix sockets, and explore the role played by the event loop when handling multiple sockets on a primarily single-threaded platform.
 

@@ -1,16 +1,16 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2022-10-01'
-title: 'Prototyping and Inheritance in Javascript'
-uid: 'prototyping-and-inheritance-in-js'
-category: 'Javascript'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2022-10-01"
+title: "Prototyping and Inheritance in Javascript"
+uid: "prototyping-and-inheritance-in-js"
+category: "Javascript"
 draft: true
 tags:
   - prototypes
   - functions
   - inheritance
   - new keyword
-excerpt: 'How prototyping works in Javascript with the prototype chain?.'
+excerpt: "How prototyping works in Javascript with the prototype chain?."
 ---
 
 Let's try to understand what happens behind the scenes when you create a new function and when you extend one.
@@ -20,7 +20,7 @@ This is a Javascript function.
 ```js
 function Enemy() {
   this.life = 10;
-  this.power = 'shoot-bullets';
+  this.power = "shoot-bullets";
 }
 ```
 
@@ -41,7 +41,7 @@ function Enemy() {
   this.life = 10;
   this.ammo = 20;
   this.shoot = function () {
-    console.log('Shooting');
+    console.log("Shooting");
     this.ammo--;
   };
 }
@@ -63,7 +63,7 @@ The code below seems totally reasonable to me then which one of the these two is
 ```js
 function spawnEnemy() {
   function shoot() {
-    console.log('Shooting');
+    console.log("Shooting");
     this.ammo--;
   }
   return {
@@ -98,7 +98,7 @@ That is why it is so important.
 ```js
 var cat = Object.create(Object.prototype, {
   name: {
-    value: 'Jimmy',
+    value: "Jimmy",
     enumerable: true,
     writable: true,
     configurable: true,
@@ -130,7 +130,7 @@ Now whenever you make a `new` instance from that contructor function.
 
 ```js
 function Car() {
-  this.name = 'mozilla';
+  this.name = "mozilla";
 }
 ```
 

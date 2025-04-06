@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2022-06-03'
-uid: 'type-safe-retry-function-in-typescript'
-title: 'Type Safe Retry Function In Typescript'
-category: 'Typescript'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2022-06-03"
+uid: "type-safe-retry-function-in-typescript"
+title: "Type Safe Retry Function In Typescript"
+category: "Typescript"
 draft: false
 tags:
   - typescript
@@ -12,7 +12,7 @@ tags:
   - type safe
   - typescript retry
   - design pattern
-excerpt: 'A fully type-safe utility function to retry the function execution on failure.'
+excerpt: "A fully type-safe utility function to retry the function execution on failure."
 ---
 
 “Everything fails, all the time” - Werner Vogels, Amazon CTO
@@ -53,9 +53,9 @@ Let's talk about the actual retry function implementation. This was not the firs
 
 Typescript is awesome but what good is a typescript code that doesn't give you full type safety.
 
-import Untitled1 from '../../../images/posts/type-safe-retry-function-in-typescript/Untitled-1.png';
+import Untitled1 from "../../../images/posts/type-safe-retry-function-in-typescript/Untitled-1.png";
 
-<img src={Untitled1} alt="Untitled-1" />
+<img src={Untitled1.src} alt="Untitled-1" />
 
 So let's look at the implementation of the function.
 
@@ -67,9 +67,9 @@ export async function retry<T extends (...arg0: any[]) => any>(
   fn: T,
   args: Parameters<T>,
   maxTry: number,
-  retryCount = 1
+  retryCount = 1,
 ): Promise<Awaited<ReturnType<T>>> {
-  const currRetry = typeof retryCount === 'number' ? retryCount : 1;
+  const currRetry = typeof retryCount === "number" ? retryCount : 1;
   try {
     const result = await fn(...args);
     return result;
@@ -93,28 +93,28 @@ This is how one would use this function.
 async function callAPI(
   arg1: string,
   arg2: number,
-  arg3: { id: string }
+  arg3: { id: string },
 ): Promise<{ data: Array<string> }> {
-  return { data: ['array', 'of', 'strings'] };
+  return { data: ["array", "of", "strings"] };
 }
 
 // This will call the above function at most 5 times if it fails continuously.
-const result = await retry(callAPI, ['hello', 2, { id: 'world' }], 5);
+const result = await retry(callAPI, ["hello", 2, { id: "world" }], 5);
 ```
 
 The nice thing is that it preserves all the types (parameter and return type) of the function being called which means that it gives you autocompletion and complains if you are not passing in the right parameters.
 
 The parameters are typed.
 
-import Two from '../../../images/posts/type-safe-retry-function-in-typescript/Screenshot_2022-03-06_at_10.53.54_PM.png';
+import Two from "../../../images/posts/type-safe-retry-function-in-typescript/Screenshot_2022-03-06_at_10.53.54_PM.png";
 
-<img src={Two} alt="Screenshot_2022-03-06_at_10.53.54_PM" />
+<img src={Two.src} alt="Screenshot_2022-03-06_at_10.53.54_PM" />
 
 The return type is also of the called function.
 
-import Three from '../../../images/posts/type-safe-retry-function-in-typescript/Screenshot_2022-03-06_at_10.54.42_PM.png';
+import Three from "../../../images/posts/type-safe-retry-function-in-typescript/Screenshot_2022-03-06_at_10.54.42_PM.png";
 
-<img src={Three} alt="Screenshot_2022-03-06_at_10.54.42_PM" />
+<img src={Three.src} alt="Screenshot_2022-03-06_at_10.54.42_PM" />
 
 The implementation is fairly straightforward, what's interesting is using the usage of some utility types from Typescript which is where all the magic happens. Let's take a closer look at it.
 
@@ -123,7 +123,7 @@ export async function retry<T extends (...arg0: any[]) => any>(
   fn: T,
   args: Parameters<T>,
   maxTry: number,
-  retryCount = 1
+  retryCount = 1,
 ): Promise<Awaited<ReturnType<T>>>;
 ```
 
@@ -143,15 +143,15 @@ This is similar to something like below where typescript is extracting the type 
 
 ```tsx
 function hello() {
-  return 'world';
+  return "world";
 }
 
 type T = typeof hello;
 ```
 
-import Four from '../../../images/posts/type-safe-retry-function-in-typescript/Screenshot_2022-03-06_at_11.08.50_PM.png';
+import Four from "../../../images/posts/type-safe-retry-function-in-typescript/Screenshot_2022-03-06_at_11.08.50_PM.png";
 
-<img src={Four} alt="Screenshot_2022-03-06_at_11.08.50_PM" />
+<img src={Four.src} alt="Screenshot_2022-03-06_at_11.08.50_PM" />
 
 Alright, back to our function.
 
@@ -167,7 +167,7 @@ The below example would make it more clear.
 
 ```tsx
 function hello(a: number, b: string): string {
-  return 'world';
+  return "world";
 }
 
 type T = typeof hello;
@@ -175,9 +175,9 @@ type T = typeof hello;
 type Params = Parameters<T>;
 ```
 
-import Five from '../../../images/posts/type-safe-retry-function-in-typescript/Screenshot_2022-03-06_at_11.24.34_PM.png';
+import Five from "../../../images/posts/type-safe-retry-function-in-typescript/Screenshot_2022-03-06_at_11.24.34_PM.png";
 
-<img src={Five} alt="Screenshot_2022-03-06_at_11.24.34_PM" />
+<img src={Five.src} alt="Screenshot_2022-03-06_at_11.24.34_PM" />
 
 In a similar way, we define the return type of our retry function.
 
@@ -191,7 +191,7 @@ Similar to the `Parameters` utility type, the `ReturnType` extracts the return t
 
 ```tsx
 function hello(a: number, b: string): string {
-  return 'world';
+  return "world";
 }
 
 type T = typeof hello;
@@ -201,9 +201,9 @@ type Params = Parameters<T>;
 type Return = ReturnType<T>;
 ```
 
-import Six from '../../../images/posts/type-safe-retry-function-in-typescript/Screenshot_2022-03-06_at_11.29.07_PM.png';
+import Six from "../../../images/posts/type-safe-retry-function-in-typescript/Screenshot_2022-03-06_at_11.29.07_PM.png";
 
-<img src={Six} alt="Screenshot_2022-03-06_at_11.29.07_PM" />
+<img src={Six.src} alt="Screenshot_2022-03-06_at_11.29.07_PM" />
 
 Now since we've assigned our T type variable to the first parameter (which is a function), `ReturnType<T>` basically means whatever the `ReturnType` type of the first parameter is, assign that type to the return type of this function.
 

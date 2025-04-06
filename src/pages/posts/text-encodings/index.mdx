@@ -1,18 +1,18 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-07-09'
-title: 'Text Encodings - What Every Software Engineer Should Know'
-uid: 'text-encodings'
-category: 'Programming'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-07-09"
+title: "Text Encodings - What Every Software Engineer Should Know"
+uid: "text-encodings"
+category: "Programming"
 draft: false
 tags:
   - encodings
-excerpt: 'The bare minimum of Text Encodings and Schemes without going too much into details.'
+excerpt: "The bare minimum of Text Encodings and Schemes without going too much into details."
 ---
 
-import Hero from '../../../images/posts/text-encodings/encoding.jpg';
+import Hero from "../../../images/posts/text-encodings/encoding.jpg";
 
-<img src={Hero} alt="encoding" />
+<img src={Hero.src} alt="encoding" />
 
 Computers understand binary which is a language based on 0s and 1s.
 
@@ -98,7 +98,7 @@ Code points is basically a mapping of numbers to characters and these numbers ar
 | 67         | C     |
 | ...        |       |
 | 1245       | ӝ     |
-| 9731       | ☃     |
+| 9731       | ☃    |
 
 Now when I said **Unicode doesn't have to use bytes to represent its characters** what I meant was
 that Unicode is actually not an encoding scheme.

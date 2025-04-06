@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-02-18'
-title: 'Gatsby Internals for Developers'
-category: 'Frameworks'
-uid: 'gatsby-internals-for-developers'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-02-18"
+title: "Gatsby Internals for Developers"
+category: "Frameworks"
+uid: "gatsby-internals-for-developers"
 draft: false
 excerpt: "Exploring Gatsby's powerful features with little to no documentation on web."
 tags:
@@ -26,7 +26,7 @@ So if you want to have a page on your website at `your-website.com/about.html`
 you will create a _React Component_ in `src/pages/about.js`
 
 ```js
-import React from 'react';
+import React from "react";
 
 export default function About() {
   return <div>About Me</div>;
@@ -37,8 +37,8 @@ Right now it's just static content here which is a string `About Me`.
 If I want to make this string dynamic, I can use a GraphQL query to do that.
 
 ```js
-import React from 'react';
-import { graphql } from 'gatsby';
+import React from "react";
+import { graphql } from "gatsby";
 
 export default function About({ data }) {
   return <div>{data.dynamicString}</div>;
@@ -180,7 +180,7 @@ We'll create another plugin for that. Let's call our plugin `my-md-transformer`
 The implementation will look something like this in the file named `gatsby-node.js`.
 
 ```js
-const mdToHtml = require('magic-md-to-html-transformer'); // pretty sure this doen't exist
+const mdToHtml = require("magic-md-to-html-transformer"); // pretty sure this doen't exist
 
 // helper function to create our new node
 function createMDNode({ id, node, content }) {
@@ -195,7 +195,7 @@ function createMDNode({ id, node, content }) {
     internal: {
       content: content,
       // setting a unique name for our new node
-      type: 'Md',
+      type: "Md",
     },
   };
 
@@ -214,13 +214,13 @@ exports.onCreateNode = async (
     createNodeId, //helper function to create a unique node id
     getNode, // helper function to get any node by passing the id
   },
-  pluginOptions
+  pluginOptions,
 ) => {
   const { createNode, createParentChildLink, createNodeField } = actions;
 
   // we only want to transform nodes of type `MySourceFileNode`
   // rest we don't care
-  if (node.internal.type !== 'MySourceFileNode') {
+  if (node.internal.type !== "MySourceFileNode") {
     return;
   }
 
@@ -249,7 +249,7 @@ exports.onCreateNode = async (
   // remember we have a fields property on each node
   // the field we create here gets added to that property
   createNodeField({
-    name: 'slug', // field name
+    name: "slug", // field name
     mdNode, // the node on which we want to add a custom field
     value: kebabCase(node.fileName), // field value
   });
@@ -330,23 +330,21 @@ exports.createPages = ({ graphql, actions }) => {
   // using the nodes that we've defined earlier
   return new Promise((resolve, reject) => {
     resolve(
-      graphql(
-        `
-          {
-            allMd {
-              #edges is like results
-              edges {
-                node {
-                  id
-                  fields {
-                    slug
-                  }
+      graphql(`
+        {
+          allMd {
+            #edges is like results
+            edges {
+              node {
+                id
+                fields {
+                  slug
                 }
               }
             }
           }
-        `
-      ).then((result) => {
+        }
+      `).then((result) => {
         // this is some boilerlate to handle errors
         if (result.errors) {
           console.error(result.errors);
@@ -370,7 +368,7 @@ exports.createPages = ({ graphql, actions }) => {
             },
           });
         });
-      })
+      }),
     );
   });
 };

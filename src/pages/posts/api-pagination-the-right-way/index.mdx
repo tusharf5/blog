@@ -14,9 +14,9 @@ excerpt: "REST APIs are everywhere. API performance has never been more importan
 to building paginated APIs is somewhat misleading. In this post, I have shared my thoughts on building paginated REST APIs."
 ---
 
-import APICycle from '../../../images/posts/api-pagination-the-right-way/api-cycle.png';
+import APICycle from "../../../images/posts/api-pagination-the-right-way/api-cycle.png";
 
-<img src={APICycle} alt="api-cycle" />
+<img src={APICycle.src} alt="api-cycle" />
 
 > A lot of the time, when you're making calls to a REST API, there'll be a lot of results to return. For that reason, we paginate the results to make sure responses are easier to handle. - [Atlassian Docs](https://developer.atlassian.com/server/confluence/pagination-in-the-rest-api/)
 
@@ -134,9 +134,9 @@ Of course, doing this without a proper index would only make things worse. Even 
 
 **How Does Indexing Help ?**
 
-import IndexDesign from '../../../images/posts/api-pagination-the-right-way/mongodb-index.png';
+import IndexDesign from "../../../images/posts/api-pagination-the-right-way/mongodb-index.png";
 
-<img src={IndexDesign} alt="mongodb-index" />
+<img src={IndexDesign.src} alt="mongodb-index" />
 
 **Indexes** are stored in **RAM** and implemented as **B-Tree (modified)** and each node in that tree refers to a memory location in the disk where the corresponding record is stored.
 

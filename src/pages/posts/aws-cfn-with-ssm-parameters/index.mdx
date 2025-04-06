@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2020-08-30'
-uid: 'aws-cfn-with-ssm-parameters'
-title: 'SSM Parameters For A Better CloudFormation Experience'
-category: 'AWS'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2020-08-30"
+uid: "aws-cfn-with-ssm-parameters"
+title: "SSM Parameters For A Better CloudFormation Experience"
+category: "AWS"
 draft: false
 tags:
   - aws
@@ -13,7 +13,7 @@ tags:
   - system manager
   - cross-stack
   - secrets in aws
-excerpt: 'How we use SSM Parameter Store for managing our AWS resources created by CloudFormation.'
+excerpt: "How we use SSM Parameter Store for managing our AWS resources created by CloudFormation."
 ---
 
 At [Gerald](https://gerald.app), we have a fairly medium-sized AWS infrastructure with workloads that span multiple domains. We're using more than 50 different AWS services. For any change in our AWS account, we use CloudFormation (I'll refer to it as CFN).
@@ -30,24 +30,27 @@ One way to share resources between different stacks is using a CFN feature calle
 We were heavily using this feature across our stacks but very soon the
 cross-stack dependencies started to grow which would frequently break the CI/CD pipeline which was still okay as there are valid reasons for the restrictions listed above but it's also not a very pleasant experience to deal with it.
 
-import Stack from '../../../images/posts/aws-cfn-with-ssm-parameters/stack-mesh.png';
+import Stack from "../../../images/posts/aws-cfn-with-ssm-parameters/stack-mesh.png";
 
-<img src={Stack} alt="Stack" />
+<img src={Stack.src} alt="Stack" />
 
 The resource dependencies between stacks is something that should be well planned before creating the stacks but it is also something that cannot be avoided. The major issue that we were facing was not even related to the cross-stack dependencies. But it was something related to how
 we were using the resources created by CFN in our applications.
 
 I'll explain it using an example. Let's say we have two Node API servers. Both make use of some AWS resources that are created by a CFN Stack.
 
-import CFN from '../../../images/posts/aws-cfn-with-ssm-parameters/cfn.png';
+import CFN from "../../../images/posts/aws-cfn-with-ssm-parameters/cfn.png";
 
-<img src={CFN} alt="SSM Parameters For A Better CloudFormation Experience" />
+<img
+  src={CFN.src}
+  alt="SSM Parameters For A Better CloudFormation Experience"
+/>
 
 Their normal operations include queuing items to an **SQS Queue** and uploading files to an **S3 Bucket**. For these operations (API calls) we were using AWS Node SDK.
 
-import ServiceCalls from '../../../images/posts/aws-cfn-with-ssm-parameters/service-calls.png';
+import ServiceCalls from "../../../images/posts/aws-cfn-with-ssm-parameters/service-calls.png";
 
-<img src={ServiceCalls} alt="service calls" />
+<img src={ServiceCalls.src} alt="service calls" />
 
 What do these servers need in order to do that?
 
@@ -56,9 +59,9 @@ What do these servers need in order to do that?
 
 It would be a terrible idea to hard code these values in the codebase. These values should be provided to our application through a different process often times via a CI/CD pipeline. There are multiple ways for doing that for example making these values available in the EC2 shell environment either as a config file or as environment variables.
 
-import ApproachOne from '../../../images/posts/aws-cfn-with-ssm-parameters/approach-1.png';
+import ApproachOne from "../../../images/posts/aws-cfn-with-ssm-parameters/approach-1.png";
 
-<img src={ApproachOne} alt="approach" />
+<img src={ApproachOne.src} alt="approach" />
 
 The code for accessing those variables from the EC2 shell might look something like this.
 
@@ -71,8 +74,8 @@ function getSecretFromShellEnvironment(key) {
 
 function loadSecrets() {
   const secrets = {
-    my_s3_bucket: getSecretFromShellEnvironment('/prod/bff_api/my_s3_bucket'),
-    queue_url: getSecretFromShellEnvironment('/prod/bff_api/queue_url'),
+    my_s3_bucket: getSecretFromShellEnvironment("/prod/bff_api/my_s3_bucket"),
+    queue_url: getSecretFromShellEnvironment("/prod/bff_api/queue_url"),
   };
   return secrets;
 }
@@ -94,15 +97,15 @@ VALUE - 'password'
 
 Here's a picture of its console interface. The **Name** column represents all the Keys in your account and region.
 
-import SSMParamStore from '../../../images/posts/aws-cfn-with-ssm-parameters/ssm-param-store.png';
+import SSMParamStore from "../../../images/posts/aws-cfn-with-ssm-parameters/ssm-param-store.png";
 
-<img src={SSMParamStore} alt="ssm param store" />
+<img src={SSMParamStore.src} alt="ssm param store" />
 
 Instead of storing the secrets as environment variables, we use SSM Parameters. The Node app would call the SSM Parameter API to get all the required values before starting the server so it doesn't have to get these values again as long as it doesn't restart. See code below.
 
-import ApproachTwo from '../../../images/posts/aws-cfn-with-ssm-parameters/approach-2.png';
+import ApproachTwo from "../../../images/posts/aws-cfn-with-ssm-parameters/approach-2.png";
 
-<img src={ApproachTwo} alt="approach" />
+<img src={ApproachTwo.src} alt="approach" />
 
 ```js
 async function getSecretFromSSM(key) {
@@ -112,8 +115,8 @@ async function getSecretFromSSM(key) {
 
 async function loadSecrets() {
   const [my_s3_bucket, queue_url] = await Promise.all([
-    getSecretFromSSM('/prod/bff_api/my_s3_bucket'),
-    getSecretFromSSM('/prod/bff_api/queue_url'),
+    getSecretFromSSM("/prod/bff_api/my_s3_bucket"),
+    getSecretFromSSM("/prod/bff_api/queue_url"),
   ]);
   return { my_s3_bucket, queue_url };
 }
@@ -135,18 +138,18 @@ This was definitely a good starting point but it required manual work not just t
 
 This process would be repeated every time CFN creates a AWS resources that needed to be accessed in our backend application. Even worse, sometimes CFN would silently replace resources([instead of update](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html)) thereby changing its ARN, URL, Name, ID, etc while the application code would still be referring to the old values stored in SSM Parameter Store and we wouldn't even know until the application would break.
 
-import SSMProblem from '../../../images/posts/aws-cfn-with-ssm-parameters/problem-ssm.png';
+import SSMProblem from "../../../images/posts/aws-cfn-with-ssm-parameters/problem-ssm.png";
 
-<img src={SSMProblem} alt="SSM Problem" />
+<img src={SSMProblem.src} alt="SSM Problem" />
 
 This quickly became a bottleneck for our fast-paced development team. Every time someone would make a change in the CFN templates we would check if we need to update anything in the SSM Parameter Store. If yes, after updating the value in the store we would also have to restart the Node servers using that value.
 
 Why restarting the servers? We had to restart the servers because we used to load all the values from the store in one go before starting the server so that while the server was running, it didn't have to download those values again. For the server to pick up new values from the store we would have to restart the server.
 
 ```js {9,10,14,21,29}
-import express from 'express';
+import express from "express";
 
-import { loadConfigFromSSMParams, loadSecretsFromSSMParams } from './bootstrap';
+import { loadConfigFromSSMParams, loadSecretsFromSSMParams } from "./bootstrap";
 
 const app = express();
 const port = 3000;
@@ -156,19 +159,19 @@ const config = await loadConfigFromSSMParams();
 const secrets = await loadSecretsFromSSMParams();
 
 // Register routes
-app.get('/status', (req, res) => {
+app.get("/status", (req, res) => {
   if (config.isLive) {
-    return res.send('Live ✅');
+    return res.send("Live ✅");
   }
-  res.send('Not live yet ❌');
+  res.send("Not live yet ❌");
 });
 
-app.get('/add_to_queue', (req, res) => {
+app.get("/add_to_queue", (req, res) => {
   if (secrets.queue_url) {
     // add item to sqs queue
-    return res.send('Uploaded ✅');
+    return res.send("Uploaded ✅");
   }
-  res.send('Uploading Failed ❌');
+  res.send("Uploading Failed ❌");
 });
 
 // Start the server
@@ -208,7 +211,7 @@ Resources:
     Properties:
       Description: DO NOT UPDATE. Updated from CFN
       # unique ssm param key
-      Name: '/my_app/resources/s3/archive_bucket'
+      Name: "/my_app/resources/s3/archive_bucket"
       Type: String
       # value of the key is the name of the bucket
       # since "!Ref S3Bucket" returns the name of that bucket
@@ -236,7 +239,7 @@ Resources:
       AvailabilityZone:
         Fn::Select:
           - 0
-          - Fn::GetAZs: { Ref: 'AWS::Region' }
+          - Fn::GetAZs: { Ref: "AWS::Region" }
       CidrBlock: 10.0.0.0/18
       MapPublicIpOnLaunch: true
 
@@ -248,7 +251,7 @@ Resources:
       AvailabilityZone:
         Fn::Select:
           - 1
-          - Fn::GetAZs: { Ref: 'AWS::Region' }
+          - Fn::GetAZs: { Ref: "AWS::Region" }
       CidrBlock: 10.0.64.0/18
       MapPublicIpOnLaunch: true
 
@@ -257,7 +260,7 @@ Resources:
     Properties:
       Description: DO NOT UPDATE. Updated from CFN
       # key
-      Name: '/app_network/plain/resources/ec2/vpc_id'
+      Name: "/app_network/plain/resources/ec2/vpc_id"
       Type: String
       # value
       Value: !Ref MainVPC
@@ -267,7 +270,7 @@ Resources:
     Properties:
       Description: DO NOT UPDATE. Updated from CFN
       # key
-      Name: '/app_network/plain/resources/ec2/public_subnet_1_id'
+      Name: "/app_network/plain/resources/ec2/public_subnet_1_id"
       Type: String
       # value
       Value: !Ref PublicSubnetOne
@@ -277,7 +280,7 @@ Resources:
     Properties:
       Description: DO NOT UPDATE. Updated from CFN
       # key
-      Name: '/app_network/plain/resources/ec2/public_subnet_2_id'
+      Name: "/app_network/plain/resources/ec2/public_subnet_2_id"
       Type: String
       # value
       Value: !Ref PublicSubnetTwo
@@ -291,13 +294,13 @@ it doesn't have to download those configs and secrets again and again. If the ap
 To solve this issue we divided the configs & secrets into two groups. The values in the first group can change frequently and the values in the second group would rarely change. The values of the first group will be accessed from the Parameter Store in real-time i.e every time it needs to be accessed it is loaded from the Parameter Store via an API call.
 
 ```js {13,14,17,25}
-import express from 'express';
+import express from "express";
 
 import {
   loadConfigFromSSMParams,
   loadSecretsFromSSMParams,
   getSSMParamValue,
-} from './bootstrap';
+} from "./bootstrap";
 
 const app = express();
 const port = 3000;
@@ -306,19 +309,19 @@ const port = 3000;
 const config = await loadConfigFromSSMParams();
 const secrets = await loadSecretsFromSSMParams();
 
-app.get('/status', (req, res) => {
+app.get("/status", (req, res) => {
   if (config.isLive) {
-    return res.send('Live ✅');
+    return res.send("Live ✅");
   }
-  res.send('Not live yet ❌');
+  res.send("Not live yet ❌");
 });
 
-app.get('/add_to_queue', async (req, res) => {
+app.get("/add_to_queue", async (req, res) => {
   // loading latest value from the store in real time
-  const queueUrl = await getSSMParamValue('my_queue');
+  const queueUrl = await getSSMParamValue("my_queue");
   // add item to sqs queue queueUrl
-  return res.send('Uploaded ✅');
-  res.send('Uploading Failed ❌');
+  return res.send("Uploaded ✅");
+  res.send("Uploading Failed ❌");
 });
 
 app.listen(port, () => {
@@ -329,9 +332,9 @@ app.listen(port, () => {
 Following this approach, we didn't have to restart the application when the Store value would change since the application is
 always loading the latest value from the Store at that very moment when it needs to access it. Of course, you can add some caching mechanism to that but always remember to have a cache invalidation process in place.
 
-import Solved from '../../../images/posts/aws-cfn-with-ssm-parameters/solved.png';
+import Solved from "../../../images/posts/aws-cfn-with-ssm-parameters/solved.png";
 
-<img src={Solved} alt="solved" />
+<img src={Solved.src} alt="solved" />
 
 We were quite happy with the results, the only thing left to figure out was that how will different applications know what is the Parameter Store key of a resource that it wants to access.
 
@@ -342,13 +345,13 @@ This was fairly easy as we were already using a shared npm package across multip
 export const ssmKeys = {
   my_app: {
     vpc: {
-      vpc_id: 'my_app/vpc/vpc_id',
+      vpc_id: "my_app/vpc/vpc_id",
     },
     s3: {
-      archive_bucket: 'my_app/s3/archive_bucket',
+      archive_bucket: "my_app/s3/archive_bucket",
     },
     sqs: {
-      temp_item_queue_url: 'my_app/sqs/temp_item_queue_url',
+      temp_item_queue_url: "my_app/sqs/temp_item_queue_url",
     },
   },
 };
@@ -358,13 +361,13 @@ Then we can use it in our applications as shown below.
 
 ```js {5}
 // script.js
-import { ssmKeys } from '@org/shared-package';
+import { ssmKeys } from "@org/shared-package";
 
-app.get('/add_to_s3', async (req, res) => {
+app.get("/add_to_s3", async (req, res) => {
   const bucket = await getSSMParam(ssmKeys.my_app.s3.archive_bucket);
   // add item to s3
-  return res.send('Uploaded ✅');
-  res.send('Uploading Failed ❌');
+  return res.send("Uploaded ✅");
+  res.send("Uploading Failed ❌");
 });
 ```
 
@@ -385,7 +388,7 @@ Resources:
     Properties:
       Description: DO NOT UPDATE. Updated from CFN
       # unique ssm param key
-      Name: 'my_app/s3/archive_bucket'
+      Name: "my_app/s3/archive_bucket"
       Type: String
       # value of the key is the name of the bucket
       # since "!Ref S3Bucket" returns the name of that bucket
@@ -397,9 +400,9 @@ in the CFN template. By following this approach, it has become so much easier to
 
 Another benefit that we found out later is that you can also use SSM Parameter Store keys to refer to resources across multiple stacks similar to the cross-stack reference feature but without any of its limitations. We've removed all of our stack `exports` and `imports` across all of our CFN stacks and replaced them with referencing resources via SSM Parameter Store.
 
-import SSmCFNShare from '../../../images/posts/aws-cfn-with-ssm-parameters/ssm-cfn-share-res.png';
+import SSmCFNShare from "../../../images/posts/aws-cfn-with-ssm-parameters/ssm-cfn-share-res.png";
 
-<img src={SSmCFNShare} alt="ssm cloudformation cross reference" />
+<img src={SSmCFNShare.src} alt="ssm cloudformation cross reference" />
 
 ```yaml {10,11,21}
 ## Importing resources created in other stacks
@@ -411,12 +414,12 @@ Parameters:
     Description: The archive bucket created by the storage stack
   MainVPC:
     Description: VpcId of the Network Stack
-    Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: '/app_network/plain/resources/ec2/vpc_id'
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: "/app_network/plain/resources/ec2/vpc_id"
   PublicSubnetOne:
     Description: Public Subnet One of the Network Stack
-    Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: '/app_network/plain/resources/ec2/public_subnet_1_id'
+    Type: "AWS::SSM::Parameter::Value<String>"
+    Default: "/app_network/plain/resources/ec2/public_subnet_1_id"
 
 Resources:
   MyEC2SecurityGroup:

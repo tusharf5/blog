@@ -9,6 +9,7 @@ export interface Props {
     title: string;
     uid: string;
     publishedAt: string;
+    draft?: boolean;
     category: string;
     excerpt: string;
     banner: string;
@@ -23,26 +24,18 @@ interface Likes {
 
 const {
   url,
-  content: { banner, title, uid, excerpt, tags, category, publishedAt },
-} = Astro.props;
+  props: {
+    content: { banner, title, uid, excerpt, tags, category, publishedAt },
+  },
+} = Astro;
 
-const fullUrl = `https://tusharf5.com${url}`
-const bannerUrl = `https://tusharf5.com${banner}`
+const fullUrl = `https://tusharf5.com${url}`;
+const bannerUrl = `https://tusharf5.com${banner}`;
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-J07MLQ6PKJ"></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-J07MLQ6PKJ');
-    </script>
-    <!-- Google tag (gtag.js) -->
     <BaseHead
       url={fullUrl}
       imageUrl={bannerUrl}
@@ -65,7 +58,7 @@ const bannerUrl = `https://tusharf5.com${banner}`
     </main>
     <footer class="footer">
       <div class="social-react">
-        <img id={`${uid}-like-icon`} alt="heart like" src={emptyHeart} />
+        <img id={`${uid}-like-icon`} alt="heart like" src={emptyHeart.src} />
         <span id={`${uid}-count`}></span>
       </div>
       <div class="social-share">
@@ -89,7 +82,7 @@ const bannerUrl = `https://tusharf5.com${banner}`
       const countEl = document.getElementById(`${article}-count`);
       if (countEl) {
         fetch(
-          `https://27jnn5jki9.execute-api.eu-central-1.amazonaws.com/prod/likes?id=${article}`
+          `https://27jnn5jki9.execute-api.eu-central-1.amazonaws.com/prod/likes?id=${article}`,
         )
           .then((res) => res.json())
           .then((resp) => {
@@ -116,13 +109,13 @@ const bannerUrl = `https://tusharf5.com${banner}`
         let liked = !!window.localStorage.getItem(`${userId}::${article}`);
 
         if (iconEl && liked) {
-          (iconEl as HTMLImageElement).src = fillHeart;
+          (iconEl as HTMLImageElement).src = fillHeart.src;
           iconEl.classList.add('liked');
           iconEl.classList.remove('unliked');
         }
 
         if (iconEl && !liked) {
-          (iconEl as HTMLImageElement).src = emptyHeart;
+          (iconEl as HTMLImageElement).src = emptyHeart.src;
           iconEl.classList.add('unliked');
           iconEl.classList.remove('liked');
         }
@@ -141,9 +134,9 @@ const bannerUrl = `https://tusharf5.com${banner}`
           window.localStorage.removeItem(`${userId}::${article}`);
           iconEl.classList.remove('liked');
           iconEl.classList.add('unliked');
-          (iconEl as HTMLImageElement).src = emptyHeart;
+          (iconEl as HTMLImageElement).src = emptyHeart.src;
         } else {
-          (iconEl as HTMLImageElement).src = fillHeart;
+          (iconEl as HTMLImageElement).src = fillHeart.src;
           window.localStorage.setItem(`${userId}::${article}`, '1');
           iconEl.classList.remove('unliked');
           iconEl.classList.add('liked');
@@ -157,7 +150,7 @@ const bannerUrl = `https://tusharf5.com${banner}`
             `https://27jnn5jki9.execute-api.eu-central-1.amazonaws.com/prod/likes?id=${article}`,
             {
               method: 'POST',
-            }
+            },
           ).catch((e) => undefined);
         }
       }

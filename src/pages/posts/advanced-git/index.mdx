@@ -1,20 +1,20 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-05-12'
-title: 'Advanced Git'
-uid: 'advanced-git'
-category: 'Devbits'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-05-12"
+title: "Advanced Git"
+uid: "advanced-git"
+category: "Devbits"
 draft: true
 tags:
   - git
   - git workflow
   - rebase
-excerpt: 'The better you know your tools, the more productive you become.'
+excerpt: "The better you know your tools, the more productive you become."
 ---
 
-import AdvancedGit from '../../../images/posts/advanced-git/hero.jpg';
+import AdvancedGit from "../../../images/posts/advanced-git/hero.jpg";
 
-<img src={AdvancedGit} alt="Advanced Git" />
+<img src={AdvancedGit.src} alt="Advanced Git" />
 
 A `commit` in git is actually a unique hash of the current state of your staged files at that point in time.
 You change or modify anything and commit again, git will generate a hash for that commit which will be different. The git history looks something similar to this. Each commit (hash) has some metadata attached to it like a name, date, who created the commit etc.
@@ -72,28 +72,28 @@ and the branch pointer starts pointing to the new commit. We can also see that `
 
 ## Git Merge
 
-import GitMerge from '../../../images/posts/advanced-git/normal-merge.png';
+import GitMerge from "../../../images/posts/advanced-git/normal-merge.png";
 
-<img src={GitMerge} alt="normal-merge" />
+<img src={GitMerge.src} alt="normal-merge" />
 
 In the diagram above when you checkout the master branch and merge feature onto master. Git will perform a fast forward
 merge which means the pointer of the master will simply move to the tip of the feature branch.
 
-import CleanGitHistory from '../../../images/posts/advanced-git/straight-graph.png';
+import CleanGitHistory from "../../../images/posts/advanced-git/straight-graph.png";
 
-<img src={CleanGitHistory} alt="straight-graph" />
+<img src={CleanGitHistory.src} alt="straight-graph" />
 
 But when there is already some work done (e.g G and H) on the master branch like this
 
-import RebaseA from '../../../images/posts/advanced-git/upstream-ahead.png';
+import RebaseA from "../../../images/posts/advanced-git/upstream-ahead.png";
 
-<img src={RebaseA} alt="upstream-ahead" />
+<img src={RebaseA.src} alt="upstream-ahead" />
 
 Then git performs a 3 way merge with a merge commit (e.g I).
 
-import MergeCommit from '../../../images/posts/advanced-git/merge-commit.png';
+import MergeCommit from "../../../images/posts/advanced-git/merge-commit.png";
 
-<img src={MergeCommit} alt="merge-commit" />
+<img src={MergeCommit.src} alt="merge-commit" />
 
 This creates a dirty history which is not very pleasant to the eyes.
 
@@ -102,9 +102,9 @@ This creates a dirty history which is not very pleasant to the eyes.
 The meaning behind the word "rebase" here is that it "rebase" some commits from your current branch and place them after the tip of the branch from which you want all the changes. That is why you "rebase" your current branch onto some other branch.
 Rebasing re-writes the project history by creating brand new commits for each commit in the original branch.
 
-import WorkDoneOnMaster from '../../../images/posts/advanced-git/upstream-ahead.png';
+import WorkDoneOnMaster from "../../../images/posts/advanced-git/upstream-ahead.png";
 
-<img src={WorkDoneOnMaster} alt="upstream-ahead" />
+<img src={WorkDoneOnMaster.src} alt="upstream-ahead" />
 
 Suppose this our git graph. Now before merging feature onto master we must make sure our feature branch is up-to-date with the work in the master branch because in this case, it isn't. There is extra work (G,H) in the master which is not in our feature branch. No instead of creating a **ugly merge commit** we can **pretend as if if checkout the master branch just right now with all the latest changes and did our feature work on it** That is what a rebase would do.
 
@@ -114,9 +114,9 @@ git checkout feature
 git rebase master
 ```
 
-import RebaseB from '../../../images/posts/advanced-git/after-rebase.png';
+import RebaseB from "../../../images/posts/advanced-git/after-rebase.png";
 
-<img src={RebaseB} alt="after-rebase" />
+<img src={RebaseB.src} alt="after-rebase" />
 
 Now our feature branch is up to date with the latest changes from master. As one would imagine it does play a lot with git history as it moves a lot of things around.
 
@@ -128,9 +128,9 @@ git checkout master
 git merge feature
 ```
 
-import CleanMergeAfterRebase from '../../../images/posts/advanced-git/after-rebase-merge.png';
+import CleanMergeAfterRebase from "../../../images/posts/advanced-git/after-rebase-merge.png";
 
-<img src={CleanMergeAfterRebase} alt="after-rebase-merge" />
+<img src={CleanMergeAfterRebase.src} alt="after-rebase-merge" />
 
 This results in a cleaner history. This is why it is advised to rebase your feature branch on master before sending a PR.
 

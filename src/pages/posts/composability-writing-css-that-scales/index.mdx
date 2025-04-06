@@ -1,14 +1,14 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2020-02-08'
-uid: 'composability-writing-css-that-scales'
-title: 'Composability - Writing CSS That Scales'
-category: 'CSS'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2020-02-08"
+uid: "composability-writing-css-that-scales"
+title: "Composability - Writing CSS That Scales"
+category: "CSS"
 draft: false
 tags:
   - css
   - composability
-excerpt: 'We are so much focused on improving infrastructure of servers and applications that we miss out on talking about maintaining CSS which is one of the most important aspect of an application. In this post, I walk you through two patterns to write better CSS.'
+excerpt: "We are so much focused on improving infrastructure of servers and applications that we miss out on talking about maintaining CSS which is one of the most important aspect of an application. In this post, I walk you through two patterns to write better CSS."
 ---
 
 In a typical HTML project you would find multiple CSS files. One file could be for resetting the browser's default stylings, one for the globally applied CSS, page-specific CSS, component-specific CSS, behavior-specific CSS, context-specific CSS, and many more types.
@@ -65,9 +65,9 @@ The answer lies in the following two principals **good abstraction** and **reusa
 
 See the image below. On the left side, we have a base circle with minimal stylings. To make different variants of this circle we only need to **add** a few new CSS properties. On the right side, we can see a base circle with all kinds of stylings on it. This is not reusable at all. We are almost **overwriting** every style of it when creating a new variant.
 
-import Abstraction from '../../../images/posts/composability-writing-css-that-scales/abstraction.png';
+import Abstraction from "../../../images/posts/composability-writing-css-that-scales/abstraction.png";
 
-<img src={Abstraction} alt="abstraction" />
+<img src={Abstraction.src} alt="abstraction" />
 
 So when a developer who is new to a project (where CSS is written as shown in the **right diagram**) is building new components. It will be hard for him to even figure what classes he can **reuse** and where to find those classes.
 
@@ -87,21 +87,21 @@ For components that will or can be re-used in another place _write CSS that affe
 // Good ✅
 
 .primary {
-  color: 'blue';
-  background-color: 'white';
+  color: "blue";
+  background-color: "white";
   font-weight: 400;
 }
 
 // Bad ❌
 
 .primary {
-  color: 'blue';
+  color: "blue";
   padding: 4px 9px;
-  background-color: 'white';
+  background-color: "white";
   font-weight: 400;
   margin: 4px;
   display: flex;
-  position: 'relative';
+  position: "relative";
 }
 ```
 
@@ -119,8 +119,8 @@ Instead of overwriting CSS at different places make a new variant of the existin
 // Good ✅
 
 .primary {
-  color: 'blue';
-  background-color: 'white';
+  color: "blue";
+  background-color: "white";
   font-weight: 400;
 }
 
@@ -187,9 +187,9 @@ Let's say you have a **primary rounded button** on your navigation bar which req
 
 You can see the image below. A common `.title` class is used to give a text the appearance of a title throughout the application. But the positioning of the title text is different and thus requires varying CSS positioning properties.
 
-import ReusableImages from '../../../images/posts/composability-writing-css-that-scales/reusable-images.png';
+import ReusableImages from "../../../images/posts/composability-writing-css-that-scales/reusable-images.png";
 
-<img src={ReusableImages} alt="reusable-images" />
+<img src={ReusableImages.src} alt="reusable-images" />
 
 A nice way to structure the above layout could be something like this.
 

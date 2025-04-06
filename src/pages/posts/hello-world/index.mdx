@@ -1,20 +1,20 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-02-09'
-title: 'Hello World'
-uid: 'hello-world'
-category: 'General'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-02-09"
+title: "Hello World"
+uid: "hello-world"
+category: "General"
 draft: false
-excerpt: 'Setting up a blog with static pages was never this easy. Thanks to Gatsby for making it super easy and fun.'
+excerpt: "Setting up a blog with static pages was never this easy. Thanks to Gatsby for making it super easy and fun."
 tags:
   - gatsby
   - tech
   - framework
 ---
 
-import hero from '../../../images/posts/hello-world/hero.jpg';
+import hero from "../../../images/posts/hello-world/hero.jpg";
 
-<img src={hero} alt="Gatsby" />
+<img src={hero.src} alt="Gatsby" />
 
 Setting up a blog with static pages was never this easy. [GatsbyJS](https://www.gatsbyjs.org/) is an amazing tool and super simple to learn.
 
@@ -49,9 +49,9 @@ things will become butter smooth.
 
 The integration looks like this 🔭
 
-import gatsby from '../../../images/posts/hello-world/gatsby.png';
+import gatsby from "../../../images/posts/hello-world/gatsby.png";
 
-<img src={gatsby} alt="Gatsby Architecture" />
+<img src={gatsby.src} alt="Gatsby Architecture" />
 
 ## It supports Markdown Snippets 📋
 
@@ -68,11 +68,11 @@ import gatsby from '../../../images/posts/hello-world/gatsby.png';
 ## CSS Snippets too 💅🏻
 
 ```css
-code[class*='language-'],
-pre[class*='language-'] {
+code[class*="language-"],
+pre[class*="language-"] {
   color: black;
   background: none;
-  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
   text-align: left;
   white-space: pre;
   word-spacing: normal;

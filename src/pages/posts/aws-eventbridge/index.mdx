@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2021-05-16'
-uid: 'aws-eventbridge'
-title: 'Listening To Events By AWS Services'
-category: 'AWS'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2021-05-16"
+uid: "aws-eventbridge"
+title: "Listening To Events By AWS Services"
+category: "AWS"
 draft: false
 tags:
   - aws
@@ -21,9 +21,9 @@ is endless which is not surprising when you consider the number of services it h
 
 Even in a new account, you can see the list of a lot of these events by going to the AWS **CloudTrail's** dashboard and then clicking on the Event History tab as seen in the image below.
 
-import CloudTrailDashboard from '../../../images/posts/aws-eventbridge/cloudtrail.png';
+import CloudTrailDashboard from "../../../images/posts/aws-eventbridge/cloudtrail.png";
 
-<img src={CloudTrailDashboard} alt="cloudtrail" />
+<img src={CloudTrailDashboard.src} alt="cloudtrail" />
 
 Before we look at how to listen to these events we first need to understand what events are and how they are created.
 
@@ -59,9 +59,9 @@ One interesting thing about these two services is that you can also set up Cloud
 
 Here's a diagram to illustrate the event flow in EventBridge.
 
-import EventBridgeCloudTrail from '../../../images/posts/aws-eventbridge/event-structure.png';
+import EventBridgeCloudTrail from "../../../images/posts/aws-eventbridge/event-structure.png";
 
-<img src={EventBridgeCloudTrail} alt="event-structure" />
+<img src={EventBridgeCloudTrail.src} alt="event-structure" />
 
 **So how do we set up CloudTrail to send events to EventBridge?**
 
@@ -75,9 +75,9 @@ My suggestion is that if you are only interested in listening to a bunch of even
 
 A Trail can be set up for storing management events, data events or insights events. Management events are the cheapest to record. Check the pricing [here](https://aws.amazon.com/cloudtrail/pricing/).
 
-import createcloudtrail from '../../../images/posts/aws-eventbridge/create-cloudtrail.png';
+import createcloudtrail from "../../../images/posts/aws-eventbridge/create-cloudtrail.png";
 
-<img src={createcloudtrail} alt="create-cloudtrail" />
+<img src={createcloudtrail.src} alt="create-cloudtrail" />
 
 For our use case, we were only interested in management events so we created a Trail that only stored that.
 
@@ -94,9 +94,9 @@ Now let's take an example. Let's say we want to execute a lambda function whenev
 
 You provide a name, the event pattern, and the action(target) to take. There are some other minor configurations but these 3 are the important ones.
 
-import createruleeventbridge from '../../../images/posts/aws-eventbridge/create-rule-eventbridge.png';
+import createruleeventbridge from "../../../images/posts/aws-eventbridge/create-rule-eventbridge.png";
 
-<img src={createruleeventbridge} alt="create-rule-eventbridge" />
+<img src={createruleeventbridge.src} alt="create-rule-eventbridge" />
 
 EventBridge supports the following targets as actions when a rule is matched. Take a look that the updated list [here](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-targets.html).
 
@@ -128,9 +128,9 @@ Step Functions state machines
 
 The console provides a GUI to create your event pattern using some pre-defined options which or you can provide a JSON pattern for the event. See how to create event patterns [here](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html).
 
-import defintepatterneventbridge from '../../../images/posts/aws-eventbridge/definte-pattern-eventbridge.png';
+import defintepatterneventbridge from "../../../images/posts/aws-eventbridge/definte-pattern-eventbridge.png";
 
-<img src={defintepatterneventbridge} alt="definte-pattern-eventbridge" />
+<img src={defintepatterneventbridge.src} alt="definte-pattern-eventbridge" />
 
 For the EC2 event, our event pattern would look like this. This event is being sent to EventBridge by the EC2 service itself so we don't have to set up a CloudTrail for this event. It would work out of the box.
 
@@ -146,9 +146,9 @@ For the EC2 event, our event pattern would look like this. This event is being s
 
 Now as soon as someone tries to stop or terminate the instance, The AWS EC2 service will send that event to the default EventBus in EventBridge, EventBridge will match it against all of our rules and if matched and it will invoke our lambda function with the details about the event.
 
-import selecttargetseventbridge from '../../../images/posts/aws-eventbridge/select-targets-eventbridge.png';
+import selecttargetseventbridge from "../../../images/posts/aws-eventbridge/select-targets-eventbridge.png";
 
-<img src={selecttargetseventbridge} alt="select-targets-eventbridge" />
+<img src={selecttargetseventbridge.src} alt="select-targets-eventbridge" />
 
 Now let's take another example where the service does not natively send an event to EventBridge which means we need to listen to that event using CloudTrail. **After setting up a Trail**, we create a rule to listen to anytime someone creates an S3 bucket.
 

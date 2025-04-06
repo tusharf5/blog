@@ -1,14 +1,14 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-05-26'
-title: 'What are Generator Functions, Anyway?'
-uid: 'generator-functions'
-category: 'Programming'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-05-26"
+title: "What are Generator Functions, Anyway?"
+uid: "generator-functions"
+category: "Programming"
 draft: false
 tags:
   - javascript
   - python
-excerpt: 'Generators are super cool and super helpful in some cases. But How?.'
+excerpt: "Generators are super cool and super helpful in some cases. But How?."
 ---
 
 Generators were introduced in javascript with the ES6 version. But I never really found
@@ -103,13 +103,13 @@ function promise() {
 function* gene() {
   try {
     const a = yield promise();
-    console.log('sync a', a);
+    console.log("sync a", a);
     const b = yield promise();
-    console.log('sync b', b);
+    console.log("sync b", b);
     const c = yield promise();
-    console.log('sync c', c);
+    console.log("sync c", c);
   } catch (e) {
-    console.log('sync error', e);
+    console.log("sync error", e);
   }
 }
 
@@ -121,7 +121,7 @@ function runGenerator(gen) {
     }
     iterObject.value
       .then((data) => {
-        console.log('sync resolved');
+        console.log("sync resolved");
         const current = it.next(data);
         resolveNext(current);
       })
@@ -146,7 +146,7 @@ runGenerator(gene);
 **Use case 2** - Iterate over a list of items in a cycle FOREVER (I'm using this in production for a data processing workflow)
 
 ```js
-const fruits = ['mango', 'apple', 'banana', 'pineapple'];
+const fruits = ["mango", "apple", "banana", "pineapple"];
 function* nextType(...args) {
   while (true) {
     for (const arg of args) {

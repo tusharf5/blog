@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-11-02'
-uid: 'node-design-patterns-reactor-pattern'
-title: 'Node Design Patterns - Reactor Pattern'
-category: 'Javascript'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-11-02"
+uid: "node-design-patterns-reactor-pattern"
+title: "Node Design Patterns - Reactor Pattern"
+category: "Javascript"
 draft: false
 tags:
   - node design pattern
@@ -55,8 +55,8 @@ Also called **Event Notification Interface** is another way to react to events. 
 
 ```javascript
 const watchList = new Map();
-watchList.set('network', 'READ');
-watchList.set('disk', 'READ');
+watchList.set("network", "READ");
+watchList.set("disk", "READ");
 let events = [];
 
 while ((events = demultiplexer.watch(watchList))) {
@@ -65,7 +65,7 @@ while ((events = demultiplexer.watch(watchList))) {
     let data = event.resource.read();
     // Not Checking for NO_DATA_AVAIL because demultiplexer
     // will only return an event when it has some data
-    if (returnedValue === 'SOURCE_CLOSED') {
+    if (returnedValue === "SOURCE_CLOSED") {
       demultiplexer.unwatch(event.resource);
     } else {
       useData(returnedValue);
@@ -78,9 +78,9 @@ while ((events = demultiplexer.watch(watchList))) {
 
 To assign a hander(a callback) to each I/O operation in a system is called the Reactor Pattern. It's the responsibilty of th system to run the handler function once the data from the event is available.
 
-import EventDemultiplexer from '../../../images/posts/node-design-patterns-reactor-pattern/event-demultiplexer.png';
+import EventDemultiplexer from "../../../images/posts/node-design-patterns-reactor-pattern/event-demultiplexer.png";
 
-<img src={EventDemultiplexer} alt="event-demultiplexer" />
+<img src={EventDemultiplexer.src} alt="event-demultiplexer" />
 
 In the above image
 

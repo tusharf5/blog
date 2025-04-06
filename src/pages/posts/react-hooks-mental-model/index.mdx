@@ -1,16 +1,16 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2020-06-20'
-uid: 'react-hooks-mental-model'
-title: 'Re-visiting React Hooks - useEffect'
-category: 'REACT'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2020-06-20"
+uid: "react-hooks-mental-model"
+title: "Re-visiting React Hooks - useEffect"
+category: "REACT"
 draft: false
 tags:
   - react
   - hooks
   - react hooks
   - useEffect
-excerpt: 'A little late but writing my thoughts on why React Hooks are great and especially the useEffect Hook.'
+excerpt: "A little late but writing my thoughts on why React Hooks are great and especially the useEffect Hook."
 ---
 
 With the addition of [Hooks](https://reactjs.org/docs/hooks-intro.html) in React, developers could use a lot of react features that were only available through class components in function components also. React hooks don't directly bring anything new to react. It provides an API to use features like local state, component lifecycle, etc in function components. So why use hooks in function components if you can do pretty much everything using class components? Let's see.
@@ -20,7 +20,7 @@ With the addition of [Hooks](https://reactjs.org/docs/hooks-intro.html) in React
 Class components require more boilerplate than function components. Take a look at this very simple class component.
 
 ```jsx
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
 export class BaseComponent extends Component {
   constructor(props) {
@@ -36,7 +36,7 @@ export class BaseComponent extends Component {
 Compare it with the function component below which requires much less code.
 
 ```jsx
-import React from 'react';
+import React from "react";
 
 export function BaseComponent() {
   return <div>Hello</div>;
@@ -81,9 +81,9 @@ class MyComponent extends React.Component {
 
 The below image depicts this issue with some visuals. See the digram flow in this order _1 -> 2 -> 3 -> 4 -> 5 -> 6_ which is how Javascript will execute the above React code on multiple clicks. (Open in a new window to zoom in)
 
-import ReactClassThisValue from '../../../images/posts/react-hooks-mental-model/react-class-this-issue.png';
+import ReactClassThisValue from "../../../images/posts/react-hooks-mental-model/react-class-this-issue.png";
 
-<img src={ReactClassThisValue} alt="react-class-this-issue" />
+<img src={ReactClassThisValue.src} alt="react-class-this-issue" />
 
 This behavior is beautifully explained in this [blog post](https://overreacted.io/how-are-function-components-different-from-classes/) by Dan. I would highly recommend reading this blog post.
 
@@ -123,9 +123,9 @@ A problem with this mental model is that is is very limiting. It limits us from 
 
 After using them for a while now, I think of `useEffect` as **a place to perform side effects** in a component. One has to unlearn the idea of `componentDidMount` and `componentDidUpdate` to think of it like that.
 
-import useEffectEffects from '../../../images/posts/react-hooks-mental-model/react-side-effects.png';
+import useEffectEffects from "../../../images/posts/react-hooks-mental-model/react-side-effects.png";
 
-<img src={useEffectEffects} alt="react-side-effects" />
+<img src={useEffectEffects.src} alt="react-side-effects" />
 
 The side-effects shown in the above image are a good fit for `useEffect`.
 
@@ -133,9 +133,9 @@ Another thing that helps in better understanding this new mental model is to thi
 
 > Note - Each render doesn't necessarily mean that its corresponding DOM was also updated.
 
-import RenderLifecyce from '../../../images/posts/react-hooks-mental-model/react-render-lifecycle.png';
+import RenderLifecyce from "../../../images/posts/react-hooks-mental-model/react-render-lifecycle.png";
 
-<img src={RenderLifecyce} alt="react-render-lifecycle" />
+<img src={RenderLifecyce.src} alt="react-render-lifecycle" />
 
 If you define a regular function inside a function component. Every render will have its own unique copy of that function. Similarly, every render has its own copy of the hooks defined in it. `useEffect` hook is similar to a regular function. Let's see how.
 
@@ -199,9 +199,9 @@ Let's consider a more practical scenario, you have a component that receives a `
 
 When you select a new user to chat with, you would want to close the WebSocket channel for the previous user and subscribe to the WebSocket channel for the new user. This would mean that our side-effect should only run when there is a change in the `userId` prop. Also, before it runs for a new user, it should unsubscribe to the previous user from its WebScoket channel.
 
-import useEffectCleanup from '../../../images/posts/react-hooks-mental-model/cleanup.png';
+import useEffectCleanup from "../../../images/posts/react-hooks-mental-model/cleanup.png";
 
-<img src={useEffectCleanup} alt="cleanup" />
+<img src={useEffectCleanup.src} alt="cleanup" />
 
 As shown in the above image, although the component renders multiple times, it only executes the side-effect of subscribing/unsubscribing users when the `userId` changes. This is powerful. But wait, what's that cleanup function? where and do we define it?
 

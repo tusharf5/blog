@@ -1,23 +1,23 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-10-15'
-uid: 'retry-design-pattern-with-js-promises'
-title: 'Retry Design Pattern with Javascript Promises'
-category: 'Javascript'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-10-15"
+uid: "retry-design-pattern-with-js-promises"
+title: "Retry Design Pattern with Javascript Promises"
+category: "Javascript"
 draft: false
 tags:
   - js promises
   - retry
   - design pattern
-excerpt: 'We can use promises and sprinkle some recursion on top of it to create auto retry function pattern.'
+excerpt: "We can use promises and sprinkle some recursion on top of it to create auto retry function pattern."
 ---
 
 For the past 2 years, I've worked extensively with B2B services which include both using and for the most part
 building B2B services using/connecting multiple 3rd party APIs. This blog post is about a design pattern which I recently had to implement for such a service.
 
-import Seq1 from '../../../images/posts/retry-design-pattern-with-js-promises/seq-1.png';
+import Seq1 from "../../../images/posts/retry-design-pattern-with-js-promises/seq-1.png";
 
-<img src={Seq1} alt="seq-1" />
+<img src={Seq1.src} alt="seq-1" />
 
 A major difference between calling a HTTP endpoint from a UI and from a backend is that when we call a HTTP endpoint
 from a UI (browser, mobile device, apple watch) and it fails we can notify the user that the action (calling API) was
@@ -32,12 +32,12 @@ and resources. Let's see an example that will give some clarity.
 async function aggregateData() {
   try {
     // executing the promises concurrently
-    const facebook = http.get('https://api.facebook.com/v1/user/1234/');
-    const linkedin = http.get('https://api.linkedin.com/v1/user/1234/');
-    const instagram = http.get('https://api.instagram.com/v1/user/1234/');
-    const twitter = http.get('https://api.twitter.com/v1/user/1234/');
-    const reddit = http.get('https://api.reddit.com/v1/user/1234/');
-    const gmail = http.get('https://api.gmail.com/v1/user/1234/');
+    const facebook = http.get("https://api.facebook.com/v1/user/1234/");
+    const linkedin = http.get("https://api.linkedin.com/v1/user/1234/");
+    const instagram = http.get("https://api.instagram.com/v1/user/1234/");
+    const twitter = http.get("https://api.twitter.com/v1/user/1234/");
+    const reddit = http.get("https://api.reddit.com/v1/user/1234/");
+    const gmail = http.get("https://api.gmail.com/v1/user/1234/");
     // waiting for all of them to settle
     await facebook;
     await linkedin;
@@ -154,7 +154,7 @@ async function retryPromise(promise, nthTry) {
     // we call this function again from itself but this time
     // we reduce the no. of tries by one
     // so that eventually we reach to "1 try left" where we know we have to stop and reject
-    console.log('retrying', nthTry, 'time');
+    console.log("retrying", nthTry, "time");
     // we return whatever is the result of calling the same function
     return retryPromise(promise, nthTry - 1);
   }
@@ -184,7 +184,7 @@ async function retryPromiseWithDelay(promise, nthTry, delayTime) {
     if (nthTry === 1) {
       return Promise.reject(e);
     }
-    console.log('retrying', nthTry, 'time');
+    console.log("retrying", nthTry, "time");
     // wait for delayTime amount of time before calling this method again
     await waitFor(delayTime);
     return retryPromiseWithDelay(promise, nthTry - 1, delayTime);
@@ -201,34 +201,34 @@ async function aggregateData() {
     const wait = 2000;
     // executing the promises concurrently
     const facebook = retryPromiseWithDelay(
-      http.get('https://api.facebook.com/v1/user/1234/'),
+      http.get("https://api.facebook.com/v1/user/1234/"),
       retry,
-      wait
+      wait,
     );
     const linkedin = retryPromiseWithDelay(
-      http.get('https://api.linkedin.com/v1/user/1234/'),
+      http.get("https://api.linkedin.com/v1/user/1234/"),
       retry,
-      wait
+      wait,
     );
     const instagram = retryPromiseWithDelay(
-      http.get('https://api.instagram.com/v1/user/1234/'),
+      http.get("https://api.instagram.com/v1/user/1234/"),
       retry,
-      wait
+      wait,
     );
     const twitter = retryPromiseWithDelay(
-      http.get('https://api.twitter.com/v1/user/1234/'),
+      http.get("https://api.twitter.com/v1/user/1234/"),
       retry,
-      wait
+      wait,
     );
     const reddit = retryPromiseWithDelay(
-      http.get('https://api.reddit.com/v1/user/1234/'),
+      http.get("https://api.reddit.com/v1/user/1234/"),
       retry,
-      wait
+      wait,
     );
     const gmail = retryPromiseWithDelay(
-      http.get('https://api.gmail.com/v1/user/1234/'),
+      http.get("https://api.gmail.com/v1/user/1234/"),
       retry,
-      wait
+      wait,
     );
     // waiting for all of them to settle
     await facebook;
@@ -258,9 +258,9 @@ aggregateData();
 
 Now each call to a 3rd party API will behave in a way similar to what is shown in the diagram below.
 
-import Seq3 from '../../../images/posts/retry-design-pattern-with-js-promises/seq-2.png';
+import Seq3 from "../../../images/posts/retry-design-pattern-with-js-promises/seq-2.png";
 
-<img src={Seq3} alt="seq-2" />
+<img src={Seq3.src} alt="seq-2" />
 
 Of course this is not the only way or the best way to solve this problem but it makes it a lot better. In our case,
 it certainly did bring down the number of times the function was getting called on a failed response.

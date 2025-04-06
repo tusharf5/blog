@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-12-15'
-uid: 'react-fiber-overview'
-title: 'React Fiber Architecture - An Overview'
-category: 'React'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-12-15"
+uid: "react-fiber-overview"
+title: "React Fiber Architecture - An Overview"
+category: "React"
 draft: false
 tags:
   - react
@@ -12,9 +12,9 @@ tags:
 excerpt: "In this post I'll talk about the internal architecture of React also called the React Fiber."
 ---
 
-import header from '../../../images/posts/react-fiber-overview/header.png';
+import header from "../../../images/posts/react-fiber-overview/header.png";
 
-<img src={header} alt="react virtual dom" />
+<img src={header.src} alt="react virtual dom" />
 
 React is coming up with a lot of cool features lately. Features like **Hooks**, **Context**, **Suspense** and a few others that have significantly changed how we think about building new React components. A lot of these features were made possible because the core architecture of React was completely rewritten and props to the React team (no pun intended) the external API still remained the same i.e **NO BREAKING CHANGES!** 😲
 
@@ -26,9 +26,9 @@ One of the React's selling point since it first came out has been the **virtual 
 
 A React application is made up of components in a tree like structure. We often call it the component tree when debugging. Internally React also uses a similar tree like structure made up of nodes to represent an application. These nodes are connected to our components. So even if the components are updated or re-rendered these nodes stay the same to persist the component's state.
 
-import UpdateGif from '../../../images/posts/react-fiber-overview/tree-update.gif';
+import UpdateGif from "../../../images/posts/react-fiber-overview/tree-update.gif";
 
-<img src={UpdateGif} alt="react update gif" />
+<img src={UpdateGif.src} alt="react update gif" />
 
 So when there is an update (`setState({...})`) React would start from the root node and update/build the tree while moving down the component tree i.e a complete traversal of your app's component tree.
 
@@ -56,9 +56,9 @@ For example, take the following component tree. Let's assume that the `Ads` comp
 
 During an update caused by (e.g `setState`) React would start from the root node and build the node tree tree while moving down the component tree. For user defined components (`BlogHeader`, `Ads`, `Link`, etc) it would call the render method on them to get its children (It also calls the other lifecycle methods on these components). This is a synchronous and recursive process and React would only stop once the whole tree is finished. So Imagine if during this process someone clicked on the _Read More_ link on the page. Since the browser is busy executing the React code which is busy building the tree, so the browser won't be able to handle that click event and the UI would become unresponsive. The same thing would happen if the browser wants to re-paint the UI on a frame but the JS engine is busy, which would result in frame drops.
 
-import StackExec from '../../../images/posts/react-fiber-overview/stack-code-exec-timeline.png';
+import StackExec from "../../../images/posts/react-fiber-overview/stack-code-exec-timeline.png";
 
-<img src={StackExec} alt="stack-code-exec-timeline" />
+<img src={StackExec.src} alt="stack-code-exec-timeline" />
 
 The UI, in this case, could appear janky and unresponsive at times if the application is fairly complex. Not just updates from React(which includes code from user base in render functions) would take time but updates from browser (timers, paints, api calls, etc) would be trapped behind these long taking synchronous updates.
 
@@ -66,9 +66,9 @@ The UI, in this case, could appear janky and unresponsive at times if the applic
 
 With the new fiber architecture, instead of using a Stack to do a recursive traversal React uses a new data structure called **Fiber**. It also makes use of while loops instead of recursion for performance reasons and another reason that I will discuss later in this post. In Fiber, React computes(updates/build) a part of our component tree, comes to check if there are any pending tasks (browser events, paints, timers, api calls, etc ) to do, if not then go back and continue computing the tree where it left off. See the image below.
 
-import FiberExec from '../../../images/posts/react-fiber-overview/fiber-code-exec-timeline.png';
+import FiberExec from "../../../images/posts/react-fiber-overview/fiber-code-exec-timeline.png";
 
-<img src={FiberExec} alt="fiber-code-exec-timeline" />
+<img src={FiberExec.src} alt="fiber-code-exec-timeline" />
 
 So if React Stack takes **48ms** (approx. 3 frame drops) to do a task in one run. React Fiber would complete the same task in 3 runs of approx. **16ms** each thereby not dropping any frames. But how does React Fiber knows when to pause a task, how to pause a task and when to come back? Well, the answer lies in the Fiber architecture.
 

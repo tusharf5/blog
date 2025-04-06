@@ -1,16 +1,16 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2024-03-29'
-title: 'Module Resolution'
-category: 'MongoDB'
-uid: 'module-resolution'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2024-03-29"
+title: "Module Resolution"
+category: "MongoDB"
+uid: "module-resolution"
 draft: true
 tags:
   - positional operator
   - database
   - MongoDB
   - mongoose
-excerpt: 'Querying and updating arrays in mongoDb can be tricky. mongoDB has a rich set of very useful array operators. Since arrays play an important role when designing the database schema, in this post I will explain how to and when to use array operators in mongoDB with examples.'
+excerpt: "Querying and updating arrays in mongoDb can be tricky. mongoDB has a rich set of very useful array operators. Since arrays play an important role when designing the database schema, in this post I will explain how to and when to use array operators in mongoDB with examples."
 ---
 
 # Module Resolution For The Rest Of Us
@@ -27,7 +27,7 @@ CJS is a node specific standard. It was not part of the official Ecmascript Spec
 
 With ES6, Ecmascript introduced its own specification for a module system called ESM - Ecmascript Module System.
 
-Since this was an official specification, browserrs also started adding support for ES modules. Many people are surprised to 
+Since this was an official specification, browserrs also started adding support for ES modules. Many people are surprised to
 find that `import` statements work natively in most modern browsers. No bundling is required.
 
 This is not the case for CJS, it was only supported natively by Node. You had to use a bundler like webpack to ship CJS modules to browser.
@@ -58,7 +58,7 @@ To keep the focus small, we will leave other runtimes like Bun, Deno, etc out of
 
 ## CommonJS Modules
 
-Here;s a simple Node code that uses CJS to require the sum function from math module. 
+Here;s a simple Node code that uses CJS to require the sum function from math module.
 It also exports a getValue function. There is no default export.
 
 ```javascript
@@ -66,7 +66,7 @@ const sum = require("./math");
 
 exports.getValue = function getValue(a, b) {
   return sum(a, b);
-}
+};
 ```
 
 The snippet below behaves exactly as the above but it used another way to export a named function getValue.
@@ -76,7 +76,7 @@ const sum = require("./math/sum");
 
 module.exports.getValue = function getValue(a, b) {
   return sum(a, b);
-}
+};
 ```
 
 The snippet below has a default export.
@@ -86,7 +86,7 @@ const sum = require("./math/sum");
 
 module.exports = function getValue(a, b) {
   return sum(a, b);
-}
+};
 ```
 
 What's the difference between `module.exports` and `exports`. Perhaps if we understand where these both come from, it might make sense.
@@ -94,7 +94,7 @@ What's the difference between `module.exports` and `exports`. Perhaps if we unde
 When node is loading our code, when it reads a javascript file (module), it wraps all the code in that file with the below function.
 
 ```javascript
-(function(exports, require, module, __filename, __dirname) {
+(function (exports, require, module, __filename, __dirname) {
   // Module code
 });
 ```
@@ -102,12 +102,12 @@ When node is loading our code, when it reads a javascript file (module), it wrap
 Then the file code is executed. In our case, the first snippet would look like below before its code is executed by Node.
 
 ```javascript
-(function(exports, require, module, __filename, __dirname) {
+(function (exports, require, module, __filename, __dirname) {
   const sum = require("./math");
 
   exports.getValue = function getValue(a, b) {
     return sum(a, b);
-  }
+  };
 });
 ```
 
@@ -134,7 +134,7 @@ const someModule = moduleWrapperFunction(exports, require, module, __filename, _
 
 Within our module, when we set a property directly on `exports` like `exports.key` we are actually setting a property on `module.exports.key`. Vice-versa is true as well.
 
-Similarly setting a default export like `module.exports = {}` would break the link between `exports` and `module.exports` since now `module.exports` is pointing to 
+Similarly setting a default export like `module.exports = {}` would break the link between `exports` and `module.exports` since now `module.exports` is pointing to
 a new object but the `exports` object is still referecing the old `module.exports` value;
 
 A benefit of wrapping module code like this is all variables that are declared within the module are scoped to just that module unless they are exported.
@@ -145,9 +145,8 @@ You can clear the cache if you wanted to with CJS. It's set in `require.cache` o
 
 ### CJS Module Resolution
 
-Core modules can be identified using the `node:` prefix, in which case it bypasses the require cache. 
+Core modules can be identified using the `node:` prefix, in which case it bypasses the require cache.
 For instance, `require('node:http')` will always return the built in HTTP module, even if there is `require.cache` entry by that name.
-
 
 ```javascript
 // file at /Users/bob/my-project/src/util/main.js
@@ -157,14 +156,14 @@ const hash = require("hash");
 
 exports.getId = function getId(a, b) {
   return hash(sum(a, b));
-}
+};
 ```
 
-The module resolution starts with the assumption that the specifier `./math` is a file. 
+The module resolution starts with the assumption that the specifier `./math` is a file.
 
-- So if a file with the exact filename `./math` is not found. 
-- It will add the following extensions and then look for the file. `.js`, `.json` & `.node`. 
-  - So it would first look for `./math.js`, `./math.json` and then `./math.node` file. 
+- So if a file with the exact filename `./math` is not found.
+- It will add the following extensions and then look for the file. `.js`, `.json` & `.node`.
+  - So it would first look for `./math.js`, `./math.json` and then `./math.node` file.
 
 > `.json` files are parsed as JSON text files and converted to an object, `.node` files are interpreted as compiled addon modules loaded with process.dlopen().
 
@@ -175,11 +174,11 @@ If `./math` is a directory.
 - It first looks for a `package.json` in the `./math/package.json`
   - If found, it looks for a `main` entry in that `package.json` file.
     - If found, it would concatenate `./math` with `value at package.json main entry` and tries to load it.
-  - If `package.json` does not exist, it looks for a `./math/index.js` then `./math/index.json` and `./math/index.node`.  
+  - If `package.json` does not exist, it looks for a `./math/index.js` then `./math/index.json` and `./math/index.node`.
 
 In case of `require("hash")`, CJS will look for a `node_modules` directory in each directory until it reaches the root of the filesystem.
 
-Something like 
+Something like
 
 ```shell
 /Users/bob/my-project/src/util/node_modules
@@ -195,7 +194,7 @@ For each such lookup.
 - It will look for a `package.json` file at `node_modules/hash/package.json` path.
   - If found, it looks for `exports` entry, specifically the `['node', 'require']` sub-entries.
     - If found, it uses the `exports` field to find the exact module to use.
-    - If not found it will look for the `main` entry in the `package.json` 
+    - If not found it will look for the `main` entry in the `package.json`
       - If found, it would concatenate `./math` with `value at package.json main entry` and tries to load it.
 
 ---
@@ -209,9 +208,9 @@ There are three ways in which a folder may be passed to require() as an argument
 The first is to create a package.json file in the root of the folder, which specifies a main module. An example package.json file might look like this:
 
 ```json
-{ 
-  "name" : "some-library",
-  "main" : "./lib/some-library.js" 
+{
+  "name": "some-library",
+  "main": "./lib/some-library.js"
 }
 ```
 
@@ -241,7 +240,7 @@ import.meta.resolve(specifier)
 const dependencyAsset = import.meta.resolve('component-lib/asset.css');
 // file:///app/node_modules/component-lib/asset.css
 import.meta.resolve('./dep.js');
-// file:///app/dep.js 
+// file:///app/dep.js
 
 An import statement can reference an ES module or a CommonJS module. import statements are permitted only in ES modules, but dynamic import() expressions are supported in CommonJS for loading ES modules.
 
@@ -272,7 +271,7 @@ console.log(cjs);
 
 import * as m from './cjs.cjs';
 console.log(m);
-// Prints: [Module] { default: { name: 'exported' }, name: 'exported' } 
+// Prints: [Module] { default: { name: 'exported' }, name: 'exported' }
 ```
 
 ---
@@ -304,7 +303,7 @@ To make the introduction of "exports" non-breaking, ensure that every previously
     "./feature/*.js": "./feature/*.js",
     "./package.json": "./package.json"
   }
-} 
+}
 ```
 
 When using the "exports" field, custom subpaths can be defined along with the main entry point by treating the main entry point as the "." subpath:
@@ -315,14 +314,14 @@ When using the "exports" field, custom subpaths can be defined along with the ma
     ".": "./index.js",
     "./submodule.js": "./src/submodule.js"
   }
-} 
+}
 ```
 
 Now only the defined subpath in "exports" can be imported by a consumer:
 
 ```
 import submodule from 'es-module-package/submodule.js';
-// Loads ./node_modules/es-module-package/src/submodule.js 
+// Loads ./node_modules/es-module-package/src/submodule.js
 ```
 
 Package authors should provide either extensioned (import 'pkg/subpath.js') or extensionless (import 'pkg/subpath') subpaths in their exports. This ensures that there is only one subpath for each exported module so that all dependents import the same consistent specifier, keeping the package contract clear for consumers and simplifying package subpath completions.
@@ -350,7 +349,7 @@ For example, the imports field can be used to gain the benefits of conditional e
 }
 ```
 
- COPY
+COPY
 where import '#dep' does not get the resolution of the external package dep-node-native (including its exports in turn), and instead gets the local file ./dep-polyfill.js relative to the package in other environments.
 
 ---
@@ -387,10 +386,10 @@ Since custom package conditions require clear definitions to ensure correct usag
 "browser" - any web browser environment.
 "development" - can be used to define a development-only environment entry point, for example to provide additional debugging context such as better error messages when running in a development mode. Must always be mutually exclusive with "production".
 "production" - can be used to define a production environment entry point. Must always be mutually exclusive with "development".
- 
- ## Typescript 
 
- In any project, the first question about modules we need to answer is what kinds of modules the host expects, so TypeScript can set its output format for each file to match. Sometimes, the host only supports one kind of module—ESM in the browser, or CJS in Node.js v11 and earlier, for example. Node.js v12 and later accepts both CJS and ES modules, but uses file extensions and package.json files to determine what format each file should be, and throws an error if the file’s contents don’t match the expected format.
+## Typescript
+
+In any project, the first question about modules we need to answer is what kinds of modules the host expects, so TypeScript can set its output format for each file to match. Sometimes, the host only supports one kind of module—ESM in the browser, or CJS in Node.js v11 and earlier, for example. Node.js v12 and later accepts both CJS and ES modules, but uses file extensions and package.json files to determine what format each file should be, and throws an error if the file’s contents don’t match the expected format.
 
 The module compiler option provides this information to the compiler. Its primary purpose is to control the module format of any JavaScript that gets emitted during compilation, but it also serves to inform the compiler about how the module kind of each file should be detected, how different module kinds are allowed to import each other, and whether features like import.meta and top-level await are available.
 
@@ -399,7 +398,7 @@ The available module settings are
 node16: Reflects the module system of Node.js v16+, which supports ES modules and CJS modules side-by-side with particular interoperability and detection rules.
 nodenext: Currently identical to node16, but will be a moving target reflecting the latest Node.js versions as Node.js’s module system evolves.
 es2015: Reflects the ES2015 language specification for JavaScript modules (the version that first introduced import and export to the language).
-es2020: Adds support for import.meta and export * as ns from "mod" to es2015.
+es2020: Adds support for import.meta and export \* as ns from "mod" to es2015.
 es2022: Adds support for top-level await to es2020.
 esnext: Current
 

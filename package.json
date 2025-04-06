@@ -11,16 +11,16 @@
     "prettier:fix": "npx prettier --write '**/*.{ts,astro,js,json,yml,yaml,md,mdx,scss,css}'"
   },
   "dependencies": {
-    "@astrojs/mdx": "0.13.0",
-    "@astrojs/sitemap": "1.0.0",
-    "astro": "1.7.2",
+    "@astrojs/mdx": "4.2.3",
+    "@astrojs/sitemap": "3.3.0",
+    "astro": "5.6.1",
     "dynamic-class-list": "2.0.2"
   },
   "devDependencies": {
-    "@serverless-guru/prettier-plugin-import-order": "^0.4.1",
-    "prettier": "^2.8.1",
-    "rollup": "^2.0.0",
-    "sass": "^1.55.0"
+    "@serverless-guru/prettier-plugin-import-order": "^0.4.2",
+    "prettier": "^3.5.3",
+    "rollup": "^4.39.0",
+    "sass": "^1.86.3"
   },
   "packageManager": "pnpm@9.0.6+sha1.648f6014eb363abb36618f2ba59282a9eeb3e879"
 }

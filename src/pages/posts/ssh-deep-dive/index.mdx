@@ -1,23 +1,23 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-08-24'
-uid: 'ssh-deep-dive'
-title: 'Deep Dive - How Does SSH Really Work?'
-category: 'Devbits'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-08-24"
+uid: "ssh-deep-dive"
+title: "Deep Dive - How Does SSH Really Work?"
+category: "Devbits"
 draft: false
 tags:
   - ssh
   - public key encryption
   - symmetric encryption
   - asymmetric encryption
-excerpt: 'SSH makes accessing remote servers super easy and secure. But how it does that is the real interesting part.'
+excerpt: "SSH makes accessing remote servers super easy and secure. But how it does that is the real interesting part."
 ---
 
-import NoteBox from '../../../components/Note.astro';
+import NoteBox from "../../../components/Note.astro";
 
-import Hero from '../../../images/posts/ssh-deep-dive/ssh.png';
+import Hero from "../../../images/posts/ssh-deep-dive/ssh.png";
 
-<img src={Hero} alt="ssh" />
+<img src={Hero.src} alt="ssh" />
 
 Suppose that you are a developer in some XYZ company, you have your own laptop and you also have access to the database server of the
 company. As part of the job, every Wednesday you check the database logs to see if there is any suspicious activity. For that,

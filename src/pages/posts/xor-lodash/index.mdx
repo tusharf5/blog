@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2019-04-12'
-title: 'XOR - A Powerful Lodash Method'
-category: 'Javascript'
-uid: 'xor-lodash'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2019-04-12"
+title: "XOR - A Powerful Lodash Method"
+category: "Javascript"
+uid: "xor-lodash"
 draft: false
 tags:
   - xor
@@ -16,12 +16,12 @@ Often times I find myself implementing toggle functionality in applications.
 
 One good example of a toggle method is the DOM API to toggle a class name on a DOM element.
 
-import Toggle from '../../../images/posts/xor-lodash/toggle.gif';
+import Toggle from "../../../images/posts/xor-lodash/toggle.gif";
 
-<img src={Toggle} alt="Toggle" />
+<img src={Toggle.src} alt="Toggle" />
 
 ```js
-element.classList.toggle('dark');
+element.classList.toggle("dark");
 ```
 
 Most of the times a toggle function expects two arguments.
@@ -30,7 +30,7 @@ One is an array of items and the other one is a single item which we want to tog
 implemented.
 
 ```js
-let frameworks = ['express', 'node', 'sails', 'hapi'];
+let frameworks = ["express", "node", "sails", "hapi"];
 
 // this is not an efficient implementation but should work
 // fine for an array with a few hundred items
@@ -41,18 +41,18 @@ function toggleSingleItem(array, item) {
 }
 
 // prints out - ['node', 'sails', 'hapi'];
-frameworks = toggleSingleItem(frameworks, 'express');
+frameworks = toggleSingleItem(frameworks, "express");
 console.log(frameworks);
 
 // prints out - ['express', 'node', 'sails', 'hapi'];
-frameworks = toggleSingleItem(frameworks, 'express');
+frameworks = toggleSingleItem(frameworks, "express");
 console.log(frameworks);
 ```
 
 Things get tricky when we want to toggle an array of items from an array of items.
 
 ```js {12}
-let frameworks = ['express', 'node', 'sails', 'hapi'];
+let frameworks = ["express", "node", "sails", "hapi"];
 
 function toggleSingleItem(array, item) {
   return array.includes(item)
@@ -69,11 +69,11 @@ function toggle(array, items) {
 }
 
 // prints out - ['node', 'sails'];
-frameworks = toggle(frameworks, ['express', 'hapi']);
+frameworks = toggle(frameworks, ["express", "hapi"]);
 console.log(frameworks);
 
 // prints out - ['node', express'];
-frameworks = toggle(frameworks, ['express', 'sails']);
+frameworks = toggle(frameworks, ["express", "sails"]);
 console.log(frameworks);
 ```
 
@@ -94,14 +94,14 @@ it exists REMOVE it._
 Let's do the multiple items toggle again this time using lodash `xor` method.
 
 ```js
-let frameworks = ['express', 'node', 'sails', 'hapi'];
+let frameworks = ["express", "node", "sails", "hapi"];
 
 // prints out - ['node', 'sails'];
-frameworks = _.xor(frameworks, ['express', 'hapi']);
+frameworks = _.xor(frameworks, ["express", "hapi"]);
 console.log(frameworks);
 
 // prints out - ['node', express'];
-frameworks = _.xor(frameworks, ['express', 'sails']);
+frameworks = _.xor(frameworks, ["express", "sails"]);
 console.log(frameworks);
 ```
 

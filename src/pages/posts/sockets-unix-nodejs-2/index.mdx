@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2023-02-05'
-uid: 'http-server-nodejs-2'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2023-02-05"
+uid: "http-server-nodejs-2"
 title: "Sockets In Unix & Nodejs - Fundamentals Of Networking"
-category: 'Linux'
+category: "Linux"
 draft: true
 tags:
   - javascript
@@ -12,14 +12,13 @@ tags:
   - nodejs
   - chunk
   - data view
-excerpt: 'A fun weekend project'
+excerpt: "A fun weekend project"
 ---
 
-
-talk about fd being a controlled reference to a resource given by kernel. like ok you want to interact with a socket. 
+talk about fd being a controlled reference to a resource given by kernel. like ok you want to interact with a socket.
 here is a unique fd.
 
-kernel maintains a list of all open fds and each has its own metadata like what processs can access it with what perms. 
+kernel maintains a list of all open fds and each has its own metadata like what processs can access it with what perms.
 
 The process uses the FD as a handle to interact with a specific resource. It provides operations like read, write, close, and others based on the resource type.
 
@@ -33,7 +32,7 @@ talk about epoll, epollwait, etc.
 
 ## From The Eyes Of Nodejs
 
-In Node.js, which is primarily single-threaded, a listening socket is automatically created when a new HTTP server is created, and new `Accept`ed connections are automatically added to the event loop's poll phase queue as callbacks i.e we don't have to directly make system calls to retreive new connections. 
+In Node.js, which is primarily single-threaded, a listening socket is automatically created when a new HTTP server is created, and new `Accept`ed connections are automatically added to the event loop's poll phase queue as callbacks i.e we don't have to directly make system calls to retreive new connections.
 
 Each connection object, represented by an instance of the Node.js socket class, can listen for the data event to receive data from its client side. And each data event callback is also added to the poll phase queue.
 
@@ -42,51 +41,51 @@ net.createServer creates a socket, binds it to an IP/port, and sets it to listen
 Here's an example of how to create a server and handle incoming connections:
 
 ```js
-const net = require('node:net');
+const net = require("node:net");
 
 const server = net.createServer((c) => {
-  // c is an instance of net.Socket which is 
+  // c is an instance of net.Socket which is
   // is a nodejs abstracrtion around sockets
-  console.log('client connected');
-  c.on('end', () => {
-    console.log('client disconnected');
+  console.log("client connected");
+  c.on("end", () => {
+    console.log("client disconnected");
   });
 
-  c.on('data', (data) => {
+  c.on("data", (data) => {
     // incoming data from the client socket
-  })
+  });
 
-  c.write('hello\r\n');
-  
+  c.write("hello\r\n");
+
   c.close();
 });
 
-// 
+//
 server.listen(8124, () => {
-  console.log('server bound');
+  console.log("server bound");
 });
 ```
 
 And here's an example of how to create a client connection:
 
 ```js
-const net = require('node:net');
+const net = require("node:net");
 
 const socket = net.createConnection(port, host);
-console.log('Socket created.');
+console.log("Socket created.");
 
-socket.on('data', function(data) {
+socket.on("data", function (data) {
   // Log the response from the HTTP server.
-  console.log('RESPONSE: ' + data);
-})
+  console.log("RESPONSE: " + data);
+});
 
-socket.on('connect', function() {
+socket.on("connect", function () {
   // Manually write an HTTP request.
   socket.write("GET / HTTP/1.0\r\n\r\n");
-})
+});
 
-socket.on('end', function() {
-  console.log('DONE');
+socket.on("end", function () {
+  console.log("DONE");
 });
 ```
 

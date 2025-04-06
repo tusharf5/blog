@@ -1,9 +1,9 @@
 ---
-layout: '../../../layouts/BlogPost.astro'
-publishedAt: '2020-03-21'
-uid: 'aws-ecs-overview'
-title: 'AWS Elastic Container Service - An Overview'
-category: 'AWS'
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2020-03-21"
+uid: "aws-ecs-overview"
+title: "AWS Elastic Container Service - An Overview"
+category: "AWS"
 draft: false
 tags:
   - aws
@@ -11,7 +11,7 @@ tags:
   - microservices
   - load balancers
   - target group
-excerpt: 'Amazon Elastic Container Service (Amazon ECS) is a fully managed container orchestration service. A lot of enterprise software companies use ECS to run their most sensitive and mission critical applications because of its security, reliability, and scalability.'
+excerpt: "Amazon Elastic Container Service (Amazon ECS) is a fully managed container orchestration service. A lot of enterprise software companies use ECS to run their most sensitive and mission critical applications because of its security, reliability, and scalability."
 ---
 
 We recently migrated our cloud infrastructure from having one big monolith application server to having multiple different microservices and I think choosing the right cloud provider for your application is the single most important decision in that path. **Dockerization** is the way to go for microservices and there are some big players in the market to manage your Docker containers like [Kubernetes](https://kubernetes.io/), [Google Cloud Engine](https://cloud.google.com/container-options), [AWS](https://aws.amazon.com/containers/), [Microsoft Azure](https://azure.microsoft.com/en-in/product-categories/containers/), etc. At Gerald, we decided to go with AWS as we were already using AWS and so we had a strong understanding of different concepts in the AWS world.
@@ -66,17 +66,17 @@ At this point, we have a cluster and inside of that cluster, we have three servi
 
 The request would probably come from a browser through the internet and the way it reaches our tasks is through a Load Balancer (Application Load Balancer in our case).
 
-import ecsLb from '../../../images/posts/aws-ecs-overview/ecs-lb.png';
+import ecsLb from "../../../images/posts/aws-ecs-overview/ecs-lb.png";
 
-<img src={ecsLb} alt="ecs-lb" />
+<img src={ecsLb.src} alt="ecs-lb" />
 
 ## Target Group
 
 Now you might be wondering how does one load balancer is aware of all the healthy and live Tasks running inside of different services. How does it know where to route which request. There must be a way we could define rules for that purpose. Each of these tasks could also shut down anytime (task failure) and new ones could be spinning up dynamically (auto-scaling). The answer to that lies in another ECS component called a **Target Group**.
 
-import lb from '../../../images/posts/aws-ecs-overview/lb.png';
+import lb from "../../../images/posts/aws-ecs-overview/lb.png";
 
-<img src={lb} alt="lb" />
+<img src={lb.src} alt="lb" />
 
 Your Load Balancer could listen for incoming requests on multiple ports (generally it is 443 and 80). When a request comes on a listener port load balancer matches the request options with the configured Listener Rules. Each listener rule specifies a condition, target, action and a priority which determines how that rule should be matched with an incoming request and where to forward that request.
 
@@ -88,9 +88,9 @@ If the LB gets a `/api/items` , it will quickly match it with the `Target Group 
 
 Ideally, you should have one **Target Group** per **Service**. A Target Group specifies how and where to reach the **Tasks** in a Service that it is attached with.
 
-import tg from '../../../images/posts/aws-ecs-overview/tg.png';
+import tg from "../../../images/posts/aws-ecs-overview/tg.png";
 
-<img src={tg} alt="tg" />
+<img src={tg.src} alt="tg" />
 
 The diagram above is a zoomed-in view of the previous diagram on Target Group 1. In the diagram, Service 1 is running 3 tasks. A Service usually creates Tasks using the same Task Definition and that is why Tasks A, B and C are exact copies of each other. We have also created a Target Group for this Service named Target Group 1. The Target Group has all the information required to route the traffic from the Load balancer to the tasks running inside of this Service.
 
@@ -100,21 +100,21 @@ What happens is when we first launch our ECS infrastructure ECS will take a look
 
 ECS creates 3 Tasks using the Task Definition for that Service. ECS also registers the 3 Tasks it created in the Target Group as 3 different targets. Let's suppose that one of the tasks becomes unhealthy because of a server failure inside of that Task container. ECS takes down that Task and it also deregisters it from the Target Group.
 
-import taskFailure from '../../../images/posts/aws-ecs-overview/task-failure.png';
+import taskFailure from "../../../images/posts/aws-ecs-overview/task-failure.png";
 
-<img src={taskFailure} alt="task-failure" />
+<img src={taskFailure.src} alt="task-failure" />
 
 So now we only have two Tasks running inside of our server and the Target Group also only has 2 targets registered.
 
-import taskRemoved from '../../../images/posts/aws-ecs-overview/task-removed.png';
+import taskRemoved from "../../../images/posts/aws-ecs-overview/task-removed.png";
 
-<img src={taskRemoved} alt="task-removed" />
+<img src={taskRemoved.src} alt="task-removed" />
 
 ECS will quickly determine that in our service configuration we specified that at any given point we want 3 Tasks to be running. So ECS will spin up a new Task using the Task Definition for that Service. It will also register a target in the Target Group which will point to the newly created Task.
 
-import taskNew from '../../../images/posts/aws-ecs-overview/task-new.png';
+import taskNew from "../../../images/posts/aws-ecs-overview/task-new.png";
 
-<img src={taskNew} alt="task-new" />
+<img src={taskNew.src} alt="task-new" />
 
 This is how ECS will make sure our application is available all the time even after a failure.
 
