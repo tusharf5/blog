@@ -58,6 +58,10 @@ That is the first mental model to keep in mind:
 
 > The terminal window on your screen is the UI. The PTY is the terminal device. The shell is just another program connected to it.
 
+There is one more important piece that sits in between: the **terminal line discipline**.
+It is not a user-space program and it does not "run inside" the master side.
+It is a **kernel-level processing layer** that sits between the PTY master side and slave side.
+
 ## The Basic Wiring
 
 Let's say you open your terminal emulator.
@@ -84,6 +88,27 @@ Instead:
 That is the conversation.
 The PTY sits in the middle between the terminal window and the shell.
 
+A simple way to visualize it is this:
+
+```txt
+keyboard/screen
+      |
+terminal emulator
+      |
+   PTY master fd
+      |
+---------------------- kernel ----------------------
+      |
+terminal line discipline / tty processing
+      |
+   PTY slave fd
+      |
+ shell / foreground program
+```
+
+So when the emulator writes bytes to the master side, those bytes pass through this kernel processing layer before they become available on the slave side.
+And when a program writes to the slave side, the same terminal machinery can process that output before it becomes readable on the master side.
+
 ## What Happens When You Type?
 
 Let's take a simple example.
@@ -101,7 +126,7 @@ At a high level, the flow looks like this:
 1. You press a key.
 2. The terminal emulator receives that keyboard event.
 3. It writes the corresponding bytes to the PTY master.
-4. The kernel's terminal driver handles those bytes on the PTY slave side.
+4. The kernel terminal layer processes those bytes between the PTY master and slave sides.
 5. The foreground program reading from the terminal gets the input through its `stdin`.
 
 The reverse path is also true:
@@ -119,6 +144,9 @@ The shell owns the prompt.
 
 Here is where another important piece comes in: the **terminal line discipline**.
 That is just a fancy name for the input/output rules the terminal driver applies.
+
+Architecturally, this line discipline is the kernel layer sitting between the PTY master and PTY slave.
+So it is better to think of it as a middleman inside the kernel, not as part of the emulator and not as part of the shell.
 
 When the terminal is in its normal cooked/canonical mode, the kernel does not just blindly forward every byte to the program.
 It does some processing first.
