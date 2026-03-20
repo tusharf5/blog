@@ -1,0 +1,221 @@
+---
+layout: "../../../layouts/BlogPost.astro"
+publishedAt: "2026-01-20"
+uid: "vpc-endpoint-dns"
+title: "Private DNS on VPC Endpoint"
+category: "AWS"
+draft: false
+tags:
+  - vpc
+  - vpce
+  - vpc endpoint
+  - dns
+  - privatelink
+  - api gateway
+excerpt: "What really happens when you enable private DNS on an interface VPC endpoint, and why API Gateway behaves a little differently."
+---
+
+When I first enabled **Private DNS** on a VPC Endpoint, I assumed AWS would just give me one more DNS name for that endpoint.
+But that is not what happens.
+
+What actually happens is much more interesting. AWS starts answering the **normal public service hostname** with **private IPs** inside your VPC.
+That means your application can keep calling the same AWS service URL as before, but the traffic now goes through your **interface VPC endpoint**.
+
+This post is a small refresher on how that works and why **API Gateway** has a few nuances that can surprise you.
+
+Let's say you have an EC2 instance in a private subnet and your code is already calling something like `secretsmanager.us-east-1.amazonaws.com`.
+You create an interface VPC endpoint for Secrets Manager and enable private DNS on it.
+Now your application code does not change, the URL does not change, but the request path changes completely because DNS inside the VPC starts returning the private IPs of that endpoint.
+
+That is the part that confused me the first time.
+
+## What is a VPC Endpoint?
+
+A **VPC Endpoint** is a way for resources inside your VPC to talk to an AWS service without going through the public internet.
+
+There are multiple kinds of VPC endpoints, but the one relevant for this post is the **Interface VPC Endpoint**.
+An interface endpoint creates one or more **Elastic Network Interfaces (ENIs)** inside your subnets and gives them private IP addresses.
+Those ENIs act as private entry points to an AWS service such as Secrets Manager, SQS, CloudWatch or API Gateway.
+
+So if your EC2 instance needs to call one of these services, the request can stay on the AWS network instead of going out through an internet gateway or NAT gateway.
+
+## What is Private DNS?
+
+Private DNS is a setting on an **interface VPC endpoint**.
+
+When enabled, AWS creates a hidden **private hosted zone** for your VPC and uses it to answer the service's usual public hostname with the private IPs of your endpoint ENIs.
+
+For this to work, your VPC must have DNS resolution and DNS hostnames enabled.
+
+That last sentence is the important part of this entire post.
+
+## Without Private DNS
+
+Let's say you create an interface VPC endpoint for some AWS service.
+
+Even without private DNS, AWS gives you endpoint-specific DNS names that look something like this:
+
+```txt
+vpce-123abc-xyz.service.us-east-1.vpce.amazonaws.com
+```
+
+Your application can call that endpoint-specific hostname directly and the request will go through the VPC endpoint.
+
+But the normal public AWS hostname for that service still behaves like a public hostname.
+So if your code calls something like:
+
+```txt
+service.us-east-1.amazonaws.com
+```
+
+then DNS resolution does not magically change just because a VPC endpoint exists.
+
+This is why simply creating an interface endpoint is not enough if your goal is: "I want my existing SDK calls to automatically use the endpoint."
+
+## What Changes When You Enable Private DNS?
+
+When you enable private DNS, AWS creates a hidden, AWS-managed **private hosted zone** and associates it with your VPC.
+
+That hosted zone contains records for the service's default DNS name and points those records to the private IP addresses of the endpoint ENIs.
+
+So now the request flow looks like this:
+
+1. Your application tries to resolve the normal public AWS service hostname.
+2. The Route 53 Resolver inside the VPC sees a matching private hosted zone record.
+3. It returns the private IPs of the VPC endpoint ENIs.
+4. Your traffic goes to the interface endpoint instead of leaving the VPC.
+
+The important thing is that **your application URL does not have to change**.
+Only the DNS answer changes.
+
+This is why enabling private DNS feels like AWS is "hijacking" that service domain inside your VPC.
+It is not hijacking every domain in the VPC. It is hijacking the **matching AWS service domain names** for the endpoint you enabled.
+
+So if you enable private DNS for Secrets Manager, it does not affect SQS.
+If you enable private DNS for CloudWatch, it does not affect DynamoDB.
+The override is scoped to the service domain handled by that endpoint.
+
+## The Private Hosted Zone Mental Model
+
+The cleanest mental model is this:
+
+> Enabling private DNS on an interface endpoint makes the public service DNS name resolve privately **inside that VPC**.
+
+That also explains why existing applications continue to work without code changes.
+The AWS SDK still thinks it is calling the standard regional endpoint.
+It is just getting a different DNS answer because of the private hosted zone attached to your VPC.
+
+So the magic is not in the HTTP client.
+The magic is in **VPC DNS resolution**.
+
+## Why API Gateway Feels Different
+
+API Gateway is where this becomes a little more subtle.
+
+API Gateway private access uses an **interface VPC endpoint** for the `execute-api` service.
+And because API Gateway's default invoke URLs also live under the `execute-api` domain, the DNS override is much more noticeable.
+
+Before we go further, one quick refresher:
+
+- **Private API Gateway API** means a REST/HTTP API whose endpoint type is `PRIVATE`.
+- It is not the same thing as a public **Regional** API.
+- It is also not the same thing as an **Edge-Optimized** API.
+
+The VPC endpoint is meant for calling **private APIs**.
+
+## Private DNS Enabled For API Gateway
+
+If private DNS is enabled on your API Gateway VPC endpoint, you can call a private API using its normal default invoke URL:
+
+```txt
+https://abc123.execute-api.us-east-1.amazonaws.com/prod/orders
+```
+
+From inside that VPC, DNS resolution will send that request to your `execute-api` VPC endpoint.
+This is the nice part because now you do not have to pass any special headers just to reach the private API.
+
+But there is a catch.
+
+Because the `execute-api` DNS namespace is now being resolved privately inside the VPC, the **default endpoints of public API Gateway APIs** stop being usable from that VPC.
+
+That means the following do **not** work the way you might expect from inside that VPC:
+
+- The default endpoint of a public **Regional** API
+- The default endpoint of an **Edge-Optimized** API
+
+In other words, once private DNS is enabled for the API Gateway VPC endpoint, your VPC starts treating the default `execute-api` hostname as something that should go through the private endpoint.
+That is great for private APIs and bad for public default endpoints.
+
+If you still need to call a public API Gateway API from the same VPC, one simple option is to use a **custom domain name** for that public API instead of its default `execute-api` URL.
+Another option is to disable private DNS on the endpoint and create your own private hosted zone records only for the private APIs that should resolve privately.
+
+## Private DNS Disabled For API Gateway
+
+Now let's look at the other side.
+
+If private DNS is **disabled**, the default `abc123.execute-api.us-east-1.amazonaws.com` hostname is not remapped inside your VPC.
+So public API Gateway default endpoints remain reachable as usual.
+
+But your private API is no longer invokable by just using its normal default URL.
+
+Instead, you use the VPC endpoint specific hostname and help API Gateway identify which private API you want.
+That can be done by either:
+
+- sending the `Host` header, or
+- sending the `x-apigw-api-id` header
+
+Example:
+
+```bash
+curl -v \
+  https://vpce-0abc123.execute-api.us-east-1.vpce.amazonaws.com/prod/orders \
+  -H 'x-apigw-api-id: abc123'
+```
+
+The `x-apigw-api-id` header is basically helping API Gateway figure out which private API you are trying to reach through that VPC endpoint.
+
+You can also use:
+
+```bash
+curl -v \
+  https://vpce-0abc123.execute-api.us-east-1.vpce.amazonaws.com/prod/orders \
+  -H 'Host: abc123.execute-api.us-east-1.amazonaws.com'
+```
+
+This behavior is simple after you see what DNS is doing, but the first time around it can be pretty confusing.
+
+## So What Is Actually Being Hijacked?
+
+For most AWS services, enabling private DNS effectively overrides the service's **regional public endpoint name** inside your VPC and points it to your interface endpoint.
+
+For API Gateway, the effect is broader in practice because many default invoke URLs share the same `execute-api` DNS space.
+So it feels like API Gateway private DNS hijacks "all API Gateway domains" in that VPC.
+
+More precisely though, it hijacks the default `execute-api` names that are supposed to resolve through that VPC endpoint.
+That is why the default endpoint of a public API also stops behaving the way you expect inside that VPC.
+
+## One More Useful Detail
+
+If you associate a VPC endpoint directly with a private API, API Gateway can also generate a Route 53 alias-based URL in this format:
+
+```txt
+https://{api-id}-{vpce-id}.execute-api.{region}.amazonaws.com/{stage}
+```
+
+That is handy because it avoids the need to override `Host` or pass the `x-apigw-api-id` header when you do not want to enable private DNS globally for `execute-api` in that VPC.
+
+## Final Thought
+
+If you remember only one thing from this post, remember this:
+
+**Private DNS on an interface VPC endpoint does not change your application code. It changes DNS resolution inside your VPC.**
+
+That is why this feature feels so magical and so confusing at the same time.
+
+And if you look at API Gateway through that same lens, the behaviour becomes easier to reason about:
+
+- private APIs work naturally with private DNS enabled
+- public default `execute-api` endpoints become problematic
+- disabling private DNS brings back public default endpoints, but now you need `Host` or `x-apigw-api-id`
+
+That is the tradeoff you are really making.
