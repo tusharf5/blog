@@ -18,17 +18,17 @@ In pseudocode, a tool looks something like this:
 
 ```ts
 const searchLogs = tool({
-  name: "search_logs",
-  description: "Search application logs for a time window",
+  name: 'search_logs',
+  description: 'Search application logs for a time window',
   input: {
-    query: "string",
-    from: "iso_timestamp",
-    to: "iso_timestamp",
+    query: 'string',
+    from: 'iso_timestamp',
+    to: 'iso_timestamp',
   },
   run: async ({ query, from, to }) => {
-    return boundedLogSearch(query, from, to)
+    return boundedLogSearch(query, from, to);
   },
-})
+});
 ```
 
 The first useful lesson is that an agent is not magic. At the core, it is a loop.
@@ -57,10 +57,10 @@ The real TypeScript shape was not much more complicated. Simplified, it looked l
 
 ```ts
 // Start the conversation with the alert or task the agent must investigate.
-const messages = [{ role: "user", content: userPrompt }]
+const messages = [{ role: 'user', content: userPrompt }];
 
 // Keep a fast lookup so a model-requested tool name maps to real code.
-const toolsByName = new Map(tools.map((tool) => [tool.name, tool]))
+const toolsByName = new Map(tools.map((tool) => [tool.name, tool]));
 
 for (let turn = 0; turn < maxTurns; turn++) {
   // Ask the model what to do next, while showing it the available tools.
@@ -69,43 +69,72 @@ for (let turn = 0; turn < maxTurns; turn++) {
     system: systemPrompt,
     messages,
     tools: tools.map(toModelToolSchema),
-  })
+  });
 
   // Preserve the assistant response so the next turn has full context.
-  messages.push({ role: "assistant", content: response.content })
+  messages.push({ role: 'assistant', content: response.content });
 
   // If the model is done, return the final answer/report.
-  if (response.stop_reason === "end_turn") {
-    return { status: "done" }
+  if (response.stop_reason === 'end_turn') {
+    return { status: 'done' };
   }
 
-  const toolResults = []
+  const toolResults = [];
 
   // Find every tool call the model requested in this turn.
   for (const request of findToolRequests(response.content)) {
-    const tool = toolsByName.get(request.name)
+    const tool = toolsByName.get(request.name);
 
     // Validate model-generated input before it reaches real systems.
-    const input = tool.inputSchema.parse(request.input)
+    const input = tool.inputSchema.parse(request.input);
 
     // Run the actual application code behind the tool.
-    const output = await tool.run(input)
+    const output = await tool.run(input);
 
     // Send the tool output back in the format the model expects.
     toolResults.push({
-      type: "tool_result",
+      type: 'tool_result',
       tool_use_id: request.id,
       content: JSON.stringify(output),
-    })
+    });
   }
 
   // Continue the loop with the evidence gathered from tools.
-  messages.push({ role: "user", content: toolResults })
+  messages.push({ role: 'user', content: toolResults });
 }
 
 // The agent did not finish within the allowed number of turns.
-return { status: "max_turns" }
+return { status: 'max_turns' };
 ```
+
+The loop above passes `systemPrompt` and `userPrompt` into the model but never shows them. They are just text. The system prompt sets the agent's overall behavior:
+
+```text
+You are an incident triage agent. You investigate one Datadog alert and write an
+evidence-based report. You can read systems, but you cannot change them.
+
+- Investigate before you conclude: read the monitor, check recent deploys, search
+  logs and spans, inspect cloud state.
+- A query that returns zero results is not proof the system is healthy.
+- Never present a correlation as a proven root cause.
+- If you cannot prove something, write it down as a data gap.
+- When you have enough evidence, call write_report once and stop.
+```
+
+And the user prompt was just the alert itself, turned into text:
+
+```text
+Investigate this Datadog alert.
+
+Monitor:    checkout-api p99 latency
+Monitor ID: 12345678
+Service:    checkout-api
+Triggered:  2026-06-22 14:02 UTC
+Query:      p99 of trace.http.request, service:checkout-api > 2s
+State:      ALERT
+```
+
+That is the whole input. Behavior in the system prompt, the specific alert in the user prompt, and the tools listed alongside.
 
 My first implementation was almost exactly this raw loop. It had more error handling, tracing, timeout logic, and report tracking, but the core idea was the same: call the model, parse tool requests, run the tools, append tool results, and repeat.
 
@@ -135,19 +164,133 @@ tool  = executes a specific deterministic action
 
 The zero-result recovery behavior is a good example. The log search tool only knows how to search logs. It does not know that empty results are suspicious in our environment. The skill is what tells the agent what to do next: try a broader search, check spans instead of logs, verify the time window, inspect tags versus attributes, and record a data gap if the evidence is still missing.
 
+Concretely, that skill is just a markdown file that wraps the search tools with local knowledge. It is about how to use those tools well, not a standalone trick. Notice that zero-result recovery is only one step inside it:
+
+```markdown
+---
+name: query-datadog-logs
+description: How to use the Datadog tools to find evidence in this environment.
+---
+
+The tools only run the queries you give them. Querying well in this environment
+is the skill. Everything below is a verified pattern or a verified trap.
+
+## Tools
+
+- datadog_get_monitor — fetch the monitor query and current state; always run first
+- datadog_search_events — check the 24h re-trigger pattern (flapping vs new incident)
+- datadog_baseline_probe — one-shot probe that returns the real service tag,
+  stage/env key, functionname prefix, and attribute namespace for a Lambda service
+- datadog_search_logs — raw log retrieval; default storage_tier flex_and_indexes
+- datadog_aggregate_logs — grouped counts (errors by functionname, volume by stage)
+- datadog_search_spans — APM spans; fallback when logs are not indexed or you need
+  resource-name filtering
+- datadog_aggregate_spans — grouped counts over spans (5xx by resource_name)
+- datadog_query_metric — timeseries grouped by tag; ground truth for infra alerts
+
+## Before the first log query
+
+Call playbook_get_service_facts first. If it misses, run datadog_baseline_probe
+to discover: the real service tag, stage/env tag key and values, functionname
+prefix, attributeNamespace. Record the result with playbook_record_service_facts.
+The alert's service tag is often the APM service name, not the log facet value.
+
+## Five hard query rules
+
+1. Always pass storage_tier flex_and_indexes. The hot tier ("indexes" alone)
+   returns 0 silently for most projects in this org, even at now-1h.
+2. For any value lookup, start with _:<value>. Do not guess @custom.<path>.
+   Powertools fields land under @custom._ but the nested path varies by handler.
+   \*:<value> finds the log; then read the real path off it.
+3. Tags are bare; attributes are @-prefixed. service:, stage:, env:,
+   functionname:, host: are tags. @custom.traceId, @custom.data.body.message
+   are attributes. Mixing these up produces silent zeros.
+4. Use functionname:_<handler>_ to filter Lambda logs. The attribute
+   @aws.lambda.function_name does not exist on Forwarder-forwarded logs.
+5. @custom._ attributes are not faceted in this org. @custom.traceId:foo
+   returns 0 even when the value is present. Use _:<value> instead. Verified.
+
+## Population routing
+
+Three populations that cannot be mixed in one query:
+
+Lambda runtime logs (service:hpe-_): filter by functionname:_<handler>\*. Never
+use path: or resource: here — those are APM span facets and do not exist on log
+documents. The Forwarder does not emit them.
+
+API Gateway access logs: query source:apigateway path:"<full-path>" and drop
+the service: filter entirely. Access logs are not tagged with the Lambda service
+name, so service: always returns 0 on this population.
+
+APM spans (datadog_search_spans / datadog_aggregate_spans): use when logs are
+not indexed, or when you need resource_name filtering. HPE handlers return 4xx
+and 5xx via APIGatewayResponse, so the span stays status:ok for HTTP errors.
+Filter @http.status_code:[400 TO 599] for HTTP errors; use status:error only for
+thrown exceptions.
+
+## Metric localization
+
+For an infra or ratio alert (ALB, API Gateway, Lambda error-rate), run
+datadog_query_metric grouped by tag before searching logs or spans. Example for
+an ALB alert:
+
+sum:aws.applicationelb.httpcode_target_5xx{name:<alb>} by {targetgroup}.as_count()
+
+The series with the highest value is the responsible resource. Logs from a target
+group that is not carrying the signal are not evidence for this alert, regardless
+of their volume. Use the metric as ground truth before attributing a cause.
+
+## Recovery ladder (when a query returns 0)
+
+Do not iterate alternate values of the same filter. Probe to find the broken key.
+
+0. Check the population first. If the query contains resource:, path:, or a URL
+   string starting with "/" — those facets do not exist on log documents. Route
+   to the correct population (spans for resource:, access logs for path:) before
+   touching any other filter.
+
+Then work through these in order until results appear:
+
+a. Replace @<attr>:<value> with _:<value>. If results appear, read the real
+attribute path off the returned log.
+b. Swap stage/env key. stage:qa <-> env:uat. The dual-tag mismatch (a log
+carries both, but the query uses the wrong key) is the most common cause of
+silent zeros in this org.
+c. Drop the status: filter.
+d. Drop the functionname:_<handler>\* filter.
+e. Drop the env/stage filter entirely.
+f. Widen the time window: now-7d, then now-30d (flex_and_indexes only).
+g. Drop service:<resolved>. If still 0, fall back to datadog_search_spans.
+
+The first removal that produces results identifies the broken key. Update
+playbook_record_service_facts with what you find.
+
+## traceId cross-service tracing
+
+traceId is the platform correlation id. Format: <prefix>\_<apiGwRequestId>.
+To follow one request across services:
+
+\*:<traceId> (storage_tier flex_and_indexes, now-7d, sort ascending)
+
+Do not add a service: filter — it hides the other hops. Do not use
+@custom.traceId:<value> — that attribute is not indexed as a facet and always
+returns 0. Aggregate the results by service and functionname to reconstruct the
+call path. See read_reference_doc('trace-id') for the full note.
+```
+
 Skills like this live on the filesystem as markdown, and a runner can load them alongside the tools. With the Claude Agent SDK, for example, that wiring looks like this (real code, unlike the pseudocode above):
 
 ```typescript
-import { query } from "@anthropic-ai/claude-agent-sdk";
+import { query } from '@anthropic-ai/claude-agent-sdk';
 
 for await (const message of query({
-  prompt: "Investigate this Datadog alert and write an evidence-based report",
+  prompt: 'Investigate this Datadog alert and write an evidence-based report',
   options: {
-    cwd: "/path/to/project", // Project with .claude/skills/
-    settingSources: ["user", "project"], // Load Skills from filesystem
-    skills: "all", // Enable every discovered Skill
-    allowedTools: ["search_logs", "get_recent_deploys", "..."]
-  }
+    cwd: '/path/to/project', // Project with .claude/skills/
+    settingSources: ['user', 'project'], // Load Skills from filesystem
+    skills: 'all', // Enable every discovered Skill
+    allowedTools: ['search_logs', 'get_recent_deploys', '...'],
+  },
 })) {
   console.log(message);
 }
@@ -246,23 +389,23 @@ A save tool can look like this:
 
 ```ts
 const saveMonitorMemory = tool({
-  name: "save_monitor_memory",
-  description: "Save a short summary for a monitor after an investigation.",
+  name: 'save_monitor_memory',
+  description: 'Save a short summary for a monitor after an investigation.',
   input: {
-    monitor_id: "string",
-    summary: "string",
-    evidence: "string",
-    suggested_next_step: "string",
+    monitor_id: 'string',
+    summary: 'string',
+    evidence: 'string',
+    suggested_next_step: 'string',
   },
   run: async (memory) => {
     await datastore.put({
       key: `monitor/${memory.monitor_id}`,
       value: memory,
-    })
+    });
 
-    return { saved: true }
+    return { saved: true };
   },
-})
+});
 ```
 
 And a query tool does the other half:
@@ -293,30 +436,35 @@ What changed was the amount of code needed to manage the conversation protocol. 
 In a simplified form, that version looks like this:
 
 ```ts
-import Anthropic from "@anthropic-ai/sdk"
-import { betaZodTool } from "@anthropic-ai/sdk/helpers/beta/zod"
-import { z } from "zod"
+import Anthropic from '@anthropic-ai/sdk';
+import { betaZodTool } from '@anthropic-ai/sdk/helpers/beta/zod';
+import { z } from 'zod';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const client = new Anthropic({ baseURL: process.env.ANTHROPIC_BASE_URL, apiKey });
 
 const tools = [
   betaZodTool({
-    name: "search_logs",
-    description: "Search application logs for a time window",
+    name: 'search_logs',
+    description: 'Search application logs for a time window',
     inputSchema: z.object({ query: z.string() }),
     run: async ({ query }) => boundedLogSearch(query),
   }),
-]
+];
 
 const runner = client.beta.messages.toolRunner({
   model: process.env.MODEL_ID,
-  max_tokens: 2000,
-  messages: [{ role: "user", content: "Investigate this alert" }],
+  max_tokens: 8192,
+  messages: [{ role: 'user', content: 'Investigate this alert' }],
   tools,
-  max_iterations: 8,
-})
+  max_iterations: 20,
+});
 
-await runner.runUntilDone()
+// Iterate the runner to accumulate token usage per turn and inject a wrap-up
+// nudge before the iteration budget runs out.
+for await (const message of runner) {
+  accumulateUsage(message.usage);
+  if (nearBudget(iter)) runner.pushMessages(wrapUpNudge);
+}
 ```
 
 This is how I think about frameworks for agents now. They do not remove the need to understand the loop. If you do not understand the loop, you will not understand failures. But once you understand it, a helper runner is useful because it lets you spend less time on protocol mechanics and more time on the behavior that matters.
@@ -329,23 +477,27 @@ It still has a boring name, a useful description, and a strict input schema. The
 
 ```ts
 const writeReport = tool({
-  name: "write_report",
-  description: "Write the final investigation report as markdown.",
+  name: 'write_report',
+  description: 'Write the final investigation report as markdown.',
   input: {
-    markdown: "string",
+    markdown: 'string',
   },
   run: async ({ markdown }) => {
-    const key = `reports/${Date.now()}.md`
+    const timestamp = new Date().toISOString().replace(/:/g, '-');
+    const key = `triage/${ctx.service}/${ctx.alertId}/${timestamp}.md`;
 
-    await objectStorage.putObject({
-      key,
-      body: markdown,
-      contentType: "text/markdown",
-    })
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: ctx.reportsBucket,
+        Key: key,
+        Body: markdown,
+        ContentType: 'text/markdown; charset=utf-8',
+      }),
+    );
 
-    return { uri: `storage://${key}` }
+    return `s3://${ctx.reportsBucket}/${key}`;
   },
-})
+});
 ```
 
 Then the instructions tell the agent when to call it: write the report once, include the required sections, and stop after the write succeeds.
@@ -360,44 +512,51 @@ A finished report ends up looking roughly like this:
 
 ```markdown
 ## Summary
+
 Monitor "checkout-api p99 latency" fired at 14:02 UTC. Latency rose from
 ~180ms to ~2.4s for about 6 minutes, then recovered on its own.
 
 ## Likely cause (confidence: MEDIUM)
+
 A deploy of checkout-api (MR !1423, deployed 13:58 UTC) shipped a change to
 the payment client. The latency spike starts ~3 minutes after the deploy and
 overlaps with a burst of timeouts to the payments upstream.
 
 ## Evidence
+
 - GitLab: MR !1423 deployed to prod at 13:58 UTC, touches payment_client.ts.
 - Spans: p99 on POST /checkout climbs from 13:59, peak 2.4s at 14:02.
 - Logs: 41 "payments upstream timeout" entries between 13:59–14:05, none before.
 
 ## Data gaps
+
 - Could not confirm whether the upstream itself degraded; no access to its
   dashboards from this agent. Treated as correlation, not root cause.
 
 ## Suggested next steps
+
 - Have a human compare MR !1423's timeout/retry settings against prod defaults.
 - If confirmed, consider rollback or a follow-up fix to the payment client.
 
 ---
 
-| Metadata    | Value                  |
-| ----------- | ---------------------- |
-| Model       | claude-sonnet-4-6      |
-| Duration    | 47s                    |
-| Turns       | 6                      |
-| Tokens      | 38,412 in / 2,107 out  |
-| Est. cost   | $0.14                  |
+## Triage metadata
 
-| Tool              | Calls | Result tokens added to context |
-| ----------------- | ----- | ------------------------------ |
-| get_monitor       | 1     | 1,840                          |
-| search_logs       | 2     | 18,920                         |
-| search_spans      | 1     | 9,310                          |
-| get_recent_deploys| 1     | 4,260                          |
-| write_report      | 1     | 22                             |
+- Model: `claude-sonnet-4-6`
+- Duration: 47s
+- Iterations: 6 (stop reason: end_turn)
+- Token usage: 40,519 total — input 38,412 / output 2,107 / cache write 0 / cache read 0
+- Estimated cost: $0.14 (USD, claude-sonnet-4-6 pricing)
+
+### Tool usage
+
+| Tool                   | Calls | Total time | Bytes returned |
+| ---------------------- | ----- | ---------- | -------------- |
+| datadog_search_logs    | 2     | 8.1s       | 42.3 KB        |
+| datadog_search_spans   | 1     | 3.2s       | 21.8 KB        |
+| datadog_get_monitor    | 1     | 1.4s       | 4.2 KB         |
+| gitlab_prod_deployment | 1     | 2.6s       | 9.8 KB         |
+| write_report           | 1     | 0.3s       | —              |
 ```
 
 Notice what the report does not do: it does not declare a root cause it cannot
