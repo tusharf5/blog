@@ -1,72 +1,113 @@
+/* ============================================================
+   NEOBRUTALISM THEME TOKENS
+   See Theme.md for the full design-system guide.
+   Light = :root, Dark = body.dark-mode (only overrides deltas).
+   ============================================================ */
+
 :root {
-  --body-bg: #fff;
-  --color: #2d3748;
-  --heading-color: #142331;
-  --h1-dash-color: #afec9e;
-  --h2-left-border: #cce5ff;
-  --sub-head-before: #9ed0ff;
-  --h6-color: #777;
-  --hr-color: #e1e4e8;
-  --table-bg: #fafbfc;
-  --table-border: #dadfe6;
-  --code-bg: #e2f0ff;
-  --code-line-highlight: #f0f2f9;
-  --pre-bg: #f0f0f0;
-  --anchor-color: #3182ce;
-  --footer-color: #444;
-  --blockquote-color-primary: #184394;
-  --blockquote-color-danger: #941818;
-  --blockquote-color-success: #459418;
-  --blockquote-color-warning: #945818;
-  --blockquote-color-neutral: #555151;
-  --blockquote-bg-color-primary: #f9fcff;
-  --blockquote-bg-color-danger: #fff9f9;
-  --blockquote-bg-color-success: #f9fff9;
-  --blockquote-bg-color-warning: #fffcf9;
-  --blockquote-bg-color-neutral: #f9f9f9;
+  /* --- Neobrutalist primitives --- */
+  --border: #111111; /* thick border color */
+  --border-width: 3px; /* structural border thickness */
+  --shadow-color: #111111; /* hard shadow color */
+  --shadow-offset: 4px; /* hard shadow offset (no blur) */
+  --shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--shadow-color);
+  --shadow-lg: 7px 7px 0 var(--shadow-color); /* hover-lifted shadow */
+  --card-bg: #fffdf5; /* raised surfaces (cards, chips) */
+
+  /* --- Accent palette (vivid, flat, shared across modes) --- */
+  --accent-yellow: #ffd23f;
+  --accent-pink: #ff5c7a;
+  --accent-blue: #4dabf7;
+  --accent-lime: #a3e635;
+  --accent: var(--accent-yellow); /* primary accent */
+
+  /* --- Core surfaces & text --- */
+  --body-bg: #faf4e6; /* cream paper */
+  --color: #1a1a1a; /* body ink */
+  --heading-color: #111111;
+  --h6-color: #6b6b6b;
+  --footer-color: #1a1a1a;
+  --anchor-color: #1565c0; /* readable blue on cream */
+
+  /* --- Heading accents (solid, flat) --- */
+  --h1-dash-color: var(--accent-yellow); /* h1 underline bar */
+  --h2-left-border: var(--accent-blue); /* h2 left bar */
+  --sub-head-before: var(--accent-pink); /* h3/h4 square marks */
+
+  /* --- Rules & tables --- */
+  --hr-color: #111111;
+  --table-bg: #f2e9cf; /* zebra rows */
+  --table-border: #111111;
+
+  /* --- Code --- */
+  --code-bg: #ffe9a8; /* inline-code chip bg */
+  --inline-code-color: #8a4b00; /* inline-code text */
+  --code-line-highlight: rgba(255, 210, 63, 0.14); /* pre highlight line (on dark) */
+  --pre-bg: #1c2022; /* code-block bg */
+
+  /* --- Callout tints (flat washes; text stays dark & readable) --- */
+  --blockquote-color-primary: #1a1a1a;
+  --blockquote-color-danger: #1a1a1a;
+  --blockquote-color-success: #1a1a1a;
+  --blockquote-color-warning: #1a1a1a;
+  --blockquote-color-neutral: #1a1a1a;
+  --blockquote-bg-color-primary: #d7ecff; /* blue */
+  --blockquote-bg-color-danger: #ffdfe6; /* pink/red */
+  --blockquote-bg-color-success: #e7f7c6; /* lime */
+  --blockquote-bg-color-warning: #fff1bf; /* yellow */
+  --blockquote-bg-color-neutral: #ede8da; /* grey */
+
+  /* --- Layout & type --- */
   --font-size: 17px;
-  --max-width: 890px;
+  --max-width: 760px; /* prose measure */
   --global-padding-top: 45px;
-  --invert-image-value: -1;
   --global-padding-left: 45px;
+  --invert-image-value: -1;
   --font-family:
-    "Rubik", "SF UI Text", -apple-system, -apple-system-body,
-    BlinkMacSystemFont, Helvetica, Arial, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol";
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --heading-font-family:
+    "Space Grotesk", "Inter", -apple-system, BlinkMacSystemFont, Helvetica,
+    Arial, sans-serif;
   --code-font-family:
-    "SF Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace,
-    "PingFang SC", "Microsoft YaHei";
-  --inline-code-bg: #f0f0f0;
+    "JetBrains Mono", "SF Mono", Consolas, "Liberation Mono", Menlo, Courier,
+    monospace;
+  --inline-code-bg: var(--code-bg);
 }
 
 body.dark-mode {
-  --inline-code-shadow: #686b6e;
-  --inline-code-bg: #535353;
-  --body-bg: #2b2b2b;
-  --color: #a9b7c6;
-  --heading-color: #b8c8d9;
-  --h1-dash-color: #5f8055;
-  --h2-left-border: #3d5266;
-  --sub-head-before: #4d6580;
-  --h6-color: #93a0ad;
-  --hr-color: #3a3c3d;
-  --footer-color: #a9b7c6;
+  /* On dark, borders go light and shadows go pure black. Accents stay vivid. */
+  --border: #ece7da;
+  --shadow-color: #000000;
+  --card-bg: #242424;
+
+  --body-bg: #1a1a1a;
+  --color: #ece7da;
+  --heading-color: #f7f3e8;
+  --h6-color: #9a948a;
+  --footer-color: #ece7da;
+  --anchor-color: #74c0fc;
+
+  --hr-color: #ece7da;
+  --table-bg: #262626;
+  --table-border: #ece7da;
+
+  --code-bg: #33302a; /* inline-code chip bg */
+  --inline-code-color: var(--accent-yellow);
+  --inline-code-bg: var(--code-bg);
+
+  /* Callouts: dark tinted washes, light readable text */
   --blockquote-color-primary: var(--color);
   --blockquote-color-danger: var(--color);
   --blockquote-color-success: var(--color);
   --blockquote-color-warning: var(--color);
   --blockquote-color-neutral: var(--color);
-  --blockquote-bg-color-primary: var(--body-bg);
-  --blockquote-bg-color-danger: var(--body-bg);
-  --blockquote-bg-color-success: var(--body-bg);
-  --blockquote-bg-color-warning: var(--body-bg);
-  --blockquote-bg-color-neutral: var(--body-bg);
-  --table-bg: #32373d;
-  --table-border: #53575c;
-  --code-bg: #32373d;
-  --code-line-highlight: #2b2b2b;
-  --pre-bg: #54585c;
-  --anchor-color: #6dadf2;
+  --blockquote-bg-color-primary: #17303f;
+  --blockquote-bg-color-danger: #3d1f27;
+  --blockquote-bg-color-success: #24331a;
+  --blockquote-bg-color-warning: #3a3320;
+  --blockquote-bg-color-neutral: #2a2a2a;
+
   --invert-image-value: 1;
 }
 
@@ -97,7 +138,7 @@ body {
   font-size: 18.5px;
   color: var(--color);
   line-height: 1.6;
-  font-weight: 300;
+  font-weight: 400;
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   margin: 0;
@@ -116,6 +157,9 @@ body {
 
 a {
   color: var(--anchor-color);
+  font-weight: 500;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
 }
 
 h1,
@@ -124,12 +168,14 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 400;
-  line-height: 1.35em;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.3em;
   cursor: text;
   color: var(--heading-color);
 }
 
 p {
-  line-height: 1.75em;
+  line-height: 1.8em;
 }

@@ -1,7 +1,5 @@
 @charset "UTF-8";
 
-// @import './components/fonts/sf-ui/style.scss';
-@import "./components/fonts/sf-mono/style.scss";
-@import "./components/fonts/rubik";
+// Fonts are self-hosted via @fontsource, imported in BaseHead.astro.
 @import "./components/global";
 @import "./components/header";

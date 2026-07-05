@@ -13,6 +13,9 @@
   "dependencies": {
     "@astrojs/mdx": "4.2.3",
     "@astrojs/sitemap": "3.3.0",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/space-grotesk": "^5.2.10",
     "astro": "5.6.1",
     "dynamic-class-list": "2.0.2"
   },

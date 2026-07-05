@@ -8,10 +8,20 @@
     display: flex;
     align-items: center;
     .logo {
+      display: inline-flex;
+      align-items: center;
       > img {
-        height: 24px;
-        margin-right: 10px;
-        border-radius: 3px;
+        height: 30px;
+        width: 30px;
+        margin-right: 12px;
+        border-radius: 0;
+        border: var(--border-width) solid var(--border);
+        box-shadow: var(--shadow);
+      }
+      > span {
+        font-weight: 700;
+        text-transform: lowercase;
+        letter-spacing: 0.5px;
       }
       > * {
         vertical-align: middle;
@@ -34,7 +44,10 @@
           }
         }
         a {
-          color: #616569;
+          color: var(--heading-color);
+          text-transform: uppercase;
+          font-weight: 700;
+          letter-spacing: 0.5px;
         }
       }
     }
@@ -46,19 +59,35 @@
     color: inherit;
     text-decoration: none;
     letter-spacing: 0.5px;
-    font-weight: 400;
+    font-weight: 700;
+    &:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--accent);
+      text-decoration-thickness: 3px;
+    }
   }
 }
 
+/* --- Brutalist dark-mode switch --- */
 .toggle-track {
-  background-color: #1a1a1a;
-  border-radius: 30px;
+  background-color: var(--accent-blue);
+  border: var(--border-width) solid var(--border);
+  border-radius: 0;
+  box-shadow: var(--shadow);
   cursor: pointer;
   display: flex;
-  height: 24px;
+  height: 28px;
   position: relative;
   user-select: none;
-  width: 50px;
+  width: 58px;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+
+  &:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 var(--shadow-color);
+  }
 
   .toggle-sun,
   .toggle-moon {
@@ -67,6 +96,7 @@
     font-size: 12px;
     padding: 0 4px;
     width: 50%;
+    z-index: 1;
   }
 
   .toggle-moon {
@@ -74,17 +104,21 @@
   }
 
   .toggle-thumb {
-    background-color: #fff;
-    border-radius: 50%;
-    height: 20px;
-    left: 2px;
+    background-color: var(--card-bg);
+    border: var(--border-width) solid var(--border);
+    border-radius: 0;
+    height: 22px;
+    left: 0;
     position: absolute;
-    top: 2px;
-    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    width: 20px;
+    top: 0;
+    transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+    width: 22px;
   }
 
-  &.toggled .toggle-thumb {
-    transform: translateX(26px);
+  &.toggled {
+    background-color: var(--accent-yellow);
+    .toggle-thumb {
+      transform: translateX(30px);
+    }
   }
 }

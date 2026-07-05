@@ -14,32 +14,23 @@
 <script is:inline>
   const toggle = document.querySelector('#theme-toggle');
 
+  // Apply a theme and keep the toggle thumb (`.toggled`) in sync with it.
+  function applyTheme(dark) {
+    document.body.className =
+      document.body.className.replace(/(light|dark)-mode/, '').trim() +
+      (dark ? ' dark-mode' : ' light-mode');
+    if (toggle) {
+      toggle.classList.toggle('toggled', dark);
+    }
+  }
+
   if (toggle) {
-    toggle.addEventListener('click', function (ev) {
-      const isDark = window.localStorage.getItem('darkMode');
-      if (isDark === 'true') {
-        window.localStorage.setItem('darkMode', 'false');
-        document.body.className =
-          document.body.className.replace(/(light|dark)-mode/, '') +
-          ' light-mode';
-      } else {
-        window.localStorage.setItem('darkMode', 'true');
-        document.body.className =
-          document.body.className.replace(/(light|dark)-mode/, '') +
-          ' dark-mode';
-        toggle.classList.toggle('toggled');
-      }
+    toggle.addEventListener('click', function () {
+      const dark = window.localStorage.getItem('darkMode') !== 'true';
+      window.localStorage.setItem('darkMode', String(dark));
+      applyTheme(dark);
     });
   }
 
-  const isDark = window.localStorage.getItem('darkMode');
-  console.log({ isDark });
-  if (isDark === 'true') {
-    document.body.className =
-      document.body.className.replace(/(light|dark)-mode/, '') + ' dark-mode';
-    toggle.classList.toggle('toggled');
-  } else {
-    document.body.className =
-      document.body.className.replace(/(light|dark)-mode/, '') + ' light-mode';
-  }
+  applyTheme(window.localStorage.getItem('darkMode') === 'true');
 </script>

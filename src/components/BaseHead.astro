@@ -1,4 +1,14 @@
 ---
+// Self-hosted fonts (bundled by Vite/Astro; no external gstatic requests).
+// Headings: Space Grotesk (max weight 700). Body: Inter. Code: JetBrains Mono.
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/space-grotesk/500.css';
+import '@fontsource/space-grotesk/700.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/700.css';
+
 export interface Props {
   title: string;
   parent?: string;

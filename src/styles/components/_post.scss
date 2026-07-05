@@ -91,58 +91,63 @@
     h1 {
       text-align: center;
       padding-bottom: 0.3em;
-      font-size: 2.25em;
-      line-height: 1.2;
+      font-size: 2.35em;
+      line-height: 1.15;
       margin: 1em auto 1.2em;
-      font-weight: 400;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
 
     h1:after {
-      border-bottom: 2px dashed var(--h1-dash-color);
+      background-color: var(--h1-dash-color);
+      border: var(--border-width) solid var(--border);
       content: "";
-      width: 100px;
+      width: 90px;
       display: block;
-      margin: 0.2em auto 0;
-      height: 2px;
+      margin: 0.35em auto 0;
+      height: 14px;
     }
 
     h2 {
-      font-size: 1.75em;
-      padding-left: 9px;
-      line-height: 1.4;
-      border-left: 6px solid var(--h2-left-border);
+      font-size: 1.8em;
+      font-weight: 700;
+      padding-left: 12px;
+      line-height: 1.35;
+      border-left: 10px solid var(--h2-left-border);
     }
 
     h3 {
       font-size: 1.5em;
+      font-weight: 700;
       line-height: 1.43;
     }
 
     h3:before {
-      border-radius: 50%;
+      border-radius: 0;
       background-color: var(--sub-head-before);
       content: "";
-      width: 6px;
+      width: 12px;
       display: inline-block;
-      height: 6px;
+      height: 12px;
       vertical-align: middle;
       margin-bottom: 0.18em;
-      margin-right: 8px;
+      margin-right: 10px;
     }
 
     h4 {
       font-size: 1.25em;
+      font-weight: 700;
     }
 
     h4:before {
       background-color: var(--sub-head-before);
       content: "";
-      width: 6px;
+      width: 12px;
       display: inline-block;
-      height: 2px;
+      height: 6px;
       vertical-align: middle;
       margin-bottom: 0.18em;
-      margin-right: 8px;
+      margin-right: 10px;
     }
 
     h5 {
@@ -169,9 +174,9 @@
     }
 
     hr {
-      height: 0.25em;
+      height: 5px;
       padding: 0;
-      margin: 24px 0;
+      margin: 2em 0;
       background-color: var(--hr-color);
       border: 0;
     }
@@ -221,15 +226,15 @@
     }
 
     blockquote {
-      padding: 0px 24px;
+      padding: 4px 24px;
       color: var(--blockquote-color-primary);
       font-size: 1em;
-      line-height: 1.9;
+      line-height: 1.85;
       background-color: var(--blockquote-bg-color-primary);
-      box-shadow: 0 0 10px 10px var(--blockquote-bg-color-primary);
-      border-radius: 4px;
-      margin: 0.5em -24px;
-      border: 2px solid currentColor;
+      box-shadow: var(--shadow);
+      border-radius: 0;
+      margin: 1.4em 0;
+      border: var(--border-width) solid var(--border);
     }
 
     blockquote > ul:last-child {
@@ -240,31 +245,26 @@
       &.neutral + blockquote {
         background-color: var(--blockquote-bg-color-neutral);
         color: var(--blockquote-color-neutral);
-        box-shadow: 0 0 10px 10px var(--blockquote-bg-color-neutral);
       }
 
       &.danger + blockquote {
         background-color: var(--blockquote-bg-color-danger);
         color: var(--blockquote-color-danger);
-        box-shadow: 0 0 10px 10px var(--blockquote-bg-color-danger);
       }
 
       &.warning + blockquote {
         background-color: var(--blockquote-bg-color-warning);
         color: var(--blockquote-color-warning);
-        box-shadow: 0 0 10px 10px var(--blockquote-bg-color-warning);
       }
 
       &.success + blockquote {
         background-color: var(--blockquote-bg-color-success);
         color: var(--blockquote-color-success);
-        box-shadow: 0 0 10px 10px var(--blockquote-bg-color-success);
       }
 
       &.primary + blockquote {
         background-color: var(--blockquote-bg-color-primary);
         color: var(--blockquote-color-primary);
-        box-shadow: 0 0 10px 10px var(--blockquote-bg-color-primary);
       }
     }
 
@@ -283,10 +283,14 @@
     table {
       padding: 0;
       word-break: initial;
+      border-collapse: collapse;
+      border: var(--border-width) solid var(--border);
+      box-shadow: var(--shadow);
+      margin: 1.6em 0;
     }
 
     table tr {
-      border-top: 1px solid var(--table-border);
+      border-top: 2px solid var(--border);
       margin: 0;
       padding: 0;
     }
@@ -295,19 +299,24 @@
       background-color: var(--table-bg);
     }
 
+    table thead tr {
+      background-color: var(--accent);
+    }
+
     table tr th {
-      font-weight: 400;
-      border: 1px solid var(--table-border);
+      font-weight: 700;
+      color: #111;
+      border: 2px solid var(--border);
       text-align: left;
       margin: 0;
-      padding: 6px 13px;
+      padding: 8px 14px;
     }
 
     table tr td {
-      border: 1px solid var(--table-border);
+      border: 2px solid var(--border);
       text-align: left;
       margin: 0;
-      padding: 6px 13px;
+      padding: 8px 14px;
     }
 
     table tr td:first-child,
@@ -330,23 +339,28 @@
       line-height: 1.45;
     }
 
-    & > code,
-    & > p code,
+    // Inline-code chip: applies to inline code anywhere (paragraphs, lists,
+    // tables, blockquotes) but never to code inside a <pre> code block.
+    & :not(pre) > code,
     & > tt {
       margin: 0 2px;
-      font-weight: 700;
-      font-style: italic;
-      font-size: 0.9em;
-      letter-spacing: 0.7px;
+      font-weight: 600;
+      font-style: normal;
+      font-size: 0.85em;
+      letter-spacing: 0;
       -webkit-font-smoothing: antialiased;
-      border-bottom: 2px dotted currentColor;
-      color: #fea656;
+      color: var(--inline-code-color);
+      background-color: var(--code-bg);
+      border: 2px solid var(--border);
+      border-radius: 0;
+      padding: 1px 6px;
     }
 
     & > pre {
-      box-shadow: 0px 0px 0px 10px var(--pre-bg);
-      margin: 2.5em 0;
-      background-color: #1c2022 !important;
+      box-shadow: var(--shadow);
+      border: var(--border-width) solid var(--border);
+      margin: 2.2em 0;
+      background-color: var(--pre-bg) !important;
       overflow: auto;
       padding: 1.5em;
       font-size: 0.8em;
@@ -357,11 +371,11 @@
     & > pre > code .highlight-line {
       background-color: var(--code-line-highlight);
       display: block;
-      margin-right: -1em;
-      margin-left: -1em;
-      padding-right: 1em;
-      padding-left: 0.75em;
-      border-left: 0.3em solid #f99;
+      margin-right: -1.5em;
+      margin-left: -1.5em;
+      padding-right: 1.5em;
+      padding-left: 1.25em;
+      border-left: 5px solid var(--accent-yellow);
     }
 
     & > pre > code .token-line {
@@ -369,7 +383,8 @@
     }
 
     img {
-      box-shadow: 0px 0px 0px 10px var(--pre-bg);
+      box-shadow: var(--shadow);
+      border: var(--border-width) solid var(--border);
       max-width: 100%;
       margin: 2.5em auto;
       border-radius: 0;
@@ -378,10 +393,10 @@
     b,
     strong {
       font-weight: 700;
-      font-family: "SF Mono";
-      font-size: 0.9em;
-      padding: 0 3px;
-      word-spacing: -2px;
+      font-family: inherit;
+      font-size: inherit;
+      padding: 0 1px;
+      word-spacing: normal;
     }
   }
 }
