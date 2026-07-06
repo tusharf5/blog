@@ -179,3 +179,15 @@ h6 {
 p {
   line-height: 1.8em;
 }
+
+/* Bold, on-brand text selection (accent stays vivid in both modes). */
+::selection {
+  background-color: var(--accent-yellow);
+  color: #111111;
+}
+
+/* Chunky, hard-edged focus ring — accessible and on-theme (no blur). */
+:focus-visible {
+  outline: var(--border-width) solid var(--border);
+  outline-offset: 3px;
+}

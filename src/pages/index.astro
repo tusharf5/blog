@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import HomeHeader from '../components/HomeHeader.astro';
 import favicon from '../images/home/favicon.png';
+import { formatDate } from '../utils/formatDate';
 import type { Props } from '../layouts/BlogPost.astro';
 
 const allPosts = Object.values(
@@ -41,6 +42,19 @@ const posts = allPosts
           posts.map((post) => (
             <li>
               <div class="post-snippet">
+                <div class="post-meta">
+                  <time datetime={post.frontmatter.publishedAt}>
+                    {formatDate(post.frontmatter.publishedAt)}
+                  </time>
+                  {post.frontmatter.category && (
+                    <>
+                      <span class="post-meta-sep">·</span>
+                      <span class="post-meta-cat">
+                        {post.frontmatter.category}
+                      </span>
+                    </>
+                  )}
+                </div>
                 <h2>
                   <a href={`/posts/${post.frontmatter.uid}`}>
                     {post.frontmatter.title}

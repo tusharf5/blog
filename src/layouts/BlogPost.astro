@@ -1,6 +1,7 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
 import HomeHeader from '../components/HomeHeader.astro';
+import { formatDate } from '../utils/formatDate';
 
 import emptyHeart from '../images/blog/heart-empty.svg';
 
@@ -53,6 +54,15 @@ const bannerUrl = `https://tusharf5.com${banner}`;
     <main class="blog-article">
       <article id={uid} class="markdown-body">
         <h1>{title}</h1>
+        <div class="article-meta">
+          <time datetime={publishedAt}>{formatDate(publishedAt)}</time>
+          {category && (
+            <>
+              <span class="article-meta-sep">·</span>
+              <span class="article-meta-cat">{category}</span>
+            </>
+          )}
+        </div>
         <slot />
       </article>
     </main>
