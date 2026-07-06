@@ -18,12 +18,12 @@ In pseudocode, a tool looks something like this:
 
 ```ts
 const searchLogs = tool({
-  name: 'search_logs',
-  description: 'Search application logs for a time window',
+  name: "search_logs",
+  description: "Search application logs for a time window",
   input: {
-    query: 'string',
-    from: 'iso_timestamp',
-    to: 'iso_timestamp',
+    query: "string",
+    from: "iso_timestamp",
+    to: "iso_timestamp",
   },
   run: async ({ query, from, to }) => {
     return boundedLogSearch(query, from, to);
@@ -57,7 +57,7 @@ The real TypeScript shape was not much more complicated. Simplified, it looked l
 
 ```ts
 // Start the conversation with the alert or task the agent must investigate.
-const messages = [{ role: 'user', content: userPrompt }];
+const messages = [{ role: "user", content: userPrompt }];
 
 // Keep a fast lookup so a model-requested tool name maps to real code.
 const toolsByName = new Map(tools.map((tool) => [tool.name, tool]));
@@ -72,11 +72,11 @@ for (let turn = 0; turn < maxTurns; turn++) {
   });
 
   // Preserve the assistant response so the next turn has full context.
-  messages.push({ role: 'assistant', content: response.content });
+  messages.push({ role: "assistant", content: response.content });
 
   // If the model is done, return the final answer/report.
-  if (response.stop_reason === 'end_turn') {
-    return { status: 'done' };
+  if (response.stop_reason === "end_turn") {
+    return { status: "done" };
   }
 
   const toolResults = [];
@@ -93,18 +93,18 @@ for (let turn = 0; turn < maxTurns; turn++) {
 
     // Send the tool output back in the format the model expects.
     toolResults.push({
-      type: 'tool_result',
+      type: "tool_result",
       tool_use_id: request.id,
       content: JSON.stringify(output),
     });
   }
 
   // Continue the loop with the evidence gathered from tools.
-  messages.push({ role: 'user', content: toolResults });
+  messages.push({ role: "user", content: toolResults });
 }
 
 // The agent did not finish within the allowed number of turns.
-return { status: 'max_turns' };
+return { status: "max_turns" };
 ```
 
 The loop above passes `systemPrompt` and `userPrompt` into the model but never shows them. They are just text. The system prompt sets the agent's overall behavior:
@@ -281,15 +281,15 @@ call path. See read_reference_doc('trace-id') for the full note.
 Skills like this live on the filesystem as markdown, and a runner can load them alongside the tools. With the Claude Agent SDK, for example, that wiring looks like this (real code, unlike the pseudocode above):
 
 ```typescript
-import { query } from '@anthropic-ai/claude-agent-sdk';
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
 for await (const message of query({
-  prompt: 'Investigate this Datadog alert and write an evidence-based report',
+  prompt: "Investigate this Datadog alert and write an evidence-based report",
   options: {
-    cwd: '/path/to/project', // Project with .claude/skills/
-    settingSources: ['user', 'project'], // Load Skills from filesystem
-    skills: 'all', // Enable every discovered Skill
-    allowedTools: ['search_logs', 'get_recent_deploys', '...'],
+    cwd: "/path/to/project", // Project with .claude/skills/
+    settingSources: ["user", "project"], // Load Skills from filesystem
+    skills: "all", // Enable every discovered Skill
+    allowedTools: ["search_logs", "get_recent_deploys", "..."],
   },
 })) {
   console.log(message);
@@ -389,13 +389,13 @@ A save tool can look like this:
 
 ```ts
 const saveMonitorMemory = tool({
-  name: 'save_monitor_memory',
-  description: 'Save a short summary for a monitor after an investigation.',
+  name: "save_monitor_memory",
+  description: "Save a short summary for a monitor after an investigation.",
   input: {
-    monitor_id: 'string',
-    summary: 'string',
-    evidence: 'string',
-    suggested_next_step: 'string',
+    monitor_id: "string",
+    summary: "string",
+    evidence: "string",
+    suggested_next_step: "string",
   },
   run: async (memory) => {
     await datastore.put({
@@ -436,16 +436,19 @@ What changed was the amount of code needed to manage the conversation protocol. 
 In a simplified form, that version looks like this:
 
 ```ts
-import Anthropic from '@anthropic-ai/sdk';
-import { betaZodTool } from '@anthropic-ai/sdk/helpers/beta/zod';
-import { z } from 'zod';
+import Anthropic from "@anthropic-ai/sdk";
+import { betaZodTool } from "@anthropic-ai/sdk/helpers/beta/zod";
+import { z } from "zod";
 
-const client = new Anthropic({ baseURL: process.env.ANTHROPIC_BASE_URL, apiKey });
+const client = new Anthropic({
+  baseURL: process.env.ANTHROPIC_BASE_URL,
+  apiKey,
+});
 
 const tools = [
   betaZodTool({
-    name: 'search_logs',
-    description: 'Search application logs for a time window',
+    name: "search_logs",
+    description: "Search application logs for a time window",
     inputSchema: z.object({ query: z.string() }),
     run: async ({ query }) => boundedLogSearch(query),
   }),
@@ -454,7 +457,7 @@ const tools = [
 const runner = client.beta.messages.toolRunner({
   model: process.env.MODEL_ID,
   max_tokens: 8192,
-  messages: [{ role: 'user', content: 'Investigate this alert' }],
+  messages: [{ role: "user", content: "Investigate this alert" }],
   tools,
   max_iterations: 20,
 });
@@ -477,13 +480,13 @@ It still has a boring name, a useful description, and a strict input schema. The
 
 ```ts
 const writeReport = tool({
-  name: 'write_report',
-  description: 'Write the final investigation report as markdown.',
+  name: "write_report",
+  description: "Write the final investigation report as markdown.",
   input: {
-    markdown: 'string',
+    markdown: "string",
   },
   run: async ({ markdown }) => {
-    const timestamp = new Date().toISOString().replace(/:/g, '-');
+    const timestamp = new Date().toISOString().replace(/:/g, "-");
     const key = `triage/${ctx.service}/${ctx.alertId}/${timestamp}.md`;
 
     await s3.send(
@@ -491,7 +494,7 @@ const writeReport = tool({
         Bucket: ctx.reportsBucket,
         Key: key,
         Body: markdown,
-        ContentType: 'text/markdown; charset=utf-8',
+        ContentType: "text/markdown; charset=utf-8",
       }),
     );
 

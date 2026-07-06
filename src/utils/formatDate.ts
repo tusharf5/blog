@@ -1,8 +1,8 @@
-const formatter = new Intl.DateTimeFormat('en-US', {
-  month: 'short',
-  day: 'numeric',
-  year: 'numeric',
-  timeZone: 'UTC', // publishedAt is a plain YYYY-MM-DD; keep the day stable
+const formatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC", // publishedAt is a plain YYYY-MM-DD; keep the day stable
 });
 
 /**

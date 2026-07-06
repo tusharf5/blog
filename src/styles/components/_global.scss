@@ -42,7 +42,12 @@
   /* --- Code --- */
   --code-bg: #ffe9a8; /* inline-code chip bg */
   --inline-code-color: #8a4b00; /* inline-code text */
-  --code-line-highlight: rgba(255, 210, 63, 0.14); /* pre highlight line (on dark) */
+  --code-line-highlight: rgba(
+    255,
+    210,
+    63,
+    0.14
+  ); /* pre highlight line (on dark) */
   --pre-bg: #1c2022; /* code-block bg */
 
   /* --- Callout tints (flat washes; text stays dark & readable) --- */

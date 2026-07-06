@@ -2,7 +2,7 @@
 layout: "../../../layouts/BlogPost.astro"
 publishedAt: "2026-07-07"
 uid: "how-llms-work"
-title: "How LLMs Work"
+title: "How LLMs Work - For The Rest Of Us"
 category: "AI"
 draft: false
 tags:
@@ -79,7 +79,6 @@ text -> tokens -> token ids
 import tokenization from "../../../images/posts/how-llm-works/tokenization.png";
 
 <img src={tokenization.src} alt="tokenization" />
-
 
 Now token ids are still not enough. The model needs numbers it can do math on, so each token id is converted into a vector.
 
@@ -695,11 +694,5 @@ text
 ```
 
 That is the core mechanism. The model does not execute a handwritten rule for `The capital of France is`. It moves vectors through learned transformations until the final `" is"` vector strongly points toward continuations like `" Paris"`, and then `" Paris"` gets a high score from the vocabulary menu.
-
-If you remember only one thing from this post, remember this:
-
-> An LLM is a learned vector machine that repeatedly turns context into a probability distribution over the next token.
-
-Not the full math, but enough to reason about why LLMs write useful code, why they need context, and why they hallucinate.
 
 Thanks for reading.
