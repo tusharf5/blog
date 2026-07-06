@@ -15,9 +15,9 @@ excerpt: "What actually happens inside an LLM when you send it a prompt? In this
 
 import Expandable from "../../../components/Expandable.astro";
 
-For a long time, LLMs felt like magic with a REST API in front of them. I knew they were trained on a lot of text. I knew they could answer questions, write code, summarize long documents, and sometimes confidently say completely wrong things. But the actual mechanism was fuzzy to me.
+A few weeks ago I read somewhere that when prompting an AI, you should put all the context first and save the actual ask for the end. That one line stayed in my head, and I couldn't stop wondering why the order would matter at all. If a model can supposedly understand language, why should it care whether the ask comes first or last? That's what got me reading about how LLMs actually work, and this post is basically what came out of it.
 
-When I typed:
+To answer that question for myself, I first needed to understand what happens inside a model when it reads a prompt at all. So let's start simple. When I typed:
 
 ```txt
 The capital of France is
@@ -104,7 +104,7 @@ import tokensToVectors from "../../../images/posts/how-llm-works/tokens-to-vecto
 
 <img src={tokensToVectors.src} alt="Tokens To Vectors" />
 
-This is where people use the phrase **vector space**. Concretely, each token becomes a position in a huge learned space, and tokens with related meanings tend to be placed in related directions and regions of that space.
+This is where people use the phrase **vector space**. In plain terms, each token becomes a point in a huge learned space, and tokens with related meanings tend to be placed in related directions and regions of that space.
 
 import StartingVectors from "../../../images/posts/how-llm-works/starting-vectors.png";
 
@@ -118,11 +118,11 @@ import VectorSpace from "../../../images/posts/how-llm-works/vector.png";
 
 <img src={VectorSpace.src} alt="Vector Space" />
 
-So at the start, every token has a rough meaning and a position.
+So at the start, every token has a rough meaning and a point in that space.
 
 ### Where Does Position Come From?
 
-The embedding table only knows about the token's identity, not where it sits in the sentence. `" capital"` maps to the same starting vector whether it's the first word of the prompt or the last.
+This is a different position than the point we just placed each token at in vector space. Here, position means where a token sits in the sentence, first, second, third, and so on, and the embedding table doesn't know anything about that. `" capital"` maps to the same starting vector whether it's the first word of the prompt or the last.
 
 But order clearly matters. `"The capital of France is"` and `"is France of capital The"` use the exact same five tokens, just shuffled, and only one of them means anything.
 
@@ -146,7 +146,7 @@ import ContextEnrichment from "../../../images/posts/how-llm-works/context-enric
 
 This is the important part:
 
-> The model is not storing meaning as words. It is storing meaning as positions and directions in a large learned vector space.
+> The model is not storing meaning as words. It is storing meaning as points and directions in a large learned vector space.
 
 A transformer layer has two important pieces. **Attention**, which lets tokens gather information from other tokens, and a **feed-forward network**, which transforms each token vector further. Attention helps with context, the feed-forward part helps reshape what each token now represents. Together, layer after layer, the vectors keep changing.
 
