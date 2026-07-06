@@ -1,5 +1,5 @@
 @charset "UTF-8";
 
 // Fonts are self-hosted via @fontsource, imported in BaseHead.astro.
-@import "./components/global";
-@import "./components/header";
+@use "./components/global";
+@use "./components/header";

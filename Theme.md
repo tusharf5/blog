@@ -95,7 +95,7 @@ borders, and shadows flip between light and dark.
 | `--accent-lime` | `#a3e635` | success callout |
 | `--accent` | `= --accent-yellow` | the current primary accent |
 
-> **Accent fills are always light/vivid**, so text placed on an accent (buttons,
+> Accent fills are always light/vivid, so text placed on an accent (buttons,
 > table header) is hardcoded dark `#111` — do **not** use `var(--border)` for
 > that text, or it turns light-on-yellow in dark mode.
 
@@ -150,7 +150,7 @@ import there.
 | Body | **Inter** | `--font-family` | 400, 500, 700 |
 | Code | **JetBrains Mono** | `--code-font-family` | 400, 700 |
 
-> **Space Grotesk's heaviest cut is 700** — headings are bold-700, not 800.
+> Space Grotesk's heaviest cut is 700 — headings are bold-700, not 800.
 > Keep every heading/bold weight at **700** (not 800), otherwise the browser
 > faux-bolds. This applies to headings, `strong`/`b`, table headers, and card
 > titles.
@@ -218,6 +218,16 @@ row** (`thead tr` bg = `--accent`, cells `#111` bold), zebra via `--table-bg`.
 
 **Toggle switch** (`.toggle-track`) — bordered track with hard shadow, square
 bordered thumb; track = blue (light state) / yellow (`.toggled`, dark state).
+
+**Expandable** (`.post-expandable`, `<Expandable title="…">` → `<details>`) —
+`--card-bg` card with thick border + hard shadow, sharp corners. Summary uses the
+**heading font** (Space Grotesk 700) with a **square accent `+/–` chip**
+(`summary:after`, dark text on `--accent`, flips to `-` on `[open]`); `[open]`
+adds a thick `--border` divider under the summary. Its content sits inside
+`.markdown-body`, so it **reuses the global** chip / code-block / table /
+blockquote treatment — the only per-component rule is the nested `<pre>`
+(mirrors `& > pre`, since that global rule targets direct children only). Don't
+give it its own inline-code or callout styles.
 
 ---
 

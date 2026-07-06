@@ -214,7 +214,7 @@ The alert's service tag is often the APM service name, not the log facet value.
 
 Three populations that cannot be mixed in one query:
 
-Lambda runtime logs (service:hpe-_): filter by functionname:_<handler>\*. Never
+Lambda runtime logs (service:app-_): filter by functionname:_<handler>\*. Never
 use path: or resource: here — those are APM span facets and do not exist on log
 documents. The Forwarder does not emit them.
 
@@ -223,7 +223,7 @@ the service: filter entirely. Access logs are not tagged with the Lambda service
 name, so service: always returns 0 on this population.
 
 APM spans (datadog_search_spans / datadog_aggregate_spans): use when logs are
-not indexed, or when you need resource_name filtering. HPE handlers return 4xx
+not indexed, or when you need resource_name filtering. app handlers return 4xx
 and 5xx via APIGatewayResponse, so the span stays status:ok for HTTP errors.
 Filter @http.status_code:[400 TO 599] for HTTP errors; use status:error only for
 thrown exceptions.

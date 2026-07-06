@@ -576,7 +576,7 @@ So the question becomes **when to use \$elemMatch?**
 
 I recommend to use it almost every time when you want to query a nested array element.
 
-> **\$elemMatch** matches documents that contain an array field with at least one element that matches all the
+> \$elemMatch matches documents that contain an array field with at least one element that matches all the
 > specified query criteria. It behaves like a normal **'array.field'** when there is just one criterion.
 
 ```shell
@@ -625,7 +625,7 @@ instance if the index is **2**. We can do `comments.2.name: 'New Name'`. MongoDB
 with a placeholder or a pointer for the index as **\$**. So we can do `comments.$.name: 'New Name'` and MongoDB will place the correct value
 of the index in **\$** and update the comment.
 
-> **Important:** The array field must appear as part of the query document for it to work.
+> Important: The array field must appear as part of the query document for it to work.
 
 ### \$[] operator
 

@@ -46,7 +46,7 @@ const bannerUrl = `https://tusharf5.com${banner}`;
       keywords={tags}
     />
     <style lang="scss" is:global>
-      @import '../styles/post.scss';
+      @use '../styles/post.scss';
     </style>
   </head>
   <body>
@@ -85,6 +85,53 @@ const bannerUrl = `https://tusharf5.com${banner}`;
         </div>
       </div>
     </footer>
+    <script>
+      const articleEl = document.body?.getElementsByTagName('article')[0];
+
+      function closeLightbox() {
+        const overlay = document.querySelector('.img-lightbox');
+        if (overlay) {
+          overlay.remove();
+          document.body.style.overflow = '';
+        }
+      }
+
+      function openLightbox(img: HTMLImageElement) {
+        const overlay = document.createElement('div');
+        overlay.className = 'img-lightbox';
+        const full = document.createElement('img');
+        full.src = img.src;
+        full.alt = img.alt;
+        overlay.appendChild(full);
+        overlay.addEventListener('click', closeLightbox);
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+      }
+
+      if (articleEl) {
+        for (const img of articleEl.querySelectorAll(':scope > img')) {
+          const hint = document.createElement('span');
+          hint.className = 'img-zoom-hint';
+          hint.textContent = 'click to zoom';
+          img.insertAdjacentElement('afterend', hint);
+        }
+
+        articleEl.addEventListener('click', (e) => {
+          const target = e.target as HTMLElement;
+          if (target.tagName === 'IMG' && target.parentElement === articleEl) {
+            openLightbox(target as HTMLImageElement);
+          } else if (target.classList.contains('img-zoom-hint')) {
+            openLightbox(target.previousElementSibling as HTMLImageElement);
+          }
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeLightbox();
+        }
+      });
+    </script>
     <script>
       const article = document.body
         ?.getElementsByTagName('article')[0]
