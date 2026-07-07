@@ -15,9 +15,9 @@ excerpt: "What actually happens inside an LLM when you send it a prompt? In this
 
 import Expandable from "../../../components/Expandable.astro";
 
-A few weeks ago I read somewhere that when prompting an AI, you should put all the context first and save the actual ask for the end. That one line stayed in my head, and I couldn't stop wondering why the order would matter at all. If a model can supposedly understand language, why should it care whether the ask comes first or last? That's what got me reading about how LLMs actually work, and this post is basically what came out of it.
+LLMs are fascinating. I've been using them for a while now, and it still surprises me that something like this actually works at all. And after spending time learning how they actually work, I ended up even more surprised.
 
-To answer that question for myself, I first needed to understand what happens inside a model when it reads a prompt at all. So let's start simple. When I typed:
+In this blog, I will try to explain how LLMs work without using much math, although some basic understanding of a vector will help relate more. Let's take an example and carry it across the article to understand all the different parts. When I typed:
 
 ```txt
 The capital of France is
@@ -120,15 +120,11 @@ import VectorSpace from "../../../images/posts/how-llm-works/vector.png";
 
 So at the start, every token has a rough meaning and a point in that space.
 
-### Where Does Position Come From?
+The position of each token, i.e. where it sits in the sentence, first, second, third, and so on, matters, but the embedding table doesn't know anything about that. `" capital"` maps to the same starting vector whether it's the first word of the prompt or the last.
 
-This is a different position than the point we just placed each token at in vector space. Here, position means where a token sits in the sentence, first, second, third, and so on, and the embedding table doesn't know anything about that. `" capital"` maps to the same starting vector whether it's the first word of the prompt or the last.
+But order is important. `"The capital of France is"` and `"is France of capital The"` use the exact same five tokens, just shuffled, and only one of them means anything.
 
-But order clearly matters. `"The capital of France is"` and `"is France of capital The"` use the exact same five tokens, just shuffled, and only one of them means anything.
-
-So before the token vector goes anywhere, the model adds positional information directly into it. A separate vector is computed for each position, first, second, third, and so on, and it gets added onto the token's own vector, number by number. The result is one single vector, not two, that carries both the token's meaning and its position at the same time. By the time it reaches the first layer, there's no way to even separate "the meaning part" from "the position part" anymore.
-
-Without this, attention (which we're about to get to) has no way to know which token came first. It only compares vectors, so two shuffled sentences made of the same tokens would look identical to it.
+To address this, the model adds the position directly into the token's own vector, number by number. So the token's vector now carries its meaning and its position at the same time, and any system that reads that vector later (like attention) picks up on both automatically.
 
 But the model doesn't fully understand the sentence yet. That happens inside the layers.
 
