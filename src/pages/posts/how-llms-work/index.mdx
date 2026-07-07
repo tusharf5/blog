@@ -146,7 +146,7 @@ This is the important part:
 
 A transformer layer has two important pieces. **Attention**, which lets tokens gather information from other tokens, and a **feed-forward network**, which transforms each token vector further. Attention helps with context, the feed-forward part helps reshape what each token now represents. Together, layer after layer, the vectors keep changing.
 
-So an LLM is basically a giant vector-moving machine, not a lookup table. It doesn't look up `"France"` and return `"Paris"`, it moves token vectors through learned transformations until the `last token's` vector strongly points toward a likely continuation.
+So an LLM is basically a giant vector-moving machine, not a lookup table. It doesn't look up `"France"` and return `"Paris"`, it moves token vectors through **learned transformations** until the `last token's` vector strongly points toward a likely continuation.
 
 _We will come back to why the last token is important shortly_
 
@@ -255,6 +255,10 @@ x_capital = vector for " capital"
 x_france  = vector for " France"
 ```
 
+import AttentionQKV from "../../../images/posts/how-llm-works/attention-qkv.png";
+
+<img src={AttentionQKV.src} alt="Attention Query/Keys/Values" />
+
 **Step 2: Create Query, Key, And Value**
 
 Inside the attention layer, the model has learned weight matrices `W_Q`, `W_K`, and `W_V`. These are grids of learned numbers. The model combines token vectors with these matrices:
@@ -321,23 +325,30 @@ Attention uses learned weights to decide how tokens should pull information from
 
 </Expandable>
 
-import Attention from "../../../images/posts/how-llm-works/attention.png";
-
-<img src={Attention.src} alt="Attention" />
-
 So the token `" is"` may create a Query like _I am the point where the sentence continues, looking backward for what this sentence is about_. The previous tokens present their Keys. `"The"` advertises determiner/article, `" capital"` advertises city/money/uppercase-letter, `" of"` advertises relation/possession, `" France"` advertises country/place/proper-noun. The Query from `" is"` compares with those Keys, and the best matches are `" capital"` and `" France"`.
 
 Then the model takes the Values from `" capital"` and `" France"` and blends that information into the vector for `" is"`. So `" is"` no longer means just a generic verb. It becomes something closer to **is, expecting the capital city of France next**.
 
+import Attention from "../../../images/posts/how-llm-works/attention.png";
+
+<img src={Attention.src} alt="Attention" />
+
 Notice what happened to the ambiguity of `" capital"` here. On its own, the token could mean a city, money, or an uppercase letter. But when its information is blended with the information from `" France"` inside the `" is"` vector, the combination behaves like **capital city of France**. The money and uppercase-letter meanings simply don't fit that combination, so they fade.
 
-It is worth noting that this is not one simple lookup. Every token can attend to many previous tokens, and the model has many attention heads, not just one (explained in more detail below).
+It is worth noting that this is not one simple lookup. Every token can attend to many previous tokens, and the model has **many attention heads**, not just one (explained in more detail below).
+
+import AttentionHeads from "../../../images/posts/how-llm-works/attention-heads.png";
+
+<img src={AttentionHeads.src} alt="Attention Heads" />
+
 
 One head may focus on grammar (which earlier words does this token depend on?), another may focus on meaning (which country is being talked about?), and another may focus on structure (which bracket or quote should match this one?). That's why one token can be understood from many angles at the same time.
 
-<Expandable title="Attention Heads - More Context (pun intended)">
+<Expandable title="Attention Heads - More Context">
 
-When I first read about attention heads, my mental model was wrong. I thought one head means one match with one other token, and multiple heads exist so a token can match multiple tokens. Actually, a single head already compares one token against every previous token; multiple heads just mean the model runs that comparison several different learned ways at once.
+When I first read about attention heads, my mental model was wrong. I thought one head means one match with one other token, and multiple heads exist so a token can match multiple tokens. Actually, a single head already compares one token against every previous token; multiple heads just mean the model runs that comparison several different learned ways at once as shown in the image below.
+
+<img src={AttentionHeads.src} alt="Attention Heads" />
 
 A head is one full attention system with its own Query, Key, and Value weight matrices. Inside one head:
 
@@ -368,6 +379,8 @@ q_is_head_1 = x_is * WQ1
 q_is_head_2 = x_is * WQ2
 q_is_head_3 = x_is * WQ3
 ```
+
+<img src={AttentionQKV.src} alt="Attention Query/Keys/Values" />
 
 For `" is"`, the Queries may behave like:
 
@@ -672,22 +685,6 @@ If we put everything together, an LLM generation step looks like this:
 import FullFlow from "../../../images/posts/how-llm-works/full-flow.png";
 
 <img src={FullFlow.src} alt="Full LLM Flow" />
-
-```txt
-text
--> tokens
--> token ids
--> token vectors
--> transformer layers
--> attention mixes useful context
--> feed-forward networks reshape vectors
--> causal mask prevents looking forward
--> last token vector holds the continuation state
--> vocabulary scores are computed
--> next token is chosen
--> token is appended
--> repeat
-```
 
 That is the core mechanism. The model does not execute a handwritten rule for `The capital of France is`. It moves vectors through learned transformations until the final `" is"` vector strongly points toward continuations like `" Paris"`, and then `" Paris"` gets a high score from the vocabulary menu.
 
