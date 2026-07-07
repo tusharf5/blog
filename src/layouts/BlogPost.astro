@@ -109,7 +109,7 @@ const bannerUrl = `https://tusharf5.com${banner}`;
       }
 
       if (articleEl) {
-        for (const img of articleEl.querySelectorAll(':scope > img')) {
+        for (const img of articleEl.querySelectorAll('img')) {
           const hint = document.createElement('span');
           hint.className = 'img-zoom-hint';
           hint.textContent = 'click to zoom';
@@ -118,7 +118,7 @@ const bannerUrl = `https://tusharf5.com${banner}`;
 
         articleEl.addEventListener('click', (e) => {
           const target = e.target as HTMLElement;
-          if (target.tagName === 'IMG' && target.parentElement === articleEl) {
+          if (target.tagName === 'IMG') {
             openLightbox(target as HTMLImageElement);
           } else if (target.classList.contains('img-zoom-hint')) {
             openLightbox(target.previousElementSibling as HTMLImageElement);

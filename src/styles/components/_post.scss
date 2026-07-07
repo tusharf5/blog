@@ -374,6 +374,25 @@
           border-radius: 0;
           max-height: 600px;
         }
+
+        // Mirror the global zoomable-image treatment for nested images.
+        img {
+          cursor: zoom-in;
+        }
+
+        .img-zoom-hint {
+          display: block;
+          text-align: center;
+          margin: -34px 0 34px;
+          font-size: 0.72em;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.6px;
+          color: var(--h6-color);
+          opacity: 0.75;
+          cursor: zoom-in;
+          user-select: none;
+        }
       }
     }
 
