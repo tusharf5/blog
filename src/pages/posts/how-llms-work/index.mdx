@@ -652,7 +652,7 @@ Not always. There are two different strategies here, and which one gets used cha
 
 **Sampling** works differently. It still picks randomly, but not with equal chance for every token, tokens with a higher probability get picked more often. `" Paris"` still wins most of the time since its share of the probability is so large, but every so often a lower-scored token like `" France"` or `" the"` gets picked instead. The vectors and the scores are identical both times, only the random pick differs.
 
-> Most chat products you use day to day sample by default. That's the real reason the same prompt can give you a different-sounding answer on two separate runs.
+> Most chat products you use day to day sample by default. That's the main reason the same prompt can give you a different-sounding answer on two separate runs.
 
 _This surprised me the first time I actually understood it. The model isn't confused or being random for no reason when it rephrases something on a second try, that's sampling doing exactly what it was configured to do._
 
@@ -680,6 +680,10 @@ temperature 1.5:
 ```
 
 Same model, same prompt, same underlying scores. Only the shape of the distribution changes.
+
+import Temperature from "../../../images/posts/how-llm-works/temperature.png";
+
+<img src={Temperature.src} alt="Attention Query/Keys/Values" />
 
 Temperature isn't the only knob either. **Top-k** keeps only the k highest-scored tokens before sampling, and **top-p** (nucleus sampling) keeps adding tokens until their combined probability crosses a threshold instead of using a fixed count, both are just different ways of cutting down the candidate tokens before the random pick happens.
 
