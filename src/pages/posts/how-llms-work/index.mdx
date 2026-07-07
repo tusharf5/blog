@@ -17,13 +17,13 @@ import Expandable from "../../../components/Expandable.astro";
 
 LLMs are fascinating. I've been using them for a while now, and it still surprises me that something like this actually works at all. And after spending time learning how they actually work, I ended up even more surprised.
 
-In this blog, I will try to explain how LLMs work without using much math, although some basic understanding of a vector will help relate more. Let's take an example and carry it across the article to understand all the different parts. When I typed:
+In this blog, I will try to explain how LLMs work without using much math, although some basic understanding of a vector will help relate more. Let's take an example and carry it across the article to understand all the different parts. When I type:
 
 ```txt
 The capital of France is
 ```
 
-and the model answered `Paris`, what actually happened? Was it searching a database? Was it running a very large `if/else` tree? Was it remembering one exact sentence from its training data?
+and the model responds with `Paris`, what actually happens? Does it search a database? Does it run a very large `if/else` tree? Does it remember one exact sentence from its training data?
 
 Chances are you already know that's not what is happening. An LLM is not normal application logic. There is no giant handwritten rulebook inside the model doing something like:
 
