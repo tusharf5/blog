@@ -25,7 +25,7 @@ The capital of France is
 
 and the model responds with `Paris`, what actually happens? Does it search a database? Does it run a very large `if/else` tree? Does it remember one exact sentence from its training data?
 
-Chances are you already know that's not what is happening. An LLM is not normal application logic. There is no giant handwritten rulebook inside the model doing something like:
+You probably already know that's not what is happening. An LLM is not normal application logic. There is no giant handwritten rulebook inside the model doing something like:
 
 ```txt
 if prompt asks "capital of France":
@@ -36,9 +36,9 @@ The better mental model is this:
 
 > An LLM turns text into token vectors, repeatedly enriches those vectors through transformer layers, and then uses the final vector of the last token to score the next token.
 
-That sentence has a lot going on, let's try to understand it piece by piece.
+That sentence has many parts, let's go through it piece by piece.
 
-_One thing before we dive in: I'm describing a classic, simplified version of a transformer here. Real models, especially newer ones, tweak plenty of details under the hood. The big picture still holds, just don't assume every detail here applies exactly to every model out there._
+_One thing before we dive in: I'm describing a classic, simplified version of a transformer here. Real models, especially newer ones, tweak plenty of internal details. The big picture still holds, just don't assume every detail here applies exactly to every model out there._
 
 ## Table of Contents
 
@@ -51,6 +51,7 @@ _One thing before we dive in: I'm describing a classic, simplified version of a 
 - [The Causal Mask](#the-causal-mask)
 - [Predicting The Next Token](#predicting-the-next-token)
 - [Why It Can Be Wrong](#why-it-can-be-wrong)
+- [Why Doesn't It Always Pick The Best Match?](#why-doesnt-it-always-pick-the-best-match)
 - [What About KV Cache?](#what-about-kv-cache)
 - [The Full Flow](#the-full-flow)
 
@@ -124,7 +125,7 @@ The position of each token, i.e. where it sits in the sentence, first, second, t
 
 But order is important. `"The capital of France is"` and `"is France of capital The"` use the exact same five tokens, just shuffled, and only one of them means anything.
 
-To address this, the model adds the position directly into the token's own vector, number by number. So the token's vector now carries its meaning and its position at the same time, and any system that reads that vector later (like attention) picks up on both automatically.
+To address this, the model adds the position directly into the token's own vector, number by number. So the token's vector now carries its meaning and its position at the same time, and any system that reads that vector later (like attention) has access to both automatically.
 
 But the model doesn't fully understand the sentence yet. That happens inside the layers.
 
@@ -174,7 +175,7 @@ Each station's output gets **added back** onto the vector that was already there
 
 A modern model can stack well over a hundred of these layers. If every layer fully replaced the vector, a small mistake early on would compound badly, and the token's original identity could get lost somewhere around layer 40. Because each layer only adds a correction, the original signal survives the whole way through, and every layer only has to learn a small update instead of reconstructing everything from scratch.
 
-After enough of this adding, the numbers inside the vector can drift into very large or very small ranges depending on what got added along the way. So each station also runs the vector through a quick **normalization** step before passing it on, basically checking how big the numbers have gotten and scaling them back down to a steady range, so nothing spirals out of control the deeper it goes. It doesn't change what the vector means, it just keeps the math from misbehaving over so many layers.
+After enough of this adding, the numbers inside the vector can drift into very large or very small ranges depending on what got added along the way. So each station also runs the vector through a quick **normalization** step before passing it on, basically checking how big the numbers have gotten and scaling them back down to a steady range, so the numbers don't drift too far the deeper it goes. It doesn't change what the vector means, it just keeps the math from misbehaving over so many layers.
 
 These stations don't have the same number of knobs, though. In many transformer LLMs, the feed-forward part has more learned weights than the attention part.
 
@@ -193,7 +194,7 @@ attention weights
 
 There are other details inside real transformer layers, but this is the useful mental model. The weights are partitioned by layer and by job. Some weights help with communication between tokens (attention), some weights help with processing the meaning of each token (feed-forward) after that communication has happened.
 
-The phrase **learned transformations** matters here: the model is not carrying an English meaning like `France = country + Europe + Paris`.
+The model is not carrying an English meaning like `France = country + Europe + Paris` when it applies these **learned transformations**.
 
 It is carrying a long list of numbers, and as the vector moves through these organized blocks of weights, those numbers are changed. When those numbers change, what the vector represents also changes.
 
@@ -337,7 +338,6 @@ import AttentionHeads from "../../../images/posts/how-llm-works/attention-heads.
 
 <img src={AttentionHeads.src} alt="Attention Heads" />
 
-
 One head may focus on grammar (which earlier words does this token depend on?), another may focus on meaning (which country is being talked about?), and another may focus on structure (which bracket or quote should match this one?). That's why one token can be understood from many angles at the same time.
 
 <Expandable title="Attention Heads - More Context">
@@ -449,7 +449,7 @@ Translated to English, attention is a token looking at the useful previous token
 
 ## How Feed-Forward Works
 
-Attention isn't the whole story though. Feed-forward is a little harder to feel than attention. Attention has an obvious story. `" is"` looks back, finds `" capital"` and `" France"`, and pulls information from them. Feed-forward doesn't have a story like that.
+Attention alone doesn't explain everything though. Feed-forward is a little harder to feel than attention. Attention has an obvious story. `" is"` looks back, finds `" capital"` and `" France"`, and pulls information from them. Feed-forward doesn't have a story like that.
 
 _This was the part that took me the longest to internalize._
 
@@ -465,7 +465,7 @@ import FeedForwarder from "../../../images/posts/how-llm-works/feed-forwarder.pn
 
 For example, it may strengthen signals like the capital here means a city and not money, the expected next token is the name of a city, the city belongs to France. These are human descriptions for directions and signals inside the vector, the model itself has no English labels for any of it.
 
-The difference, side by side:
+So the two do different jobs:
 
 ```txt
 attention:
@@ -551,7 +551,7 @@ When multiple signals are active together, though, the model can recognize a lar
 
 The model may make tokens like `" Paris"` much more likely, because the active pattern is the combination, **the capital city of France**, which is richer than _capital_ or _France_ alone.
 
-That's also why attention and feed-forward do two different jobs. Attention helps move useful signals between token vectors.
+This is part of why attention and feed-forward do two different jobs. Attention helps move useful signals between token vectors.
 
 Feed-forward looks at the current token vector and asks, in a learned numeric way, which features are active? Which combinations matter? What should become stronger or weaker? What should be written back into the vector?
 
@@ -609,7 +609,7 @@ import LastToken from "../../../images/posts/how-llm-works/last-token.png";
 
 <img src={LastToken.src} alt="Last Token" />
 
-Then it chooses or samples one token, and it emits `Paris`. Now the text becomes `The capital of France is Paris`, and the model repeats the same process to predict the next token.
+Then it chooses or samples one token, and it emits `Paris` (more on how that choice actually happens further down). Now the text becomes `The capital of France is Paris`, and the model repeats the same process to predict the next token.
 
 This is the generation loop:
 
@@ -638,9 +638,58 @@ This is why hallucination is not a weird extra behavior bolted on the side. It f
 
 That's where retrieval, tools, and code execution come in. If the model can search your docs, query a database, inspect your repo, or run tests, then it is no longer only relying on what is inside its weights and current context. The base mechanism is still next-token prediction, but the context is now grounded in fresh external information.
 
+## Why Doesn't It Always Pick The Best Match?
+
+Back in Predicting The Next Token, we said the model "chooses or samples" one token from the score list. That word "or" is hiding two different strategies, let's go through them one by one.
+
+The raw scores aren't the final story. The model runs those scores through **softmax**. Softmax takes a list of scores and turns them into probabilities that add up to 100%, the higher the original score, the higher its share. Here it works on the scores for the model's entire vocabulary, the same fixed list of possible tokens from Predicting The Next Token, and turns them into one probability distribution. Every token gets some probability, even `" London"` and `" {"`. `" Paris"` just ends up owning most of it.
+
+**So does the model always just pick the token with the highest probability?**
+
+Not always. There are two different strategies here, and which one gets used changes how the model behaves.
+
+**Greedy decoding** always takes the single highest-probability token. For our prompt, that's `" Paris"`, every single run, with zero variation. Ask the same question a hundred times and you get the exact same answer a hundred times.
+
+**Sampling** works differently. It still picks randomly, but not with equal chance for every token, tokens with a higher probability get picked more often. `" Paris"` still wins most of the time since its share of the probability is so large, but every so often a lower-scored token like `" France"` or `" the"` gets picked instead. The vectors and the scores are identical both times, only the random pick differs.
+
+> Most chat products you use day to day sample by default. That's the real reason the same prompt can give you a different-sounding answer on two separate runs.
+
+_This surprised me the first time I actually understood it. The model isn't confused or being random for no reason when it rephrases something on a second try, that's sampling doing exactly what it was configured to do._
+
+How much randomness goes into that pick is controlled by a setting called **temperature**. Push it down toward zero and sampling starts to behave like greedy decoding, mostly deterministic, always picking the safest token. Push it up and the model becomes more willing to pick a token it's less sure about.
+
+```text
+temperature 0.2:
+" Paris"  -> 0.98
+" London" -> 0.01
+" France" -> 0.01
+
+temperature 1.0:
+" Paris"  -> 0.82
+" London" -> 0.09
+" France" -> 0.06
+" a"      -> 0.02
+" {"      -> 0.01
+
+temperature 1.5:
+" Paris"  -> 0.55
+" London" -> 0.20
+" France" -> 0.15
+" a"      -> 0.07
+" {"      -> 0.03
+```
+
+Same model, same prompt, same underlying scores. Only the shape of the distribution changes.
+
+Temperature isn't the only knob either. **Top-k** keeps only the k highest-scored tokens before sampling, and **top-p** (nucleus sampling) keeps adding tokens until their combined probability crosses a threshold instead of using a fixed count, both are just different ways of cutting down the candidate tokens before the random pick happens.
+
+This is also a different failure source than the one covered in Why It Can Be Wrong. Sampling landing on a lower-probability token isn't the model being confused about the world, it's the random pick landing differently on a distribution it computed correctly.
+
+None of this changes what the model actually knows. The vectors, the layers, the weights, all of that stays exactly the same. Temperature and sampling only change how willing the model is to pick a less likely token once it has already computed the probabilities. Low or zero temperature tends to get used for code generation, function calling, and factual lookups, where you want the same answer every time. Higher temperature shows up in brainstorming and creative writing, where you actually want different answers each time.
+
 ## What About KV Cache?
 
-There is one performance detail that is worth understanding because it explains why generation is fast enough to be usable. When a model generates text, it predicts one token, appends it, predicts the next token, appends it, and so on.
+There is one performance detail that explains why generation is fast enough to be usable. When a model generates text, it predicts one token, appends it, predicts the next token, appends it, and so on.
 
 Naively, the model would have to recompute all previous tokens every time it generates a new token. That would be expensive.
 
