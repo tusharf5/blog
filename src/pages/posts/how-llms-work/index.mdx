@@ -68,9 +68,9 @@ For our prompt, the tokens may roughly look like this:
 " is"
 ```
 
-The thing to note here is that the space before a word can be part of the token, which means `"capital"` and `" capital"` may be two different tokens. This looks like a small detail, but it is important because the model is not directly working with words. It is working with **token ids**.
+The thing to note here is that the space before a word can be part of the token, which means `"capital"` and `" capital"` may be two different tokens. The model isn't directly working with words though, it's working with **token ids**.
 
-Tokenization is just **convert this text into the list of ids that the model knows how to process**. So our prompt becomes something like <code className="wrap-ok">[token_1, token_2, token_3, token_4, token_5]</code>. The exact ids depend on the tokenizer, but the important part is the shape of the transformation:
+Tokenization is just **convert this text into the list of ids that the model knows how to process**. So our prompt becomes something like <code className="wrap-ok">[token_1, token_2, token_3, token_4, token_5]</code>. The exact ids depend on the tokenizer, but what matters is the shape of the transformation:
 
 ```txt
 text -> tokens -> token ids
@@ -132,15 +132,13 @@ But the model doesn't fully understand the sentence yet. That happens inside the
 
 Once the model has token vectors, it passes them through many transformer layers. A layer takes the current vectors and produces new vectors. After one layer, rough token vectors become slightly more contextual token vectors. After many layers, they become much richer contextual token vectors.
 
-Let's go back to our prompt. The vector for `" capital"` initially has multiple possible meanings like capital city, capital letter, financial capital, and capital punishment. Somewhere, the model has to settle on the capital city meaning. But here's the catch, the model doesn't do this by rewriting the `" capital"` vector with information from `" France"`. In GPT-style models, a token can only gather information from the tokens before it (we will see why in the causal mask section). `" capital"` only sees `"The capital"`, so its vector sharpens a little, but it never sees `" France"`.
+Let's go back to our prompt. The vector for `" capital"` initially has multiple possible meanings like capital city, capital letter, financial capital, and capital punishment. Somewhere, the model has to settle on the capital city meaning. But the model doesn't do this by rewriting the `" capital"` vector with information from `" France"`. In GPT-style models, a token can only gather information from the tokens before it (we will see why in the causal mask section). `" capital"` only sees `"The capital"`, so its vector sharpens a little, but it never sees `" France"`.
 
 The later tokens are where the sentence-level meaning builds up. The vector for `" France"` can see `The capital of`, so it stops being the standalone concept of France and becomes **France, whose capital is being talked about**. And the final `" is"` vector can see the whole prompt, so it becomes the place where capital + of + France combine into **the capital city of France**.
 
 import ContextEnrichment from "../../../images/posts/how-llm-works/context-enrichment.png";
 
 <img src={ContextEnrichment.src} alt="Context Enrichment" />
-
-This is the important part:
 
 > The model is not storing meaning as words. It is storing meaning as points and directions in a large learned vector space.
 
@@ -178,7 +176,7 @@ A modern model can stack well over a hundred of these layers. If every layer ful
 
 After enough of this adding, the numbers inside the vector can drift into very large or very small ranges depending on what got added along the way. So each station also runs the vector through a quick **normalization** step before passing it on, basically checking how big the numbers have gotten and scaling them back down to a steady range, so nothing spirals out of control the deeper it goes. It doesn't change what the vector means, it just keeps the math from misbehaving over so many layers.
 
-It is worth noting that these stations don't have the same number of knobs. In many transformer LLMs, the feed-forward part has more learned weights than the attention part.
+These stations don't have the same number of knobs, though. In many transformer LLMs, the feed-forward part has more learned weights than the attention part.
 
 The exact split depends on the model architecture, but the rough idea is that attention handles communication between tokens, and feed-forward does a lot of the per-token processing after that communication has happened.
 
@@ -195,7 +193,7 @@ attention weights
 
 There are other details inside real transformer layers, but this is the useful mental model. The weights are partitioned by layer and by job. Some weights help with communication between tokens (attention), some weights help with processing the meaning of each token (feed-forward) after that communication has happened.
 
-This is why the phrase **learned transformations** is so important. The model is not carrying an English meaning like `France = country + Europe + Paris`.
+The phrase **learned transformations** matters here: the model is not carrying an English meaning like `France = country + Europe + Paris`.
 
 It is carrying a long list of numbers, and as the vector moves through these organized blocks of weights, those numbers are changed. When those numbers change, what the vector represents also changes.
 
@@ -207,7 +205,7 @@ There is no single knob called `"Paris"` or `"capital city"` though. The knob ex
 
 During training, the model learns these weights. During inference, when you are chatting with the model, those weights are fixed.
 
-In other words, when you send a prompt to a normal LLM, you are not changing the model's actual weights. You are only giving it context for this one generation.
+When you send a prompt to a normal LLM, you are not changing the model's actual weights. You are only giving it context for this one generation.
 
 ## How Attention Works
 
@@ -269,7 +267,7 @@ v_france  = x_france * W_V
 
 This creates `q_is` (what `" is"` is looking for), `k_france` (what `" France"` advertises), and `v_france` (what `" France"` can contribute). The other previous tokens like `"The"`, `" capital"`, and `" of"` get their own Keys and Values in the same way.
 
-The important part is that `W_Q`, `W_K`, and `W_V` are different learned matrices, so they produce different versions of the same token vector. The same token can become a Query version, a Key version, and a Value version.
+`W_Q`, `W_K`, and `W_V` are different learned matrices, so they produce different versions of the same token vector. The same token can become a Query version, a Key version, and a Value version.
 
 **Step 3: Compare Query With Key**
 
@@ -331,9 +329,9 @@ import Attention from "../../../images/posts/how-llm-works/attention.png";
 
 <img src={Attention.src} alt="Attention" />
 
-Notice what happened to the ambiguity of `" capital"` here. On its own, the token could mean a city, money, or an uppercase letter. But when its information is blended with the information from `" France"` inside the `" is"` vector, the combination behaves like **capital city of France**. The money and uppercase-letter meanings simply don't fit that combination, so they fade.
+The ambiguity of `" capital"` is gone here. On its own, the token could mean a city, money, or an uppercase letter. But when its information is blended with the information from `" France"` inside the `" is"` vector, the combination behaves like **capital city of France**. The money and uppercase-letter meanings simply don't fit that combination, so they fade.
 
-It is worth noting that this is not one simple lookup. Every token can attend to many previous tokens, and the model has **many attention heads**, not just one (explained in more detail below).
+This is not one simple lookup, though. Every token can attend to many previous tokens, and the model has **many attention heads**, not just one (explained in more detail below).
 
 import AttentionHeads from "../../../images/posts/how-llm-works/attention-heads.png";
 
@@ -437,9 +435,7 @@ capital + country -> which relation is being completed?
 
 This specialization is emergent, it is not manually assigned.
 
-One thing to be careful about, a head's question is a retrieval question, not a reasoning question. Attention asks **which previous tokens should I read from?**. What to do with the gathered information is the feed-forward network's job, which we will cover in the next section.
-
-Boiled down:
+A head's question is a retrieval question, not a reasoning question. Attention asks **which previous tokens should I read from?**. What to do with the gathered information is the feed-forward network's job, which we will cover in the next section.
 
 ```text
 number of heads = chosen by the model designers
@@ -469,7 +465,7 @@ import FeedForwarder from "../../../images/posts/how-llm-works/feed-forwarder.pn
 
 For example, it may strengthen signals like the capital here means a city and not money, the expected next token is the name of a city, the city belongs to France. These are human descriptions for directions and signals inside the vector, the model itself has no English labels for any of it.
 
-This is the main difference between the two:
+The difference, side by side:
 
 ```txt
 attention:
@@ -485,7 +481,7 @@ So a lot of the **pattern processing** happens inside feed-forward. For our prom
 
 Then feed-forward can process that combined information and strengthen signals like _"this is a factual completion"_, _"the relation is capital-of"_, _"the country is France"_, _"the expected answer is a city"_, _"Paris should become more likely"_ (again, directions inside the vector, not literal labels).
 
-In short, feed-forward takes a token vector that already has context, inspects what signals are present, and rewrites it into a better version for the next layer.
+Feed-forward takes a token vector that already has context, inspects what signals are present, and rewrites it into a better version for the next layer.
 
 <Expandable title="How Does Feed-Forward Actually Process A Vector?">
 
@@ -523,7 +519,7 @@ after:
 " is" = expecting the capital city of France next, ready for the next layer
 ```
 
-One thing to note here is that feed-forward does not learn anything during this step. During inference, the weights are fixed, the layer is only applying patterns it already learned during training. That's the full loop: expand to test learned features, activate the ones that match, compress the result back into an updated vector for the next layer.
+Feed-forward doesn't learn anything during this step, though. During inference, the weights are fixed, the layer is only applying patterns it already learned during training. That's the full loop: expand to test learned features, activate the ones that match, compress the result back into an updated vector for the next layer.
 
 </Expandable>
 
@@ -551,11 +547,11 @@ After attention and feed-forward processing, the vector for `" France"` may carr
 
 The weak signals are also important. The model is not usually picking one clean box like _this is only a country_. It is carrying many possible properties at different strengths. Some are strong, some are weak, some may become useful later.
 
-Now here's the important part. When multiple signals are active together, the model can recognize a larger pattern. Country + capital-of relation + factual completion adds up to **the capital city of France**, and that pattern can influence future tokens.
+When multiple signals are active together, though, the model can recognize a larger pattern. Country + capital-of relation + factual completion adds up to **the capital city of France**, and that pattern can influence future tokens.
 
 The model may make tokens like `" Paris"` much more likely, because the active pattern is the combination, **the capital city of France**, which is richer than _capital_ or _France_ alone.
 
-This is also why attention and feed-forward are useful as two different jobs. Attention helps move useful signals between token vectors.
+That's also why attention and feed-forward do two different jobs. Attention helps move useful signals between token vectors.
 
 Feed-forward looks at the current token vector and asks, in a learned numeric way, which features are active? Which combinations matter? What should become stronger or weaker? What should be written back into the vector?
 
@@ -587,7 +583,7 @@ In GPT-style models, tokens are not allowed to see future tokens. This is called
 "is"       can see: "The", "capital", "of", "France", "is"
 ```
 
-The first token doesn't know the full sentence. The last token does. This is why the final vector of the last token is so important.
+The first token doesn't know the full sentence, the last token does, which is why its final vector matters so much.
 
 The model does not merge all token vectors into one big final vector and then predict from that. Instead, because of attention and causal masking, the last token's vector becomes the place where useful **previous context** has been gathered.
 
@@ -648,7 +644,7 @@ There is one performance detail that is worth understanding because it explains 
 
 Naively, the model would have to recompute all previous tokens every time it generates a new token. That would be expensive.
 
-But causal masking gives us a useful property:
+Causal masking gives us a useful property here:
 
 > Old tokens cannot see future tokens, so their attention data does not need to change when a new token is appended.
 
@@ -658,7 +654,7 @@ Now the model predicts `Paris`. To predict the token after `"Paris"`, it doesn't
 
 So the model mostly processes the newest token, while letting that newest token attend backward to the cached Keys and Values.
 
-Put simply, old tokens have already done their work, so their attention information gets saved, and when a new token comes in, it just reuses that saved information instead of redoing it.
+Old tokens have already done their work, so their attention information gets saved, and when a new token comes in, it just reuses that saved information instead of redoing it.
 
 ```txt
 old tokens:
