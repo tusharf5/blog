@@ -52,6 +52,7 @@ _One thing before we dive in: I'm describing a classic, simplified version of a 
 - [Predicting The Next Token](#predicting-the-next-token)
 - [Why It Can Be Wrong](#why-it-can-be-wrong)
 - [Why Doesn't It Always Pick The Best Match?](#why-doesnt-it-always-pick-the-best-match)
+- [Where Does Thinking Fit In?](#where-does-thinking-fit-in)
 - [What About KV Cache?](#what-about-kv-cache)
 - [The Full Flow](#the-full-flow)
 
@@ -690,6 +691,33 @@ Temperature isn't the only knob either. **Top-k** keeps only the k highest-score
 This is also a different failure source than the one covered in Why It Can Be Wrong. Sampling landing on a lower-probability token isn't the model being confused about the world, it's the random pick landing differently on a distribution it computed correctly.
 
 None of this changes what the model actually knows. The vectors, the layers, the weights, all of that stays exactly the same. Temperature and sampling only change how willing the model is to pick a less likely token once it has already computed the probabilities. Low or zero temperature tends to get used for code generation, function calling, and factual lookups, where you want the same answer every time. Higher temperature shows up in brainstorming and creative writing, where you actually want different answers each time.
+
+## Where Does Thinking Fit In?
+
+Newer models come with a "thinking" or "extended thinking" mode, sometimes called reasoning, where the model writes out a chain of intermediate steps before it gives you the final answer. It looks like a new capability sitting on top of the model. Mechanically, it isn't. It's the exact same generation loop from Predicting The Next Token, just pointed at a harder job before it commits to the final answer.
+
+Every token gets the same fixed amount of computation, one pass through the stack of layers. That works fine for `The capital of France is`, one pass through the layers is enough to make `" Paris"` the obvious next token. But take a prompt like:
+
+```txt
+A train leaves at 3:15pm and the trip takes 2 hours
+and 50 minutes. What time does it arrive?
+```
+
+There's no single vector position where the answer just falls out after one pass through the layers. The model needs to add 2 hours and 50 minutes to 3:15pm, and that's a small sequence of steps, not a single lookup.
+
+So instead of jumping straight to a final answer token, the model generates a run of intermediate tokens first, something like `2 hours takes us to 5:15pm, then 50 minutes takes us to 6:05pm`. Each of those tokens goes through the identical loop: embed, move through the layers, score the vocabulary, pick a token, append, repeat. Nothing about the architecture changes for them.
+
+What they buy the model is more passes through the layers before it has to answer, and because of causal masking, every later token can attend back to everything generated so far, including these intermediate ones. So the token that finally writes `" 6:05pm"` isn't just attending to the original question, it's attending to `" 5:15pm"` and `" 50 minutes"` too. The thinking tokens become extra context sitting in front of the answer, built by the model itself instead of by the user's prompt.
+
+**But why does that actually give a better answer, and not just a longer one?** A forward pass is always the same fixed number of layers, it doesn't matter how hard the question is. So if a problem genuinely needs more steps than the network has layers, one pass through the stack simply cannot compute it, no amount of clever weights fixes that. Writing extra tokens is basically the only way to get more total passes applied to the problem, since every new token means another full trip through the whole stack of layers.
+
+There's another reason for it. Think about what happens without any thinking tokens first. The model would have to compute the whole thing inside one vector, in one shot. The vector for the final token would somehow have to encode `3:15pm + 2h50m = 6:05pm` entirely by itself, across the fixed stack of layers, and it never writes `5:15pm` down anywhere as an actual value. That intermediate number, if it exists at all, is just some pattern buried inside the vector, and every next layer keeps reshaping that pattern further. Nothing ever checks it along the way. If one layer changes it slightly in the wrong direction, the next layer just continues with that wrong version, there's no going back to correct it.
+
+Now compare that to what happens with thinking tokens. `" 5:15pm"` gets written out as a real token in the sequence. It's no longer a pattern hiding somewhere inside a vector, it's a fixed thing sitting at its own position in the sequence, and like every token, it gets its own Key and Value the moment it's produced. So when the model later needs to compute `" 6:05pm"`, it doesn't have to trust that some internal vector silently carried `5:15pm` correctly across however many layers are left, it can attend directly to the actual `" 5:15pm"` token and pull its Value, the exact Query, Key, Value lookup from How Attention Works. It's the difference between hoping a number survived a long chain of transformations untouched, and looking it up again because it's sitting right there in the text.
+
+Whether you actually see these tokens depends on the product, not the architecture. Some systems show you the full chain, some summarize it, some hide it entirely and only stream the final answer. All three are the same underlying mechanism with a different amount of the output shown to you.
+
+A model isn't naturally good at this just by having the option to generate more tokens. It has to be trained to use that budget well, to check its own steps, notice a mistake, and try a different path instead of confidently continuing down a wrong one. That training is usually a separate stage on top of the base model, and it's what turns "generate some extra tokens" into something that reliably lands on the right answer more often.
 
 ## What About KV Cache?
 
