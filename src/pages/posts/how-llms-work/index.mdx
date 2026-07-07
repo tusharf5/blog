@@ -156,8 +156,6 @@ We just used the term **learned transformations**. We also specifically mentione
 
 A weight is a learned numeric setting inside the model. You can think of it like a tiny knob that controls how strongly one signal should affect another signal. If a signal should matter more, the learned settings strengthen it, if it should matter less, they weaken it. In the real model, this happens by multiplying and combining the numbers inside vectors.
 
-Now here's the thing, and this was a big **Aha** moment for me.
-
 A model doesn't have one giant bucket of a billion knobs where everything is mixed together. A **billion-parameter model** has billions of learned numbers, but those numbers are highly organized. They are stored in grids of numbers called matrices, and those matrices sit in specific parts of each transformer layer.
 
 import Weights from "../../../images/posts/how-llm-works/weights.png";
