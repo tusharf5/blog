@@ -68,7 +68,7 @@ For our prompt, the tokens may roughly look like this:
 " is"
 ```
 
-The thing to note here is that the space before a word can be part of the token, which means `"capital"` and `" capital"` may be two different tokens. The model isn't directly working with words though, it's working with **token ids**.
+The space before a word can be part of the token, so `"capital"` and `" capital"` may be two different tokens. The model isn't directly working with words though, it's working with **token ids**.
 
 Tokenization is just **convert this text into the list of ids that the model knows how to process**. So our prompt becomes something like <code className="wrap-ok">[token_1, token_2, token_3, token_4, token_5]</code>. The exact ids depend on the tokenizer, but what matters is the shape of the transformation:
 
@@ -104,7 +104,7 @@ import tokensToVectors from "../../../images/posts/how-llm-works/tokens-to-vecto
 
 <img src={tokensToVectors.src} alt="Tokens To Vectors" />
 
-This is where people use the phrase **vector space**. In plain terms, each token becomes a point in a huge learned space, and tokens with related meanings tend to be placed in related directions and regions of that space.
+Each token becomes a point in what's called a **vector space**, a huge learned space where tokens with related meanings tend to be placed in related directions and regions.
 
 import StartingVectors from "../../../images/posts/how-llm-works/starting-vectors.png";
 
@@ -112,7 +112,7 @@ import StartingVectors from "../../../images/posts/how-llm-works/starting-vector
 
 For example, the token `" France"` starts with a rough meaning that sits near country-like things like Europe, the French language, Paris, maps, and national identity. The token `" capital"` starts near multiple possible meanings at once. It could be a city, a government, money, or an uppercase letter, depending on the context.
 
-It is important to note that none of this is stored as English labels. The model doesn't have a row somewhere saying `"France" = country + Europe + Paris`. It has numbers, and those numbers behave in a way where `" France"` is related to country-like things and `" capital"` is related to multiple possible meanings of capital.
+None of this is stored as English labels. The model doesn't have a row somewhere saying `"France" = country + Europe + Paris`. It has numbers, and those numbers behave in a way where `" France"` is related to country-like things and `" capital"` is related to multiple possible meanings of capital.
 
 import VectorSpace from "../../../images/posts/how-llm-works/vector.png";
 
