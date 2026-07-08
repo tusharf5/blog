@@ -32,13 +32,11 @@ if prompt asks "capital of France":
   return "Paris"
 ```
 
-The better mental model is this:
+Instead, an LLM turns text into token vectors, repeatedly enriches those vectors through transformer layers, and then uses the final vector of the last token to score the next token.
 
-> An LLM turns text into token vectors, repeatedly enriches those vectors through transformer layers, and then uses the final vector of the last token to score the next token.
+Let's go through it piece by piece.
 
-That sentence has many parts, let's go through it piece by piece.
-
-_One thing before we dive in: I'm describing a classic, simplified version of a transformer here. Real models, especially newer ones, tweak plenty of internal details. The big picture still holds, just don't assume every detail here applies exactly to every model out there._
+_In this article I will describe a classic, simplified version of a transformer. Real models, especially newer ones, tweak plenty of internal details. The big picture still holds, just note that not everything described in the article applies exactly to every model._
 
 ## Table of Contents
 
