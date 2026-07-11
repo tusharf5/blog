@@ -16,9 +16,7 @@ excerpt: "What really happens when you enable private DNS on an interface VPC en
 ---
 
 When I first enabled **Private DNS** on a VPC Endpoint, I assumed AWS would just give me one more DNS name for that endpoint.
-But that is not what happens.
-
-What actually happens is much more interesting. AWS starts answering the **normal public service hostname** with **private IPs** inside your VPC.
+But that is not what happens. Instead, AWS starts answering the normal public service hostname with private IPs inside your VPC.
 That means your application can keep calling the same AWS service URL as before, but the traffic now goes through your **interface VPC endpoint**.
 
 This post is a small refresher on how that works and why **API Gateway** has a few nuances that can surprise you.
@@ -76,18 +74,18 @@ When you enable private DNS, AWS creates a hidden, AWS-managed **private hosted 
 
 That hosted zone contains records for the service's default DNS name and points those records to the private IP addresses of the endpoint ENIs.
 
-So now the request flow looks like this:
+The request flow now looks like this:
 
 1. Your application tries to resolve the normal public AWS service hostname.
 2. The Route 53 Resolver inside the VPC sees a matching private hosted zone record.
 3. It returns the private IPs of the VPC endpoint ENIs.
 4. Your traffic goes to the interface endpoint instead of leaving the VPC.
 
-The important thing is that **your application URL does not have to change**.
+Your application URL does not have to change.
 Only the DNS answer changes.
 
 This is why enabling private DNS feels like AWS is "hijacking" that service domain inside your VPC.
-It is not hijacking every domain in the VPC. It is hijacking the **matching AWS service domain names** for the endpoint you enabled.
+It is not hijacking every domain in the VPC. It is hijacking the matching AWS service domain names for the endpoint you enabled.
 
 So if you enable private DNS for Secrets Manager, it does not affect SQS.
 If you enable private DNS for CloudWatch, it does not affect DynamoDB.
@@ -118,9 +116,7 @@ https://abc123.execute-api.us-east-1.amazonaws.com/prod/orders
 
 From inside that VPC, DNS resolution will send that request to your `execute-api` VPC endpoint.
 
-But there is a catch.
-
-Because the `execute-api` DNS namespace is now being resolved privately inside the VPC, the **default endpoints of public API Gateway APIs** stop being usable from that VPC.
+Because the `execute-api` DNS namespace is now being resolved privately inside the VPC, the default endpoints of public API Gateway APIs stop being usable from that VPC.
 
 That means the following do **not** work the way you might expect from inside that VPC:
 
