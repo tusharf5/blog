@@ -13,7 +13,7 @@ excerpt: "A walk-through of who creates the PTY, who holds which side, how a chi
 
 I open a terminal, type `git status`, and the right bytes show up in the right program. It feels obvious, the kind of thing you never think about. But it is not obvious at all.
 
-The thing is, there is no direct wire from my keyboard to the shell. There is no direct wire from the shell to the screen either. In between the two sits a small piece of kernel machinery that almost nobody draws when they explain this, and once you see it the rest of terminal behavior stops feeling like magic.
+There is no direct wire from my keyboard to the shell, and none from the shell to the screen either. In between the two sits a small piece of kernel machinery that almost nobody draws when they explain this, and once you see it the rest of terminal behavior stops feeling like magic.
 
 So let's go slowly and follow that machinery from one end to the other. Along the way we will answer the questions that usually stay fuzzy: who actually creates the terminal, which side the emulator holds, which side the shell holds, how a program like `cat` ends up reading my keystrokes instead of the shell, and finally how a single typed byte travels all the way from a key press to the program.
 
@@ -21,23 +21,23 @@ I will use one running example the whole time. I open iTerm, a shell starts, and
 
 ## Quick Refresher
 
-There are four pieces in this story, and the whole post is really about how they fit together. So before we start moving bytes around, let's name them and say what each one is responsible for.
+There are really only four moving components to a working terminal: the terminal emulator, the shell, the pseudo-terminal, and the line discipline. Let's get them straight before we start moving bytes around.
 
 ### Terminal Emulator
 
 The piece you actually click on is the **terminal emulator**. Terminal.app, iTerm2, GNOME Terminal, Alacritty, and so on.
 
-Its job is smaller than people think. It draws characters in a window, and it reads your keyboard events. That is basically it. It does not parse commands, and it does not know what `ls` is. When you type `ls`, the emulator has no idea that anything interesting just happened.
+All the emulator does is draw characters in a window and read your keyboard events. That is basically it. It does not parse commands or know what `ls` is. When you type `ls`, the emulator has no idea that anything interesting just happened.
 
 ### Shell
 
 The thing that does understand `ls` is the **shell**, a program like `bash`, `zsh` or `fish`.
 
-The shell reads command lines, parses them, launches other programs, and manages jobs. One detail worth fixing early: the prompt you see on the screen belongs to the shell, not to the emulator. The emulator just painted the characters the shell sent it.
+The shell reads command lines, parses them, launches other programs, and manages jobs. The prompt you see on the screen belongs to the shell, not the emulator; the emulator just painted the characters the shell sent it.
 
 ### Pseudo-Terminal (PTY)
 
-Now the piece most people have never heard of. A **pseudo-terminal**, usually written as **PTY**, is a kernel object that behaves like a terminal device for programs that expect one.
+The third piece is one most people have never heard of. A **pseudo-terminal**, usually written as **PTY**, is a kernel object that behaves like a terminal device for programs that expect one.
 
 In simpler words, it is a **fake terminal device** that the kernel hands out. Programs read and write through it as if an old serial terminal was sitting on the other end, even though there is no such hardware anywhere.
 
@@ -47,7 +47,7 @@ A PTY always comes as a pair, a **master** side and a **slave** side. You can th
 
 The **terminal line discipline** is the bit of kernel code that sits between the master and the slave.
 
-It is not a user-space program. It is not part of the emulator, and it is not part of the shell. It is a layer inside the kernel that decides what to do with the bytes flowing between the two ends of the PTY. It is small, but as we will see, it is where a surprising amount of "terminal behavior" actually lives. We will come back to it once the pipe is set up.
+It lives inside the kernel, separate from both the emulator and the shell, and it decides what to do with the bytes flowing between the two ends of the PTY. It is small, but as we will see, it is where a surprising amount of "terminal behavior" actually lives. We will come back to it once the pipe is set up.
 
 ## Step 1: The PTY Pair Gets Created
 
@@ -69,7 +69,7 @@ The emulator keeps the master file descriptor for itself. The slave side just si
           ╳
 ```
 
-This is the empty state. The pipe exists and the line discipline exists, but nothing useful is happening on it yet. We have a fake terminal with nobody talking through it.
+This is the empty state. The pipe exists and the line discipline exists, but nothing useful is happening on it yet.
 
 ## Step 2: The Shell Gets Attached To The Slave
 
@@ -79,9 +79,9 @@ Now the emulator wants a shell sitting on the other end of that pipe, so it does
 2. In that child, it takes the slave file descriptor and uses `dup2()` to point file descriptors **0**, **1** and **2** at it. Those three numbers are `stdin`, `stdout` and `stderr`.
 3. Still in that child, it calls `exec()` on the shell binary, for example `/bin/bash`.
 
-After `exec()`, the child process is no longer running the emulator code, it is running the shell. But the file descriptors carry over across the `exec()`. So the shell starts up with its `stdin`, `stdout` and `stderr` already wired to the slave side of the PTY.
+After `exec()`, the child process stops running the emulator code and starts running the shell. But the file descriptors carry over across the `exec()`, so the shell starts up with its `stdin`, `stdout` and `stderr` already wired to the slave side of the PTY.
 
-What this means is that from the shell's very first instruction, it is already reading and writing through the slave. It does not know there is a PTY in front of it. It does not know there is an emulator further up. All it knows is that it has three open file descriptors, and it reads and writes them like any other file.
+What this means is that from the shell's very first instruction, it is already reading and writing through the slave. It has no idea there is a PTY in front of it, or an emulator further up. All it knows is that it has three open file descriptors, and it reads and writes them like any other file.
 
 ```txt
 ┌───────────────────┐
@@ -97,7 +97,7 @@ What this means is that from the shell's very first instruction, it is already r
 └───────────────────┘
 ```
 
-This is the part that is easy to miss, so it is worth saying plainly. The shell is not reading the keyboard. The shell is reading a file descriptor. It just so happens that this file descriptor is one end of a kernel pipe, and the other end is owned by the emulator. In other words, the shell thinks it is talking to a terminal, but it is really talking to the kernel.
+This part is easy to miss. The shell is not reading the keyboard, it is reading a file descriptor. It just so happens that this file descriptor is one end of a kernel pipe, and the other end is owned by the emulator. In other words, the shell thinks it is talking to a terminal, but it is really talking to the kernel.
 
 ## Step 3: A Byte Travels From Key To Shell
 
@@ -146,11 +146,11 @@ The reverse direction, the shell printing something to the screen, is just the m
 
 > The emulator and the shell never talk to each other. They both talk to the kernel pipe in the middle. The kernel decides what each side sees and when.
 
-That one sentence is really the whole model. Almost everything else about terminals falls out of it, including the part we are about to get to.
+Almost everything else about terminals falls out of that one sentence, including the part we are about to get to.
 
 ## Step 4: The Shell Launches A Program & The Slave Gets Inherited
 
-This is the part our running example was building toward. The prompt is up, and now you type `cat` and press Enter. What does the shell actually do?
+The prompt is up, and now you type `cat` and press Enter. What does the shell actually do?
 
 1. It calls `fork()`, and a new child process appears, which is a copy of the shell.
 2. That child inherits all of the shell's open file descriptors. That includes `stdin`, `stdout` and `stderr`, which are still pointing at the slave side of the PTY.
@@ -158,7 +158,7 @@ This is the part our running example was building toward. The prompt is up, and 
 
 After `exec()`, the child process is running `cat` instead of the shell. But again, the file descriptors carry over. So `cat` starts up with its `stdin`, `stdout` and `stderr` already wired to the same slave side that the shell was using a moment ago.
 
-This is the important part. The shell does not do anything special to "hand over" the terminal. It does not copy bytes, and it does not proxy anything between `cat` and the screen. It just forks, the child inherits the slave, and now there is simply a different program reading and writing that same file descriptor.
+The shell does not do anything special to "hand over" the terminal. It does not copy bytes or proxy anything between `cat` and the screen. It just forks, the child inherits the slave, and now there is simply a different program reading and writing that same file descriptor.
 
 ```txt
 ┌───────────────────┐
@@ -177,9 +177,9 @@ This is the important part. The shell does not do anything special to "hand over
 
 The emulator, meanwhile, is still sitting on the master side and has no idea that the program on the other end changed from `bash` to `cat`. As far as the emulator is concerned, it is still writing bytes into the master, exactly the way it was a second ago.
 
-So that is why your keystrokes "go to `cat`" now. Nothing magical happened. The same slave is still wired to fd 0, there is just a different program holding the other end of it.
+That is why your keystrokes "go to `cat`" now. The same slave is still wired to fd 0, there is just a different program holding the other end of it.
 
-One detail is worth calling out here. Only one program should be the active reader on that slave at a time. If two processes both tried to read it, neither of them would get a clean stream of input. The kernel and the shell coordinate this by tagging one process group as the **foreground** group of the terminal, and that is the group that receives the input. When `cat` runs, the shell steps out of the foreground and lets `cat` be the foreground group, and when `cat` exits, the shell steps back in.
+Only one program should be the active reader on that slave at a time. If two processes both tried to read it, neither of them would get a clean stream of input. The kernel and the shell coordinate this by tagging one process group as the **foreground** group of the terminal, and that is the group that receives the input. When `cat` runs, the shell steps out of the foreground and lets `cat` be the foreground group, and when `cat` exits, the shell steps back in.
 
 ## Why The Line Discipline Matters
 
@@ -196,13 +196,13 @@ This is why typing into a shell feels editable in the first place. Think about o
 
 The other mode is **raw mode**. In raw mode, the discipline mostly steps out of the way. Each key press is delivered to the program as soon as it arrives, with no echoing, no line buffering, and no Backspace handling.
 
-So you can think of canonical mode as "the kernel helps a lot", and raw mode as "the program wants the raw bytes and will handle everything itself".
+Canonical mode is the kernel helping a lot; raw mode is the program asking for the raw bytes and handling everything itself.
 
 ## Ctrl+C Is Not A Byte
 
-This is where that canonical-mode behavior really pays off.
+The canonical-mode behavior really pays off here.
 
-When you press **Ctrl+C**, you might imagine the byte for that key travels through the pipe and the program reads it and decides to quit. That is not what happens at all.
+When you press **Ctrl+C**, you might imagine the byte for that key travels through the pipe, the program reads it, and it decides to quit.
 
 What actually happens is that the line discipline sees the control character and, instead of forwarding it as input, generates a **SIGINT** signal. The kernel then delivers that signal to the foreground process group on this terminal.
 
@@ -235,13 +235,13 @@ That is why `Ctrl+C` can interrupt `sleep 100` even though `sleep` is not readin
 
 Now think about an editor like `vim` or a full-screen TUI. It needs every key press, immediately, without echoing, because it wants to react to arrow keys and shortcuts the moment you hit them.
 
-So when it starts, it asks the kernel to switch the line discipline into raw mode for the duration of its run. After that, every byte you type lands directly in the program. The arrow keys arrive as escape sequences that the program parses itself, and Backspace becomes the program's job instead of the kernel's.
+When it starts, it asks the kernel to switch the line discipline into raw mode for the duration of its run. After that, every byte you type lands directly in the program. The arrow keys arrive as escape sequences that the program parses itself, and Backspace becomes the program's job instead of the kernel's.
 
 When you quit, the program restores the previous mode, and the shell sees a normal canonical terminal again, exactly the way it was before.
 
 ## What `isatty()` Really Tells You
 
-There is one more piece that makes sense now that we have the full picture. Many programs behave differently when their output is going to a terminal versus when it is going to a file or a pipe. Things like progress bars, colors, prompts, and interactive menus tend to appear in one case and disappear in the other.
+Many programs behave differently when their output is going to a terminal versus when it is going to a file or a pipe. Things like progress bars, colors, prompts, and interactive menus tend to appear in one case and disappear in the other.
 
 The check they use for this is `isatty(fd)`.
 
