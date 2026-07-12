@@ -66,7 +66,7 @@ service.us-east-1.amazonaws.com
 
 then DNS resolution does not magically change just because a VPC endpoint exists.
 
-This is why simply creating an interface endpoint is not enough if your goal is: "I want my existing SDK calls to automatically use the endpoint."
+This is why simply creating an interface endpoint is not enough if your goal is to have your existing SDK calls to automatically use the vpc endpoint.
 
 ## What Changes When You Enable Private DNS?
 
@@ -81,11 +81,7 @@ The request flow now looks like this:
 3. It returns the private IPs of the VPC endpoint ENIs.
 4. Your traffic goes to the interface endpoint instead of leaving the VPC.
 
-Your application URL does not have to change.
-Only the DNS answer changes.
-
-This is why enabling private DNS feels like AWS is "hijacking" that service domain inside your VPC.
-It is not hijacking every domain in the VPC. It is hijacking the matching AWS service domain names for the endpoint you enabled.
+Your application URL does not have to change. Only the DNS answer changes.
 
 So if you enable private DNS for Secrets Manager, it does not affect SQS.
 If you enable private DNS for CloudWatch, it does not affect DynamoDB.
