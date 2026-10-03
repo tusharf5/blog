@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1010" role="img" aria-labelledby="title desc">
+  <title id="title">Private DNS on an execute-api VPC endpoint</title>
+  <desc id="desc">The default hostname for a private REST API and the default hostname for a public API both resolve to an execute-api interface endpoint when Private DNS is enabled. The private REST API can be invoked if policies and authorization allow it. The public API's default URL fails through the private endpoint.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 22 22" markerWidth="22" markerHeight="22" refX="20" refY="11" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M2 2 20 11 2 20Z" fill="#374151" />
+    </marker>
+  </defs>
+
+  <rect width="600" height="1010" fill="#fff" />
+  <text x="24" y="48" fill="#111827" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700">Private DNS for execute-api</text>
+  <text x="24" y="81" fill="#4b5563" font-family="Arial, Helvetica, sans-serif" font-size="22">Both default hostnames resolve privately.</text>
+
+  <rect x="24" y="110" width="520" height="118" rx="7" fill="#f9fafb" stroke="#6b7280" stroke-width="1.6" />
+  <text x="48" y="145" fill="#111827" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700">Private REST API</text>
+  <text x="48" y="181" fill="#111827" font-family="Menlo, Consolas, monospace" font-size="23">a1b2c3d4e5.execute-api</text>
+  <text x="48" y="211" fill="#111827" font-family="Menlo, Consolas, monospace" font-size="23">.us-east-1.amazonaws.com</text>
+  <rect x="24" y="249" width="520" height="118" rx="7" fill="#f9fafb" stroke="#6b7280" stroke-width="1.6" />
+  <text x="48" y="284" fill="#111827" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700">Public API</text>
+  <text x="48" y="320" fill="#111827" font-family="Menlo, Consolas, monospace" font-size="23">f6g7h8i9j0.execute-api</text>
+  <text x="48" y="350" fill="#111827" font-family="Menlo, Consolas, monospace" font-size="23">.us-east-1.amazonaws.com</text>
+
+  <path d="M544 169H570V390H284V460" fill="none" stroke="#374151" stroke-width="3.8" marker-end="url(#arrow)" />
+  <path d="M544 308H570" fill="none" stroke="#374151" stroke-width="3.8" />
+  <circle cx="570" cy="308" r="4" fill="#374151" />
+  <rect x="24" y="468" width="520" height="78" rx="7" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.6" />
+  <text x="284" y="500" text-anchor="middle" fill="#111827" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700">VPC resolver</text>
+  <text x="284" y="531" text-anchor="middle" fill="#4b5563" font-family="Arial, Helvetica, sans-serif" font-size="21">Both names map to private ENI IPs</text>
+
+  <path d="M284 552V616" fill="none" stroke="#374151" stroke-width="3.8" marker-end="url(#arrow)" />
+  <rect x="24" y="624" width="520" height="78" rx="7" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.6" />
+  <text x="284" y="656" text-anchor="middle" fill="#111827" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">execute-api interface endpoint</text>
+  <text x="284" y="687" text-anchor="middle" fill="#4b5563" font-family="Arial, Helvetica, sans-serif" font-size="21">Both names resolve to its ENIs</text>
+
+  <path d="M544 663H570V932" fill="none" stroke="#374151" stroke-width="3.8" />
+  <path d="M570 796H487" fill="none" stroke="#374151" stroke-width="3.8" marker-end="url(#arrow)" />
+  <path d="M570 932H487" fill="none" stroke="#374151" stroke-width="3.8" marker-end="url(#arrow)" />
+  <rect x="24" y="748" width="460" height="96" rx="7" fill="#f9fafb" stroke="#6b7280" stroke-width="1.6" />
+  <text x="254" y="785" text-anchor="middle" fill="#111827" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Private REST API can be reached</text>
+  <text x="254" y="819" text-anchor="middle" fill="#4b5563" font-family="Arial, Helvetica, sans-serif" font-size="21">If policy and authorization allow it</text>
+  <rect x="24" y="884" width="460" height="96" rx="7" fill="#f9fafb" stroke="#6b7280" stroke-width="1.6" />
+  <text x="254" y="921" text-anchor="middle" fill="#111827" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Public default URL fails</text>
+  <text x="254" y="955" text-anchor="middle" fill="#4b5563" font-family="Arial, Helvetica, sans-serif" font-size="21">The endpoint serves private APIs only</text>
+</svg>

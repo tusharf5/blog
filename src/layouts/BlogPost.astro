@@ -100,7 +100,7 @@ const bannerUrl = `https://tusharf5.com${banner}`;
         const overlay = document.createElement('div');
         overlay.className = 'img-lightbox';
         const full = document.createElement('img');
-        full.src = img.src;
+        full.src = img.currentSrc || img.src;
         full.alt = img.alt;
         overlay.appendChild(full);
         overlay.addEventListener('click', closeLightbox);
