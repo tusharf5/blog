@@ -11,9 +11,13 @@ export default defineConfig({
     sitemap({
       filter: (page) => {
         const { pathname } = new URL(page);
-        return (
-          pathname !== "/tushar-and-garima" &&
-          !pathname.startsWith("/tushar-and-garima/")
+        return ![
+          "/tushar-and-garima",
+          "/tushar-and-garima-shagun",
+          "/tushar-and-garima-bride",
+        ].some(
+          (invitation) =>
+            pathname === invitation || pathname.startsWith(`${invitation}/`),
         );
       },
     }),

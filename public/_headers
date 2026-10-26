@@ -3,3 +3,15 @@
 
 /tushar-and-garima/*
   X-Robots-Tag: noindex
+
+/tushar-and-garima-shagun
+  X-Robots-Tag: noindex
+
+/tushar-and-garima-shagun/*
+  X-Robots-Tag: noindex
+
+/tushar-and-garima-bride
+  X-Robots-Tag: noindex
+
+/tushar-and-garima-bride/*
+  X-Robots-Tag: noindex

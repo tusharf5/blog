@@ -1,0 +1,32 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Tushar & Garima//Wedding Invitation//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:tushar-and-garima-shagun-20261119@tusharf5.com
+DTSTAMP:20261026T200641Z
+DTSTART;VALUE=DATE:20261119
+DTEND;VALUE=DATE:20261120
+SUMMARY:Tushar & Garima - Sundar Kand / Kirtan
+LOCATION:H. No. 2417\, C Block\, Friends Avenue\, Airport Road\, Amritsar\,
+  Punjab\, India
+DESCRIPTION:Sundar Kand / Kirtan: 11:00 am onwards IST.\nLunch: 1:30 pm IST
+ .\n\nH. No. 2417\, C Block\, Friends Avenue\, Airport Road\, Amritsar\, Pu
+ njab\, India\n\nSharad family: +91 88377 92836 / +91 98776 33345.
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:tushar-and-garima-shagun-20261120@tusharf5.com
+DTSTAMP:20261026T200641Z
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+SUMMARY:Tushar & Garima - Shagun & Ring Ceremony
+LOCATION:Parin Azure\, Verka Bypass\, near Fortis Escorts\, Amritsar\, Punj
+ ab\, India
+DESCRIPTION:Shagun & Ring Ceremony: 11:00 am IST.\nLunch: 1:30 pm IST.\n\nP
+ arin Azure\, Verka Bypass\, near Fortis Escorts\, Amritsar.\n\nSharad fami
+ ly: +91 88377 92836 / +91 98776 33345.
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,59 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Garima & Tushar//Wedding Invitation//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:tushar-and-garima-bride-20261118@tusharf5.com
+DTSTAMP:20261026T200641Z
+DTSTART;VALUE=DATE:20261118
+DTEND;VALUE=DATE:20261119
+SUMMARY:Garima & Tushar - Aarambh Shri Ramayan & Haldi
+LOCATION:R/O Jogesh Kumar\, VPO Pandori Atwal\, Hoshiarpur\, Punjab\, India
+DESCRIPTION:Aarambh Shri Ramayan: 9:00 am IST.\nHaldi: 11:00 am IST.\n\nR/O
+  Jogesh Kumar\, VPO Pandori Atwal\, Hoshiarpur\, Punjab\, India\n\nRattan 
+ Family & Pathak Family. Jogesh Kumar: +91 94634 40577. Inderjit Kumar: +91
+  79739 14579. Ravinder Pathak: +91 84277 78550.
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:tushar-and-garima-bride-20261119@tusharf5.com
+DTSTAMP:20261026T200641Z
+DTSTART;VALUE=DATE:20261119
+DTEND;VALUE=DATE:20261120
+SUMMARY:Garima & Tushar - Bhog Shri Ramayan Path & Jaggo and DJ Night
+LOCATION:R/O Jogesh Kumar\, VPO Pandori Atwal\, Hoshiarpur\, Punjab\, India
+DESCRIPTION:Bhog Shri Ramayan Path: 10:00 am IST.\nLunch: 12:30 pm IST.\nJa
+ ggo and DJ Night: 7:30 pm IST.\n\nR/O Jogesh Kumar\, VPO Pandori Atwal\, H
+ oshiarpur\, Punjab\, India\n\nRattan Family & Pathak Family. Jogesh Kumar:
+  +91 94634 40577. Inderjit Kumar: +91 79739 14579. Ravinder Pathak: +91 84
+ 277 78550.
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:tushar-and-garima-bride-20261121@tusharf5.com
+DTSTAMP:20261026T200641Z
+DTSTART;VALUE=DATE:20261121
+DTEND;VALUE=DATE:20261122
+SUMMARY:Garima & Tushar - Mehndi & Haldi Ceremony
+LOCATION:R/O Jogesh Kumar\, VPO Pandori Atwal\, Hoshiarpur\, Punjab\, India
+DESCRIPTION:Mehndi & Haldi Ceremony: 11:00 am IST.\n\nR/O Jogesh Kumar\, VP
+ O Pandori Atwal\, Hoshiarpur\, Punjab\, India\n\nRattan Family & Pathak Fa
+ mily. Jogesh Kumar: +91 94634 40577. Inderjit Kumar: +91 79739 14579. Ravi
+ nder Pathak: +91 84277 78550.
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:tushar-and-garima-bride-20261122@tusharf5.com
+DTSTAMP:20261026T200641Z
+DTSTART;VALUE=DATE:20261122
+DTEND;VALUE=DATE:20261123
+SUMMARY:Garima & Tushar - Wedding Reception
+LOCATION:Golden Heritage\, Tanda Road\, Hoshiarpur\, Punjab\, India
+DESCRIPTION:Wedding Reception: 8:00 pm onwards IST.\n\nGolden Heritage\, Ta
+ nda Road\, Hoshiarpur\, Punjab\, India\n\nRattan Family & Pathak Family. J
+ ogesh Kumar: +91 94634 40577. Inderjit Kumar: +91 79739 14579. Ravinder Pa
+ thak: +91 84277 78550.
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
