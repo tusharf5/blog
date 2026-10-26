@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Tushar and Garima//Wedding Invitation//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:7e15dd83-352a-4ae9-ae21-20261122a9da
+DTSTAMP:20261026T000000Z
+DTSTART;VALUE=DATE:20261122
+DTEND;VALUE=DATE:20261123
+SUMMARY:Tushar & Garima's wedding
+LOCATION:Golden Heritage\, Tanda Road\, Hoshiarpur\, Punjab\, India
+DESCRIPTION:With full hearts\, we invite you to celebrate the beginning of 
+ our forever.\n\nSehra Bandi: 3:30 pm IST at the family residence.\nBaraat 
+ departure: 5:30 pm IST from home to Golden Heritage\, Tanda Road\, Hoshiar
+ pur.\n\nFamily residence: H. No. 2417\, C Block\, Friends Avenue\, Airport
+  Road\, Amritsar.\n\nSharad family: +91 88377 92836 / +91 98776 33345.
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
