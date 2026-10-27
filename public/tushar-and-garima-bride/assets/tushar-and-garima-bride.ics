@@ -31,6 +31,20 @@ DESCRIPTION:Bhog Shri Ramayan Path: 10:00 am IST.\nLunch: 12:30 pm IST.\nJa
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:tushar-and-garima-bride-20261120@tusharf5.com
+DTSTAMP:20261027T055725Z
+DTSTART;VALUE=DATE:20261120
+DTEND;VALUE=DATE:20261121
+SUMMARY:Garima & Tushar - Ring Ceremony
+LOCATION:Parin Azure\, Verka Bypass\, near Fortis Escorts\, Amritsar\, Punj
+ ab\, India
+DESCRIPTION:Ring Ceremony: 11:00 am IST.\n\nParin Azure\, Verka Bypass\, ne
+ ar Fortis Escorts\, Amritsar.\n\nRattan Family & Pathak Family. Jogesh Kum
+ ar: +91 94634 40577. Inderjit Kumar: +91 79739 14579. Ravinder Pathak: +91
+  84277 78550.
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:tushar-and-garima-bride-20261121@tusharf5.com
 DTSTAMP:20261026T200641Z
 DTSTART;VALUE=DATE:20261121
